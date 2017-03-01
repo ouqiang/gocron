@@ -1,0 +1,111 @@
+{
+	"comment": "",
+	"ignore": "test",
+	"package": [
+		{
+			"checksumSHA1": "7HXb3cry6luicWeJM9Uxwzfo9Rs=",
+			"path": "github.com/Unknwon/com",
+			"revision": "0db4a625e949e956314d7d1adea9bf82384cc10c",
+			"revisionTime": "2017-02-13T07:20:14Z"
+		},
+		{
+			"checksumSHA1": "OkqfwXeTVoiIxNMDA7HKvmrCDw8=",
+			"path": "github.com/go-macaron/binding",
+			"revision": "48920167fa152d02f228cfbece7e0f1e452d200a",
+			"revisionTime": "2016-12-22T07:05:54Z"
+		},
+		{
+			"checksumSHA1": "60FC18/huiHD1fZ9I3BzK61Pk2Q=",
+			"path": "github.com/go-macaron/csrf",
+			"revision": "428b7c62d7d0034b048b1cd43ba60d87857f5253",
+			"revisionTime": "2017-02-07T23:07:24Z"
+		},
+		{
+			"path": "github.com/go-macaron/gzip",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "y0olVbiMQ6/UOa/eh52XYnies90=",
+			"path": "github.com/go-macaron/inject",
+			"revision": "d8a0b8677191f4380287cfebd08e462217bac7ad",
+			"revisionTime": "2016-06-27T17:00:12Z"
+		},
+		{
+			"checksumSHA1": "bwYWc6t4Lapw4Xl3v4o2hzOZ5kw=",
+			"path": "github.com/go-macaron/session",
+			"revision": "b8a2b5ef7fb4c91c1c8ca23e2a52e29a4bcbb22f",
+			"revisionTime": "2016-11-21T22:59:37Z"
+		},
+		{
+			"checksumSHA1": "QD6LqgLz2JMxXqns8TaxtK9AuHs=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "2e00b5cd70399450106cec6431c2e2ce3cae5034",
+			"revisionTime": "2016-12-24T12:10:19Z"
+		},
+		{
+			"checksumSHA1": "Fh6Svimt+QyXHbaVxgSV7qwUHL8=",
+			"path": "github.com/go-xorm/builder",
+			"revision": "9c357861b643b7dd1023551fdf116b8d42030146",
+			"revisionTime": "2017-02-16T03:03:40Z"
+		},
+		{
+			"checksumSHA1": "1BBE89UpNp+qVvrF5oKdRLTaBJc=",
+			"path": "github.com/go-xorm/core",
+			"revision": "7daacb215ed03af093a72e0af32a5fe79458613d",
+			"revisionTime": "2017-02-06T15:24:21Z"
+		},
+		{
+			"checksumSHA1": "mTt9bHpv9b7cxh09G9m3dfWHa7g=",
+			"path": "github.com/go-xorm/xorm",
+			"revision": "e8fbd41c16b9c0468dbae8db2fe0161a21265b8a",
+			"revisionTime": "2017-02-21T11:08:50Z"
+		},
+		{
+			"path": "github.com/go-yaml/yaml",
+			"revision": ""
+		},
+		{
+			"checksumSHA1": "iKPMvbAueGfdyHcWCgzwKzm8WVo=",
+			"path": "github.com/klauspost/cpuid",
+			"revision": "09cded8978dc9e80714c4d85b0322337b0a1e5e0",
+			"revisionTime": "2016-03-02T07:53:16Z"
+		},
+		{
+			"checksumSHA1": "PphQA6j/DEDbg3WIsdBDYALOOYs=",
+			"path": "github.com/robfig/cron",
+			"revision": "9585fd555638e77bba25f25db5c44b41f264aeb7",
+			"revisionTime": "2016-09-27T16:42:31Z"
+		},
+		{
+			"checksumSHA1": "1keN4Q9F8uHk/Gt5YXG0oCEecKM=",
+			"path": "github.com/urfave/cli",
+			"revision": "2526b57c56f30b50466c96c4133b1a4ad0f0191f",
+			"revisionTime": "2017-02-15T05:17:05Z"
+		},
+		{
+			"checksumSHA1": "1MGpGDQqnUoRpv7VEcQrXOBydXE=",
+			"path": "golang.org/x/crypto/pbkdf2",
+			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
+			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "v5M2URDb0vJwelofRjiIsml0Jts=",
+			"path": "gopkg.in/ini.v1",
+			"revision": "74bdc99692c3408cb103221e38675ce8fda0a718",
+			"revisionTime": "2017-02-22T11:10:43Z"
+		},
+		{
+			"checksumSHA1": "1HJvJZheB5NNl3i1R9zZJpiJ1G0=",
+			"path": "gopkg.in/macaron.v1",
+			"revision": "a325110f8b392bce3e5cdeb8c44bf98078ada3be",
+			"revisionTime": "2017-02-13T09:12:08Z"
+		},
+		{
+			"checksumSHA1": "0KwOlQV1dNUh9X8t+5s7nX5bqfk=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
+			"revisionTime": "2017-02-08T14:18:51Z"
+		}
+	],
+	"rootPath": "scheduler"
+}
