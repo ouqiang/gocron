@@ -3,16 +3,23 @@ package utils
 import (
 	"github.com/robfig/cron"
 	"errors"
+	"scheduler/utils/app"
 )
 
 // todo map并发访问加锁
 
-var DefaultCronTask = &CronTask{
-	make(map[string]*cron.Cron),
-}
+var DefaultCronTask CronTask;
 
 type CronTask struct {
 	tasks map[string]*cron.Cron
+}
+
+func init()  {
+	if app.Installed {
+		DefaultCronTask = CronTask{
+			make(map[string]*cron.Cron),
+		}
+	}
 }
 
 // 新增定时任务,如果name存在，则添加失败

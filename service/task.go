@@ -7,32 +7,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	"time"
-	"sync"
 )
-
-type Host struct {
-	sync.RWMutex
-	hosts []models.Host
-}
-
-var host Host = &Host{
-	sync.RWMutex{},
-	hosts: initHosts(),
-}
-
-func GetHosts() []models.Host {
-	host.RLock()
-	defer host.RUnlock()
-
-	return host.hosts
-}
-
-func SetHosts(h []models.Host)  {
-	host.Lock()
-	defer host.Unlock()
-
-	host.hosts = h
-}
 
 func initHosts() []models.Host {
 	// 获取所有主机

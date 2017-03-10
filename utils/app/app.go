@@ -2,8 +2,6 @@ package app
 
 import (
 	"os"
-	"scheduler/utils"
-	"runtime"
 )
 
 var  (
@@ -12,7 +10,7 @@ var  (
 	LogDir string    // 日志目录
 	DataDir string   // 数据目录，存放session文件等
 	AppConfig string // 应用配置文件
-	Installed bool = isInstalled()  // 应用是否安装过
+	Installed bool   // 应用是否安装过
 )
 
 func init() {
@@ -26,23 +24,7 @@ func init() {
 	DataDir = AppDir + "/data"
 	AppConfig = AppDir + "/app.ini"
 	checkDirExists(ConfDir, LogDir, DataDir)
-}
-
-
-// 检测环境
-func CheckEnv()  {
-	// ansible不支持安装在windows上, windows只能作为被控机
-	if runtime.GOOS == "windows" {
-		panic("不支持在windows上运行")
-	}
-	_, err := utils.ExecShell("ansible", "--version")
-	if err != nil {
-		panic(err)
-	}
-	_, err = utils.ExecShell("ansible-playbook", "--version")
-	if err != nil {
-		panic("ansible-playbook not found")
-	}
+	Installed = isInstalled()
 }
 
 // 判断应用是否安装过

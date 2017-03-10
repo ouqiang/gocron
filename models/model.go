@@ -10,7 +10,7 @@ import (
 	"scheduler/utils/app"
 )
 
-var Db *xorm.Engine = nil
+var Db *xorm.Engine
 
 func init()  {
 	if app.Installed {
@@ -35,6 +35,7 @@ const (
 	MaxPageSize = 1000  // 每次最多取多少条
 )
 
+// 创建Db
 func createDb() *xorm.Engine{
 	config,err := setting.Read()
 	if err != nil {
