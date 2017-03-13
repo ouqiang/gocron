@@ -4,19 +4,20 @@ import (
 	"github.com/robfig/cron"
 	"errors"
 	"scheduler/utils/app"
+	"sync"
 )
-
-// todo map并发访问加锁
 
 var DefaultCronTask CronTask;
 
 type CronTask struct {
+	sync.RWMutex
 	tasks map[string]*cron.Cron
 }
 
 func init()  {
 	if app.Installed {
 		DefaultCronTask = CronTask{
+			sync.RWMutex{},
 			make(map[string]*cron.Cron),
 		}
 	}
@@ -31,6 +32,8 @@ func(cronTask *CronTask) Add(name string, spec string, cmd func() ) error {
 		return errors.New("任务已存在")
 	}
 
+	cronTask.Lock()
+	defer cronTask.Unlock()
 	cronTask.tasks[name] = cron.New()
 	err := cronTask.tasks[name].AddFunc(spec, cmd)
 
@@ -49,6 +52,8 @@ func(cronTask *CronTask) addOrReplace(name string, spec string, cmd func() ) err
 
 // 判断任务是否存在
 func(cronTask *CronTask) IsExist(name string) bool {
+	cronTask.RLock()
+	defer cronTask.RUnlock()
 	_, ok := cronTask.tasks[name]
 
 	return ok
@@ -71,14 +76,15 @@ func(cronTask *CronTask) Stop(name string) {
 // 删除任务
 func(cronTask *CronTask) Delete(name string) {
 	cronTask.Stop(name)
-	cronTask.tasks[name] = nil
+	cronTask.Lock()
+	defer cronTask.Unlock()
 	delete(cronTask.tasks, name)
 }
 
 // 运行所有任务
 func(cronTask *CronTask) run() {
 	for _, cron := range cronTask.tasks {
-		// cron内部有开启goroutine,此处不用新建
+		// cron内部有开启goroutine,此处不用新建goroutine
 		cron.Start()
 	}
 }
