@@ -27,3 +27,4 @@ _testmain.go
 data/*
 log/*
 conf/install.lock
+conf/app.ini
