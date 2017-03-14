@@ -3,23 +3,16 @@ package models
 import (
 	"github.com/go-xorm/xorm"
 	"fmt"
-	"scheduler/utils/setting"
+	"scheduler/modules/setting"
 	"github.com/go-xorm/core"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/macaron.v1"
-	"scheduler/utils/app"
 )
-
-var Db *xorm.Engine
-
-func init()  {
-	if app.Installed {
-		Db = createDb()
-	}
-}
 
 type Status int8
 type CommonMap map[string]interface{}
+
+var Db *xorm.Engine
 
 const (
 	Disabled Status = 0   // 禁用
@@ -36,8 +29,8 @@ const (
 )
 
 // 创建Db
-func createDb() *xorm.Engine{
-	config,err := setting.Read()
+func CreateDb(configFile string) *xorm.Engine{
+	config,err := setting.Read(configFile)
 	if err != nil {
 		panic(err)
 	}

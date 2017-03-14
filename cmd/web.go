@@ -6,9 +6,7 @@ import (
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/session"
 	"github.com/go-macaron/csrf"
-	"scheduler/utils"
-	"fmt"
-	"scheduler/utils/app"
+	"scheduler/modules/app"
 )
 
 // web服务器默认端口
@@ -31,7 +29,7 @@ var CmdWeb = cli.Command{
 
 func run(ctx *cli.Context) {
 	// 检测环境
-	utils.CheckEnv()
+	app.CheckEnv()
 	// 启动定时任务
 	runScheduler()
 	m := macaron.Classic()
@@ -44,7 +42,9 @@ func run(ctx *cli.Context) {
 }
 
 // 定时任务调度
-func runScheduler()  {}
+func runScheduler()  {
+
+}
 
 // 路由注册
 func registerRouter(m *macaron.Macaron) {

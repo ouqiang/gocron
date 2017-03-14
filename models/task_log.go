@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type TaskLog struct{
 	Id int `xorm:"pk autoincr"`

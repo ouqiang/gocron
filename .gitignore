@@ -26,3 +26,4 @@ _testmain.go
 .idea
 data/*
 log/*
+conf/install.lock

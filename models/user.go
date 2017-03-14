@@ -2,7 +2,7 @@ package models
 
 import (
 	"time"
-	"scheduler/utils"
+	"scheduler/modules/utils"
 )
 
 const PasswordSaltLength = 6;

@@ -1,25 +1,22 @@
-package utils
+package crontask
 
 import (
 	"github.com/robfig/cron"
 	"errors"
-	"scheduler/utils/app"
 	"sync"
 )
 
-var DefaultCronTask CronTask;
+var DefaultCronTask *CronTask
 
 type CronTask struct {
 	sync.RWMutex
 	tasks map[string]*cron.Cron
 }
 
-func init()  {
-	if app.Installed {
-		DefaultCronTask = CronTask{
-			sync.RWMutex{},
-			make(map[string]*cron.Cron),
-		}
+func CreateCronTask() *CronTask {
+	return &CronTask {
+		sync.RWMutex{},
+		make(map[string]*cron.Cron),
 	}
 }
 

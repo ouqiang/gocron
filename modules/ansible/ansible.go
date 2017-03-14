@@ -4,17 +4,11 @@ package ansible
 
 import (
 	"os"
-	"scheduler/utils"
+	"scheduler/modules/utils"
 	"errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
-	"scheduler/utils/app"
 )
-
-func init()  {
-		// ansible配置文件目录
-		os.Setenv("ANSIBLE_CONFIG", app.ConfDir)
-}
 
 type Handler map[string]interface{}
 

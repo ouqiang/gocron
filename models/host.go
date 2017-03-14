@@ -1,5 +1,6 @@
 package models
 
+
 // 主机
 type Host struct {
 	Id int16 `xorm:"smallint pk autoincr"`

@@ -2,28 +2,13 @@ package service
 
 import (
 	"scheduler/models"
-	"scheduler/utils"
+	"scheduler/modules/utils"
 	"net/http"
 	"io/ioutil"
 	"strconv"
 	"time"
+	"scheduler/modules/crontask"
 )
-
-func initHosts() []models.Host {
-	// 获取所有主机
-	hostModel := new(models.Host)
-	list, err := hostModel.List()
-	if err != nil {
-		utils.RecordLog("获取主机列表失败-", err.Error())
-		return nil
-	}
-	if len(list) == 0 {
-		utils.RecordLog("主机列表为空")
-		return nil
-	}
-
-	return list
-}
 
 type Task struct {}
 
@@ -60,7 +45,7 @@ func(task *Task) Add(taskModel models.Task)  {
 			utils.RecordLog("任务协议不存在-协议编号: ", taskModel.Protocol)
 	}
 	if (taskFunc != nil) {
-		utils.DefaultCronTask.Add(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
+		crontask.DefaultCronTask.Add(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
 	}
 }
 
@@ -109,4 +94,6 @@ func(h *HTTPHandler) Run(taskModel models.Task)  {
 type SSHHandler struct {}
 
 // 执行SSH任务
-func(ssh *SSHHandler) Run(taskModel models.Task)  {}
+func(ssh *SSHHandler) Run(taskModel models.Task)  {
+
+}

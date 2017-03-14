@@ -7,34 +7,8 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"log"
-	"os"
-	"runtime"
-	"scheduler/utils/app"
 )
 
-// 检测环境
-func CheckEnv()  {
-	// ansible不支持安装在windows上, windows只能作为被控机
-	if runtime.GOOS == "windows" {
-		panic("不支持在windows上运行")
-	}
-	_, err := ExecShell("ansible", "--version")
-	if err != nil {
-		panic(err)
-	}
-	_, err = ExecShell("ansible-playbook", "--version")
-	if err != nil {
-		panic("ansible-playbook not found")
-	}
-}
-
-// 创建安装锁文件
-func CreateInstallLock()  {
-	_, err := os.Create(app.ConfDir + "/install.lock")
-	if err != nil {
-		RecordLog("创建安装锁文件失败")
-	}
-}
 
 // 执行shell命令
 func ExecShell(command string, args... string) (string, error) {

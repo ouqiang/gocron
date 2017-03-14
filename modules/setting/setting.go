@@ -3,12 +3,11 @@ package setting
 import (
 	"gopkg.in/ini.v1"
 	"errors"
-	"scheduler/utils/app"
 )
 
 // 读取配置
-func Read() (config *ini.File, err error) {
-	config, err = ini.Load(app.AppConfig)
+func Read(filename string) (config *ini.File, err error) {
+	config, err = ini.Load(filename)
 	if err != nil {
 		return
 	}
@@ -18,7 +17,7 @@ func Read() (config *ini.File, err error) {
 
 
 // 写入配置
-func Write(config map[string]map[string]string) (error) {
+func Write(config map[string]map[string]string, filename string) (error) {
 	if len(config) == 0 {
 		return errors.New("参数不能为空")
 	}
@@ -39,7 +38,7 @@ func Write(config map[string]map[string]string) (error) {
 			}
 		}
 	}
-	err := file.SaveTo(app.AppConfig)
+	err := file.SaveTo(filename)
 
 	return err
 }
