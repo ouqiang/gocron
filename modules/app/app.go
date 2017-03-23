@@ -2,11 +2,12 @@ package app
 
 import (
 	"os"
-	"scheduler/modules/crontask"
-	"scheduler/models"
 	"runtime"
-	"scheduler/modules/utils"
-	"scheduler/modules/ansible"
+
+	"github.com/ouqiang/cron-scheduler/modules/utils"
+	"github.com/ouqiang/cron-scheduler/modules/ansible"
+	"github.com/ouqiang/cron-scheduler/modules/crontask"
+	"github.com/ouqiang/cron-scheduler/models"
 )
 
 var  (

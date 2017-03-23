@@ -3,7 +3,7 @@ package models
 import (
 	"github.com/go-xorm/xorm"
 	"fmt"
-	"scheduler/modules/setting"
+	"github.com/ouqiang/cron-scheduler/modules/setting"
 	"github.com/go-xorm/core"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/macaron.v1"

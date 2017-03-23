@@ -1,7 +1,7 @@
 package ansible
 
 import (
-	"scheduler/models"
+	"github.com/ouqiang/cron-scheduler/models"
 	"sync"
 	"io/ioutil"
 	"bytes"

@@ -4,10 +4,10 @@ package ansible
 
 import (
 	"os"
-	"scheduler/modules/utils"
 	"errors"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
 )
 
 type Handler map[string]interface{}

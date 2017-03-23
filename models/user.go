@@ -2,7 +2,7 @@ package models
 
 import (
 	"time"
-	"scheduler/modules/utils"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
 )
 
 const PasswordSaltLength = 6;

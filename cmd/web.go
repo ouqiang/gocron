@@ -6,7 +6,9 @@ import (
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/session"
 	"github.com/go-macaron/csrf"
-	"scheduler/modules/app"
+	"github.com/ouqiang/cron-scheduler/modules/app"
+	"fmt"
+	"os"
 )
 
 // web服务器默认端口
@@ -43,6 +45,8 @@ func run(ctx *cli.Context) {
 
 // 定时任务调度
 func runScheduler()  {
+	fmt.Println("hello world")
+	os.Exit(1)
 }
 
 // 路由注册

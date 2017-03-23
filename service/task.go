@@ -1,13 +1,13 @@
 package service
 
 import (
-	"scheduler/models"
-	"scheduler/modules/utils"
+	"github.com/ouqiang/cron-scheduler/models"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
 	"net/http"
 	"io/ioutil"
 	"strconv"
 	"time"
-	"scheduler/modules/crontask"
+	"github.com/ouqiang/cron-scheduler/modules/crontask"
 )
 
 type Task struct {}
