@@ -28,3 +28,4 @@ data/*
 log/*
 conf/install.lock
 conf/app.ini
+public/js/vue.js
