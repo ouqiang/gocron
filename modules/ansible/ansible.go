@@ -39,18 +39,26 @@ func(playbook *Playbook) AddHandler(handler Handler) {
 
 /**
  * 执行ad-hoc
- * hosts  主机文件路径
+ * hosts  主机名 逗号分隔
  * module 调用模块
  * args   传递给模块的参数
 */
-func ExecCommand(hostPath string, module string, args... string) (output string, err error) {
-	if hostPath == "" || module == ""  {
+func ExecCommand(hosts string, module string, args... string) (output string, err error) {
+	if hosts== "" || module == ""  {
 		err = errors.New("参数不完整")
 		return
 	}
-	commandArgs := []string{"-i", , hostPath, "-m", module}
+	hostFile, err := DefaultHosts.GetHostFile()
+	if err != nil {
+		return
+	}
+	defer func() {
+		os.Remove(hostFile)
+	}()
+	commandArgs := []string{hosts, "-i",  hostFile, "-m", module}
 	if len(args) != 0 {
-		commandArgs = append(commandArgs, "-a", args...)
+		commandArgs = append(commandArgs, "-a")
+		commandArgs = append(commandArgs,  args...)
 	}
 	output, err = utils.ExecShell("ansible", commandArgs...)
 
@@ -58,32 +66,37 @@ func ExecCommand(hostPath string, module string, args... string) (output string,
 }
 
 // 执行playbook
-func ExecPlaybook(hostPath string, playbook Playbook) (result string, err error)  {
+func ExecPlaybook(playbook Playbook) (result string, err error)  {
 	data, err := yaml.Marshal([]Playbook{playbook})
 	if err != nil {
 		return
 	}
 
-	tmpFile, err := ioutil.TempFile(getTmpDir(), "playbook")
+	playbookFile, err := ioutil.TempFile(GetTmpDir(), "playbook")
+	if err != nil {
+		return
+	}
+	hostFile, err := DefaultHosts.GetHostFile()
 	if err != nil {
 		return
 	}
 	defer func() {
-		tmpFile.Close()
-		os.Remove(tmpFile.Name())
+		playbookFile.Close()
+		os.Remove(playbookFile.Name())
+		os.Remove(hostFile)
 	}()
-	_, err = tmpFile.Write(data)
+	_, err = playbookFile.Write(data)
 	if err != nil {
 		return
 	}
-	commandArgs := []string{"-i", hostPath, tmpFile.Name()}
+	commandArgs := []string{"-i", hostFile, playbookFile.Name()}
 	result, err = utils.ExecShell("ansible-playbook", commandArgs...)
 
 	return
 }
 
 // 判断 获取临时目录，默认/dev/shm
-func getTmpDir() string {
+func GetTmpDir() string {
 	dir := "/dev/shm"
 	_, err := os.Stat(dir)
 	if os.IsPermission(err) {

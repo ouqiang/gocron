@@ -5,12 +5,22 @@ package models
 type Host struct {
 	Id int16 `xorm:"smallint pk autoincr"`
 	Name string `xorm:"varchar(128) notnull"` // 主机名称
-	Alias string `xorm:"varchar(32) notnull default '' "` // 主机别名，仅用于后台显示
-	Port int `xorm:"notnull"`  // 主机端口
+	Alias string `xorm:"varchar(32) notnull default '' "` // 主机别名
+	Username string `xorm:"varchar(32) notnull default '' "` // ssh 用户名
+	Password string `xorm:"varchar(64) notnull default ''"`  // ssh 密码
+	Port int `xorm:"notnull default 22"`  // 主机端口
+	LoginType LoginType `xorm:"tinyint notnull default 1"` // ssh登录方式  1:公钥认证  2:账号密码
 	Remark string `xorm:"varchar(512) notnull default '' "` // 备注
 	Page  int `xorm:"-"`
 	PageSize int `xorm:"-"`
 }
+
+type LoginType int8;
+
+const (
+	PublicKey = 1
+	UserPassword = 2
+)
 
 // 新增
 func(host *Host) Create() (int64, error) {

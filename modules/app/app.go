@@ -6,6 +6,7 @@ import (
 	"scheduler/models"
 	"runtime"
 	"scheduler/modules/utils"
+	"scheduler/modules/ansible"
 )
 
 var  (
@@ -14,8 +15,8 @@ var  (
 	LogDir string    // 日志目录
 	DataDir string   // 数据目录，存放session文件等
 	AppConfig string // 应用配置文件
+	AnsibleHosts string // ansible hosts文件
 	Installed bool   // 应用是否安装过
-	CronTask crontask.CronTask // 定时任务
 )
 
 func init() {
@@ -27,7 +28,8 @@ func init() {
 	ConfDir = AppDir + "/conf"
 	LogDir  = AppDir + "/log"
 	DataDir = AppDir + "/data"
-	AppConfig = AppDir + "/app.ini"
+	AppConfig = ConfDir + "/app.ini"
+	AnsibleHosts = ConfDir + "/ansible_hosts.ini"
 	checkDirExists(ConfDir, LogDir, DataDir)
 	// ansible配置文件目录
 	os.Setenv("ANSIBLE_CONFIG", ConfDir)
@@ -59,7 +61,7 @@ func CheckEnv()  {
 	}
 	_, err = utils.ExecShell("ansible-playbook", "--version")
 	if err != nil {
-		panic("ansible-playbook not found")
+		panic(err)
 	}
 }
 
@@ -76,9 +78,16 @@ func CreateInstallLock() error {
 
 // 初始化资源
 func initResource()  {
-	crontask.DefaultCronTask = crontask.CreateCronTask()
-
+	crontask.DefaultCronTask = crontask.NewCronTask()
 	models.Db = models.CreateDb(AppConfig)
+	ansible.DefaultHosts = &ansible.Hosts{}
+	hostModel := new(models.Host)
+	hosts, err := hostModel.List()
+	if err != nil {
+		utils.RecordLog(err)
+	} else {
+		ansible.DefaultHosts.Set(hosts)
+	}
 }
 
 // 检测目录是否存在

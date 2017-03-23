@@ -10,10 +10,10 @@ const PasswordSaltLength = 6;
 // 用户model
 type User struct  {
 	Id int `xorm:"pk autoincr notnull "`
-	Name string `xorm:"varchar(32) notnull unique"`
-	Password string `xorm:"char(32) notnull "`
-	Salt string `xorm:"char(6) notnull "`
-	Email string `xorm:"varchar(50) notnull unique default '' "`
+	Name string `xorm:"varchar(32) notnull unique"`               // 用户名
+	Password string `xorm:"char(32) notnull "`                    // 密码
+	Salt string `xorm:"char(6) notnull "`                         // 密码盐值
+	Email string `xorm:"varchar(50) notnull unique default '' "`  // 邮箱
 	Created time.Time `xorm:"datetime notnull created"`
 	Updated time.Time `xorm:"datetime updated"`
 	Deleted time.Time `xorm:"datetime deleted"`

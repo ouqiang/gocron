@@ -11,17 +11,18 @@ const (
 	SSH Protocol  = 2
 )
 
+// 任务
 type Task struct {
 	Id int `xorm:"int pk autoincr"`
 	Name string `xorm:"varchar(64) notnull"`          // 任务名称
-	Spec string `xorm:"varchar(64) notnull"`          // crontab 格式
-	Protocol Protocol `xorm:"tinyint notnull"`            // 协议 1:http 2:ssh
+	Spec string `xorm:"varchar(64) notnull"`          // crontab 时间格式
+	Protocol Protocol `xorm:"tinyint notnull"`        // 协议 1:http 2:ssh
+	Type int8 `xorm:"tinyint notnull default 1"`      // 任务类型 1: 定时任务 2: 延时任务
 	Command string `xorm:"varchar(512) notnull"`      // URL地址或shell命令
-	Timeout int `xorm:"mediumint notnull default 0"`      // 执行超时时间(单位秒)，0不限制, 限制不能超过一周
-	SshHostGroup string `xorm:"varchar(512) notnull defalut '' "` // SSH主机名组
+	Timeout int `xorm:"mediumint notnull default 0"`      // 定时任务:执行超时时间(单位秒)，0不限制 延时任务: 延时timeout秒后执行
+	SshHosts string `xorm:"varchar(512) notnull defalut '' "` // SSH主机名, host id，逗号分隔
 	Remark string `xorm:"varchar(512) notnull default ''"`    // 备注
 	Created time.Time `xorm:"datetime notnull created"`       // 创建时间
-	Updated time.Time `xorm:"datetime updated"`               // 更新时间
 	Deleted time.Time `xorm:"datetime deleted"`               // 删除时间
 	Status Status `xorm:"tinyint notnull default 1"`    // 状态 1:正常 0:停止
 	Page  int `xorm:"-"`

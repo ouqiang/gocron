@@ -13,7 +13,7 @@ type CronTask struct {
 	tasks map[string]*cron.Cron
 }
 
-func CreateCronTask() *CronTask {
+func NewCronTask() *CronTask {
 	return &CronTask {
 		sync.RWMutex{},
 		make(map[string]*cron.Cron),

@@ -4,17 +4,14 @@ import (
 	"time"
 )
 
+// 任务执行日志
 type TaskLog struct{
-	Id int `xorm:"pk autoincr"`
-	Name string `xorm:"varchar(64) notnull"`  // 任务名称
-	Protocol Protocol `xorm:"tinyint notnull "`   // 协议
-	Command string `xorm:"varchar(512) notnull"`  // URL或shell命令
-	Remark string `xorm:"varchar(512) notnull default ''"` // 备注
-	SshHosts string `xorm:"varchar(512) notnull default ''"`
+	Id int `xorm:"int pk autoincr"`
+	TaskId int `xorm:"int not null"`                // 任务ID
 	StartTime time.Time `xorm:"datetime created"`   // 开始执行时间
 	EndTime time.Time `xorm:"datetime updated"`     // 执行完成（失败）时间
 	Status Status `xorm:"tinyint notnull default 1"` // 状态 1:执行中  2:执行完毕 0:执行失败
-	Result string `xorm:"varchar(65535) notnull defalut '' "`
+	Result string `xorm:"varchar(65535) notnull defalut '' "` // 执行结果
 	Page  int `xorm:"-"`
 	PageSize int `xorm:"-"`
 }

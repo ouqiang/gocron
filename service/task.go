@@ -53,9 +53,9 @@ type Handler interface {
 	Run(taskModel models.Task)
 }
 
+// HTTP任务
 type HTTPHandler struct {}
 
-// 执行HTTP任务
 func(h *HTTPHandler) Run(taskModel models.Task)  {
 	client := &http.Client{}
 	if (taskModel.Timeout > 0) {
@@ -91,9 +91,18 @@ func(h *HTTPHandler) Run(taskModel models.Task)  {
 	}
 }
 
+// SSH任务
 type SSHHandler struct {}
 
-// 执行SSH任务
 func(ssh *SSHHandler) Run(taskModel models.Task)  {
 
 }
+
+// 延时任务
+type DelayHandler struct {}
+
+func (handler *DelayHandler) Run(taskModel models.Task)  {
+
+}
+
+
