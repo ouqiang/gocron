@@ -17,8 +17,8 @@ const AppVersion = "0.0.1"
 
 func main() {
 	app := cli.NewApp()
-	app.Name = "scheduler"
-	app.Usage = "schedule cron service"
+	app.Name = "cron-scheduler"
+	app.Usage = "crons-scheduler service"
 	app.Version = AppVersion
 	app.Commands = []cli.Command{
 		cmd.CmdWeb,
