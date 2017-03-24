@@ -16,10 +16,15 @@ type TaskLog struct{
 	PageSize int `xorm:"-"`
 }
 
-func(taskLog *TaskLog) Create() (int64, error) {
+func(taskLog *TaskLog) Create() (insertId int, err error) {
 	taskLog.Status = Running
 
-	return Db.Insert(taskLog)
+	_, err =  Db.Insert(taskLog)
+	if err == nil {
+		insertId = taskLog.Id
+	}
+
+	return
 }
 
 // 更新

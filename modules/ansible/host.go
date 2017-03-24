@@ -19,6 +19,7 @@ type Hosts struct {
 
 func NewHosts(hostFilename string) *Hosts  {
 	h := &Hosts{sync.RWMutex{}, hostFilename}
+	h.Write()
 
 	return h
 }

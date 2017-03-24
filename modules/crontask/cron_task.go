@@ -34,10 +34,11 @@ func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err e
 		return errors.New("任务已存在")
 	}
 
+	spec = strings.TrimSpace(spec)
 	cronTask.Lock()
 	defer cronTask.Unlock()
 	cronTask.tasks[name] = cron.New()
-	specs := strings.Split(spec, "\n")
+	specs := strings.Split(spec, "|||")
 	for _, item := range(specs) {
 		_, err = cron.Parse(item)
 		if err != nil {
@@ -93,7 +94,7 @@ func(cronTask *CronTask) Delete(name string) {
 }
 
 // 运行所有任务
-func(cronTask *CronTask) run() {
+func(cronTask *CronTask) Run() {
 	for _, cron := range cronTask.tasks {
 		// cron内部有开启goroutine,此处不用新建goroutine
 		cron.Start()

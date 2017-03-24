@@ -8,6 +8,7 @@ import (
 	"github.com/ouqiang/cron-scheduler/modules/crontask"
 	"github.com/ouqiang/cron-scheduler/models"
 	"github.com/ouqiang/cron-scheduler/modules/ansible"
+	"github.com/ouqiang/cron-scheduler/service"
 )
 
 var  (
@@ -20,7 +21,8 @@ var  (
 	Installed bool   // 应用是否安装过
 )
 
-func init() {
+func InitEnv() {
+	CheckEnv()
 	wd, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -79,14 +81,14 @@ func CreateInstallLock() error {
 
 // 初始化资源
 func InitResource() {
-	// 初始化定时任务
-	crontask.DefaultCronTask = crontask.NewCronTask()
 	// 初始化DB
 	models.Db = models.CreateDb(AppConfig)
 	// 初始化ansible Hosts
 	ansible.DefaultHosts = ansible.NewHosts(AnsibleHosts)
-	ansible.DefaultHosts.Write()
-	os.Exit(1)
+	// 初始化定时任务
+	crontask.DefaultCronTask = crontask.NewCronTask()
+	serviceTask := new(service.Task)
+	serviceTask.Initialize()
 }
 
 // 检测目录是否存在

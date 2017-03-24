@@ -7,8 +7,6 @@ import (
 	"github.com/go-macaron/session"
 	"github.com/go-macaron/csrf"
 	"github.com/ouqiang/cron-scheduler/modules/app"
-	"fmt"
-	"os"
 	"github.com/ouqiang/cron-scheduler/routers"
 )
 
@@ -31,10 +29,7 @@ var CmdWeb = cli.Command{
 }
 
 func run(ctx *cli.Context) {
-	// 检测环境
-	app.CheckEnv()
-	// 启动定时任务
-	runScheduler()
+	app.InitEnv()
 	m := macaron.Classic()
 	// 注册路由
 	routers.Register(m)
@@ -42,12 +37,6 @@ func run(ctx *cli.Context) {
 	registerMiddleware(m)
 	port := parsePort(ctx)
 	m.Run(port)
-}
-
-// 定时任务调度
-func runScheduler()  {
-	fmt.Println("hello world")
-	os.Exit(1)
 }
 
 // 中间件注册

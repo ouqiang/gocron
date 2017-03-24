@@ -23,8 +23,13 @@ const (
 )
 
 // 新增
-func(host *Host) Create() (int64, error) {
-	return Db.Insert(host)
+func(host *Host) Create() (insertId int16, err error) {
+	_, err =  Db.Insert(host)
+	if err == nil {
+		insertId = host.Id
+	}
+
+	return
 }
 
 // 更新

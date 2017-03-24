@@ -24,12 +24,17 @@ type User struct  {
 }
 
 // 新增
-func(user *User) Create() (int64, error) {
+func(user *User) Create() (insertId int, err error) {
 	user.Status   = Enabled
 	user.Salt     = user.generateSalt()
 	user.Password = user.encryptPassword(user.Password, user.Salt)
 
-	return Db.Insert(user)
+	_, err =  Db.Insert(user)
+	if err == nil {
+		insertId = user.Id
+	}
+
+	return
 }
 
 // 更新
