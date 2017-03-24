@@ -4,24 +4,29 @@ import (
 	"github.com/robfig/cron"
 	"errors"
 	"sync"
+	"strings"
 )
 
 var DefaultCronTask *CronTask
 
+type CronMap map[string]*cron.Cron
+
 type CronTask struct {
 	sync.RWMutex
-	tasks map[string]*cron.Cron
+	tasks CronMap
 }
 
 func NewCronTask() *CronTask {
 	return &CronTask {
 		sync.RWMutex{},
-		make(map[string]*cron.Cron),
+		make(CronMap),
 	}
 }
 
 // 新增定时任务,如果name存在，则添加失败
-func(cronTask *CronTask) Add(name string, spec string, cmd func() ) error {
+// name 任务名称
+// spec crontab时间格式定义  可定义多个时间\n分隔
+func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err error) {
 	if name == "" || spec == "" || cmd == nil {
 		return errors.New("参数不完整")
 	}
@@ -32,13 +37,22 @@ func(cronTask *CronTask) Add(name string, spec string, cmd func() ) error {
 	cronTask.Lock()
 	defer cronTask.Unlock()
 	cronTask.tasks[name] = cron.New()
-	err := cronTask.tasks[name].AddFunc(spec, cmd)
+	specs := strings.Split(spec, "\n")
+	for _, item := range(specs) {
+		_, err = cron.Parse(item)
+		if err != nil {
+			return err
+		}
+	}
+	for _, item := range(specs) {
+		err = cronTask.tasks[name].AddFunc(item, cmd)
+	}
 
 	return err
 }
 
-// 任务不存在则新增，任务已存在则替换任务
-func(cronTask *CronTask) addOrReplace(name string, spec string, cmd func() ) error {
+// 任务不存在则新增，任务已存在则删除后新增
+func(cronTask *CronTask) AddOrReplace(name string, spec string, cmd cron.FuncJob) error {
 	if cronTask.IsExist(name) {
 		cronTask.Delete(name)
 	}

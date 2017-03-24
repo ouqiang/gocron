@@ -25,7 +25,7 @@ const (
 const (
 	Page = 1            // 当前页数
 	PageSize = 20       // 每页多少条数据
-	MaxPageSize = 1000  // 每次最多取多少条
+	MaxPageSize = 100000  // 每次最多取多少条
 )
 
 // 创建Db

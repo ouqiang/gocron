@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"bytes"
 	"strconv"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
 )
 
 // 主机名
@@ -13,27 +14,38 @@ var DefaultHosts *Hosts
 
 type Hosts struct {
 	sync.RWMutex
-	hosts []models.Host
+	filename string
 }
 
-func(h *Hosts) Get() []models.Host {
-	h.RLock()
-	defer h.RUnlock()
+func NewHosts(hostFilename string) *Hosts  {
+	h := &Hosts{sync.RWMutex{}, hostFilename}
 
-	return h.hosts
-}
-
-func(h *Hosts) Set(hostsModel []models.Host)  {
-	h.Lock()
-	defer h.Unlock()
-
-	h.hosts = hostsModel
+	return h
 }
 
 // 获取hosts文件名
-func(h *Hosts) GetHostFile() (filename string ,err error) {
+func(h *Hosts) GetFilename() string {
+	h.RLock()
+	defer h.RUnlock()
+
+	return h.filename
+}
+
+
+// 写入hosts
+func(h *Hosts) Write() {
+	host := new(models.Host)
+	hostModels, err := host.List()
+	if err != nil {
+		utils.RecordLog(err)
+		return
+	}
+	if len(hostModels) == 0 {
+		utils.RecordLog("hosts内容为空")
+		return
+	}
 	buffer := bytes.Buffer{}
-	for _, hostModel := range(h.hosts) {
+	for _, hostModel := range(hostModels) {
 		buffer.WriteString(strconv.Itoa(int(hostModel.Id)))
 		buffer.WriteString(" ansible_ssh_host=")
 		buffer.WriteString(hostModel.Name)
@@ -47,19 +59,9 @@ func(h *Hosts) GetHostFile() (filename string ,err error) {
 		}
 		buffer.WriteString("\n")
 	}
-	tmpFile, err := ioutil.TempFile(GetTmpDir(), "host")
-	if err != nil {
-		return
-	}
-
-	defer func() {
-		tmpFile.Close()
-	}()
-
-	_, err = tmpFile.WriteString(buffer.String())
-	if err == nil {
-		filename = tmpFile.Name()
-	}
+	h.Lock()
+	defer h.Unlock()
+	err = ioutil.WriteFile(h.filename, buffer.Bytes(), 0644)
 
 	return
 }

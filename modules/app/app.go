@@ -5,9 +5,9 @@ import (
 	"runtime"
 
 	"github.com/ouqiang/cron-scheduler/modules/utils"
-	"github.com/ouqiang/cron-scheduler/modules/ansible"
 	"github.com/ouqiang/cron-scheduler/modules/crontask"
 	"github.com/ouqiang/cron-scheduler/models"
+	"github.com/ouqiang/cron-scheduler/modules/ansible"
 )
 
 var  (
@@ -36,7 +36,7 @@ func init() {
 	os.Setenv("ANSIBLE_CONFIG", ConfDir)
 	Installed = IsInstalled()
 	if Installed {
-		initResource()
+		InitResource()
 	}
 }
 
@@ -78,17 +78,15 @@ func CreateInstallLock() error {
 
 
 // 初始化资源
-func initResource()  {
+func InitResource() {
+	// 初始化定时任务
 	crontask.DefaultCronTask = crontask.NewCronTask()
+	// 初始化DB
 	models.Db = models.CreateDb(AppConfig)
-	ansible.DefaultHosts = &ansible.Hosts{}
-	hostModel := new(models.Host)
-	hosts, err := hostModel.List()
-	if err != nil {
-		utils.RecordLog(err)
-	} else {
-		ansible.DefaultHosts.Set(hosts)
-	}
+	// 初始化ansible Hosts
+	ansible.DefaultHosts = ansible.NewHosts(AnsibleHosts)
+	ansible.DefaultHosts.Write()
+	os.Exit(1)
 }
 
 // 检测目录是否存在

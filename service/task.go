@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"time"
 	"github.com/ouqiang/cron-scheduler/modules/crontask"
+	"github.com/robfig/cron"
+	"errors"
 )
 
 type Task struct {}
@@ -18,9 +20,11 @@ func(task *Task) Initialize()  {
 	taskList, err := taskModel.List()
 	if err != nil {
 		utils.RecordLog("获取任务列表错误-", err.Error())
+		return
 	}
 	if len(taskList) == 0 {
 		utils.RecordLog("任务列表为空")
+		return
 	}
 	for _, item := range(taskList) {
 		task.Add(item)
@@ -28,24 +32,18 @@ func(task *Task) Initialize()  {
 }
 
 // 添加任务
-func(task *Task) Add(taskModel models.Task)  {
-	var taskFunc func() = nil;
-	switch taskModel.Protocol {
-		case models.HTTP:
-			taskFunc = func() {
-				var handler Handler = new(HTTPHandler)
-				handler.Run(taskModel)
-			}
-		case models.SSH:
-			taskFunc = func() {
-				var handler Handler = new(SSHHandler)
-				handler.Run(taskModel)
-			}
-		default:
-			utils.RecordLog("任务协议不存在-协议编号: ", taskModel.Protocol)
+func(task *Task) Add(taskModel models.Task) {
+	taskFunc := createHandlerJob(taskModel)
+	if taskFunc == nil {
+		utils.RecordLog("添加任务#不存在的任务协议编号", taskModel.Protocol)
+		return
 	}
-	if (taskFunc != nil) {
-		crontask.DefaultCronTask.Add(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
+	// 定时任务
+	if taskModel.Type == models.Timing {
+		crontask.DefaultCronTask.AddOrReplace(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
+	} else if taskModel.Type == models.Delay {
+		// 延时任务
+		time.AfterFunc(time.Duration(taskModel.Timeout), taskFunc)
 	}
 }
 
@@ -80,15 +78,6 @@ func(h *HTTPHandler) Run(taskModel models.Task)  {
 		utils.RecordLog("读取HTTP请求返回值失败-", err.Error())
 	}
 
-	_, err = taskModel.Update(
-		taskModel.Id,
-		models.CommonMap{
-			"status": 0,
-			"result" : string(body),
-		});
-	if err != nil {
-		utils.RecordLog("更新任务日志失败-", err.Error())
-	}
 }
 
 // SSH任务
@@ -98,11 +87,40 @@ func(ssh *SSHHandler) Run(taskModel models.Task)  {
 
 }
 
-// 延时任务
-type DelayHandler struct {}
+func createTaskLog(taskModel models.Task) (int64, error) {
+	taskLogModel := new(models.TaskLog)
+	taskLogModel.TaskId = taskModel.Id
+	taskLogModel.StartTime = time.Now()
+	taskLogModel.Status = models.Running
+	insertId, err := taskLogModel.Create()
 
-func (handler *DelayHandler) Run(taskModel models.Task)  {
+	return insertId, err
+}
+
+func updateTaskLog(taskModel models.Task, result string)  {
+	taskLogModel := new(models.TaskLog)
+	taskLogModel.TaskId= taskModel.Id
+	taskLogModel.StartTime = time.Now()
 
 }
 
+func createHandlerJob(taskModel models.Task) cron.FuncJob {
+	var taskFunc cron.FuncJob = nil;
+	switch taskModel.Protocol {
+		case models.HTTP:
+			taskFunc = func() {
+				var handler Handler = new(HTTPHandler)
+				createTaskLog(taskModel)
+				handler.Run(taskModel)
+			}
+		case models.SSH:
+			taskFunc = func() {
+				var handler Handler = new(SSHHandler)
+				createTaskLog(taskModel)
+				handler.Run(taskModel)
+			}
+	}
+
+	return taskFunc
+}
 

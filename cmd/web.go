@@ -9,6 +9,7 @@ import (
 	"github.com/ouqiang/cron-scheduler/modules/app"
 	"fmt"
 	"os"
+	"github.com/ouqiang/cron-scheduler/routers"
 )
 
 // web服务器默认端口
@@ -36,7 +37,7 @@ func run(ctx *cli.Context) {
 	runScheduler()
 	m := macaron.Classic()
 	// 注册路由
-	registerRouter(m)
+	routers.Register(m)
 	// 注册中间件
 	registerMiddleware(m)
 	port := parsePort(ctx)
@@ -47,15 +48,6 @@ func run(ctx *cli.Context) {
 func runScheduler()  {
 	fmt.Println("hello world")
 	os.Exit(1)
-}
-
-// 路由注册
-func registerRouter(m *macaron.Macaron) {
-	// 所有GET方法，自动注册HEAD方法
-	m.SetAutoHead(true)
-	m.Get("/", func(ctx *macaron.Context) (string) {
-		return "go home"
-	})
 }
 
 // 中间件注册

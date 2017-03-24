@@ -28,5 +28,4 @@ data/*
 log/*
 conf/install.lock
 conf/app.ini
-conf/ansible_hosts.ini
 public/js/vue.js

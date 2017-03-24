@@ -6,9 +6,16 @@ import (
 
 type Protocol int8
 
+type TaskType int8
+
 const (
 	HTTP Protocol = 1
 	SSH Protocol  = 2
+)
+
+const (
+	Timing TaskType = 1
+	Delay  TaskType = 2
 )
 
 // 任务
@@ -17,7 +24,7 @@ type Task struct {
 	Name string `xorm:"varchar(64) notnull"`          // 任务名称
 	Spec string `xorm:"varchar(64) notnull"`          // crontab 时间格式
 	Protocol Protocol `xorm:"tinyint notnull"`        // 协议 1:http 2:ssh
-	Type int8 `xorm:"tinyint notnull default 1"`      // 任务类型 1: 定时任务 2: 延时任务
+	Type TaskType `xorm:"tinyint notnull default 1"`      // 任务类型 1: 定时任务 2: 延时任务
 	Command string `xorm:"varchar(512) notnull"`      // URL地址或shell命令
 	Timeout int `xorm:"mediumint notnull default 0"`      // 定时任务:执行超时时间(单位秒)，0不限制 延时任务: 延时timeout秒后执行
 	SshHosts string `xorm:"varchar(512) notnull defalut '' "` // SSH主机名, host id，逗号分隔

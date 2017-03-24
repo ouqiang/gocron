@@ -48,13 +48,7 @@ func ExecCommand(hosts string, module string, args... string) (output string, er
 		err = errors.New("参数不完整")
 		return
 	}
-	hostFile, err := DefaultHosts.GetHostFile()
-	if err != nil {
-		return
-	}
-	defer func() {
-		os.Remove(hostFile)
-	}()
+	hostFile := DefaultHosts.GetFilename()
 	commandArgs := []string{hosts, "-i",  hostFile, "-m", module}
 	if len(args) != 0 {
 		commandArgs = append(commandArgs, "-a")
@@ -76,14 +70,10 @@ func ExecPlaybook(playbook Playbook) (result string, err error)  {
 	if err != nil {
 		return
 	}
-	hostFile, err := DefaultHosts.GetHostFile()
-	if err != nil {
-		return
-	}
+	hostFile := DefaultHosts.GetFilename()
 	defer func() {
 		playbookFile.Close()
 		os.Remove(playbookFile.Name())
-		os.Remove(hostFile)
 	}()
 	_, err = playbookFile.Write(data)
 	if err != nil {
