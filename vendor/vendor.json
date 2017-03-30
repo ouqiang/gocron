@@ -71,6 +71,12 @@
 			"revisionTime": "2016-03-02T07:53:16Z"
 		},
 		{
+			"checksumSHA1": "Ef3+gi97QEvLS9VonbjOF/cZnDQ=",
+			"path": "github.com/mattn/go-sqlite3",
+			"revision": "b2e464529e88db676302aa63a4ce36711633950e",
+			"revisionTime": "2017-03-24T00:12:00Z"
+		},
+		{
 			"checksumSHA1": "PphQA6j/DEDbg3WIsdBDYALOOYs=",
 			"path": "github.com/robfig/cron",
 			"revision": "9585fd555638e77bba25f25db5c44b41f264aeb7",
@@ -87,6 +93,12 @@
 			"path": "golang.org/x/crypto/pbkdf2",
 			"revision": "453249f01cfeb54c3d549ddb75ff152ca243f9d8",
 			"revisionTime": "2017-02-08T20:51:15Z"
+		},
+		{
+			"checksumSHA1": "Y+HGqEkYM15ir+J93MEaHdyFy0c=",
+			"path": "golang.org/x/net/context",
+			"revision": "ffcf1bedda3b04ebb15a168a59800a73d6dc0f4d",
+			"revisionTime": "2017-03-29T01:43:45Z"
 		},
 		{
 			"checksumSHA1": "v5M2URDb0vJwelofRjiIsml0Jts=",
@@ -107,5 +119,5 @@
 			"revisionTime": "2017-02-08T14:18:51Z"
 		}
 	],
-	"rootPath": "cron-scheduler"
+	"rootPath": "github.com/ouqiang/cron-scheduler"
 }
