@@ -46,22 +46,16 @@ func Install(ctx *macaron.Context, form InstallForm) string {
 		utils.RecordLog(err)
 		return json.Failure(utils.ResponseFailure, "数据库配置写入文件失败")
 	}
-	// 创建安装锁
-	err = app.CreateInstallLock()
-	if err != nil {
-		utils.RecordLog(err)
-		return json.Failure(utils.ResponseFailure, "创建文件安装锁失败")
-	}
 
+	// 初始化Db
 	app.InitDb()
-	// 初始化配置, DB, 定时任务, 创建数据库表
+	// 创建数据库表
 	migration := new(models.Migration)
-	err = migration.Exec()
+	err = migration.Exec(form.DbName)
 	if err != nil {
 		utils.RecordLog(err)
 		return json.Failure(utils.ResponseFailure, "创建数据库表失败")
 	}
-	app.InitResource()
 
 	// 创建管理员账号
 	err = createAdminUser(form)
@@ -69,6 +63,16 @@ func Install(ctx *macaron.Context, form InstallForm) string {
 		utils.RecordLog(err)
 		return json.Failure(utils.ResponseFailure, "创建管理员账号失败")
 	}
+
+	// 创建安装锁
+	err = app.CreateInstallLock()
+	if err != nil {
+		utils.RecordLog(err)
+		return json.Failure(utils.ResponseFailure, "创建文件安装锁失败")
+	}
+
+	// 初始化定时任务等
+	app.InitResource()
 
 	return json.Success("安装成功", nil)
 }

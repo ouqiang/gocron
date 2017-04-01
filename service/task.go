@@ -30,7 +30,6 @@ func(task *Task) Initialize() {
 	for _, item := range(taskList) {
 		task.Add(item)
 	}
-	crontask.DefaultCronTask.Run()
 }
 
 
@@ -92,22 +91,36 @@ func(h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
 	return string(body),err
 }
 
+// SSH-command任务
+type SSHCommandHandler struct {}
+
+func(ssh *SSHCommandHandler) Run(taskModel models.Task) (string, error) {
+	return execSSHHandler("shell", taskModel)
+}
+
+
+// SSH-script任务
+type SSHScriptHandler struct {}
+
+func(ssh *SSHScriptHandler) Run(taskModel models.Task) (string, error) {
+	return execSSHHandler("script", taskModel)
+}
+
 // SSH任务
-type SSHHandler struct {}
-
-func(ssh *SSHHandler) Run(taskModel models.Task) (string, error) {
-
-	var args []string = []string{
-		"-m", "shell",
-		"-a", taskModel.Command,
-	}
+func execSSHHandler(module string, taskModel models.Task) (string, error)  {
+	var args []string = []string{ taskModel.Command }
 	if (taskModel.Timeout > 0) {
 		// -B 异步执行超时时间, -P 轮询时间
 		args = append(args, "-B", strconv.Itoa(taskModel.Timeout), "-P", "10")
 	}
-	result, err := ansible.ExecCommand(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(), args...)
+	if module == "shell" {
+		return ansible.Shell(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(),  args...)
+	}
+	if module == "script" {
+		return ansible.Script(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(),  args...)
+	}
 
-	return result, err
+	return "", nil
 }
 
 func createTaskLog(taskId int) (int, error) {
@@ -142,8 +155,10 @@ func createHandlerJob(taskModel models.Task) cron.FuncJob {
 	switch taskModel.Protocol {
 		case models.HTTP:
 			handler = new(HTTPHandler)
-		case models.SSH:
-			handler = new(SSHHandler)
+		case models.SSHCommand:
+			handler = new(SSHCommandHandler)
+		case models.SSHScript:
+			handler = new(SSHScriptHandler)
 	}
 	taskFunc := func() {
 		taskLogId, err := createTaskLog(taskModel.Id)

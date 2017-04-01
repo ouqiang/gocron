@@ -48,6 +48,7 @@ func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err e
 	for _, item := range(specs) {
 		err = cronTask.tasks[name].AddFunc(item, cmd)
 	}
+	cronTask.tasks[name].Start()
 
 	return err
 }
@@ -71,13 +72,6 @@ func(cronTask *CronTask) IsExist(name string) bool {
 	return ok
 }
 
-// 启动任务
-func(cronTask *CronTask) Start(name string) {
-	if cronTask.IsExist(name) {
-		cronTask.tasks[name].Start()
-	}
-}
-
 // 停止任务
 func(cronTask *CronTask) Stop(name string) {
 	if cronTask.IsExist(name) {
@@ -91,12 +85,4 @@ func(cronTask *CronTask) Delete(name string) {
 	cronTask.Lock()
 	defer cronTask.Unlock()
 	delete(cronTask.tasks, name)
-}
-
-// 运行所有任务
-func(cronTask *CronTask) Run() {
-	for _, cron := range cronTask.tasks {
-		// cron内部有开启goroutine,此处不用新建goroutine
-		cron.Start()
-	}
 }
