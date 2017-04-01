@@ -38,6 +38,7 @@ func InitEnv() {
 	os.Setenv("ANSIBLE_CONFIG", ConfDir)
 	Installed = IsInstalled()
 	if Installed {
+		InitDb()
 		InitResource()
 	}
 }
@@ -81,14 +82,17 @@ func CreateInstallLock() error {
 
 // 初始化资源
 func InitResource() {
-	// 初始化DB
-	models.Db = models.CreateDb(AppConfig)
 	// 初始化ansible Hosts
 	ansible.DefaultHosts = ansible.NewHosts(AnsibleHosts)
 	// 初始化定时任务
 	crontask.DefaultCronTask = crontask.NewCronTask()
 	serviceTask := new(service.Task)
 	serviceTask.Initialize()
+}
+
+// 初始化DB
+func InitDb()  {
+	models.Db = models.CreateDb(AppConfig)
 }
 
 // 检测目录是否存在

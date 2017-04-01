@@ -7,6 +7,7 @@ import (
 	"github.com/go-xorm/core"
 	_ "github.com/go-sql-driver/mysql"
 	"gopkg.in/macaron.v1"
+	"strings"
 )
 
 type Status int8
@@ -30,31 +31,15 @@ const (
 
 // 创建Db
 func CreateDb(configFile string) *xorm.Engine{
-	config,err := setting.Read(configFile)
+	config := getDbConfig(configFile)
+	dsn := getDbEngineDSN(config["engine"], config)
+	engine, err := xorm.NewEngine(config["engine"], dsn)
 	if err != nil {
 		panic(err)
 	}
-	section := config.Section("db")
-	if err != nil {
-		panic(err)
-	}
-	user := section.Key("user").String()
-	password := section.Key("password").String()
-	host := section.Key("host").String()
-	port := section.Key("port").String()
-	database := section.Key("database").String()
-	charset := section.Key("charset").String()
-	prefix := section.Key("prefix").String()
-
-	DSN := "%s:%s@tcp(%s:%s)/%s?charset=%s"
-	dsn := fmt.Sprintf(DSN, user, password, host, port, database, charset)
-	engine, err := xorm.NewEngine("mysql", dsn)
-	if err != nil {
-		panic(err)
-	}
-	if prefix != "" {
+	if config["prefix"] != "" {
 		// 设置表前缀
-		mapper := core.NewPrefixMapper(core.SnakeMapper{}, prefix)
+		mapper := core.NewPrefixMapper(core.SnakeMapper{}, config["prefix"])
 		engine.SetTableMapper(mapper)
 	}
 	// 本地环境开始日志
@@ -64,4 +49,45 @@ func CreateDb(configFile string) *xorm.Engine{
 	}
 
 	return engine
+}
+
+// 获取数据库引擎DSN  mysql,sqlite
+func getDbEngineDSN(engine string, config map[string]string) string {
+	engine = strings.ToLower(engine)
+	var dsn string = ""
+	switch engine {
+		case "mysql":
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",
+				config["user"],
+				config["password"],
+				config["host"],
+				config["port"],
+				config["database"],
+				config["charset"])
+	}
+
+	return dsn
+}
+
+// 获取数据库配置
+func getDbConfig(configFile string) (map[string]string){
+	config,err := setting.Read(configFile)
+	if err != nil {
+		panic(err)
+	}
+	section := config.Section("db")
+	if err != nil {
+		panic(err)
+	}
+	var db map[string]string = make(map[string]string)
+	db["user"] = section.Key("user").String()
+	db["password"] = section.Key("password").String()
+	db["host"] = section.Key("host").String()
+	db["port"] = section.Key("port").String()
+	db["database"] = section.Key("database").String()
+	db["charset"] = section.Key("charset").String()
+	db["prefix"] = section.Key("prefix").String()
+	db["engine"] = section.Key("engine").String()
+
+	return db
 }

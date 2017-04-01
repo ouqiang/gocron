@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>{{{.Title}}}</title>
+    <link rel="stylesheet" href="/plugins/semantic-ui/semantic.min.css">
+    <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="/js/vue.min.js"></script>
+    <script type="text/javascript" src="/js/main.js"></script>
+    <script type="text/javascript" src="/plugins/semantic-ui/semantic.min.js"></script>
+</head>
+<body>
+<div class="ui container" style="padding:30px;">
+{{{/* 控制导航栏是否显示 */}}}
+{{{if not .DisableNav}}}
+    <div class="ui menu">
+        <a class="item">主页</a>
+        <a class="item">Submit</a>
+        <div class="right menu">
+            <a class="item">注册/登录</a>
+            <a class="item">帮助</a>
+        </div>
+    </div>
+{{{end}}}
