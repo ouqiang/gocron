@@ -7,22 +7,22 @@ package main
 --------------------------------------------------------*/
 
 import (
-	"github.com/urfave/cli"
-	"os"
+    "github.com/urfave/cli"
+    "os"
 
-	"github.com/ouqiang/cron-scheduler/cmd"
+    "github.com/ouqiang/cron-scheduler/cmd"
 )
 
 const AppVersion = "0.0.1"
 
 func main() {
-	app := cli.NewApp()
-	app.Name = "cron-scheduler"
-	app.Usage = "cron-scheduler service"
-	app.Version = AppVersion
-	app.Commands = []cli.Command{
-		cmd.CmdWeb,
-	}
-	app.Flags = append(app.Flags, []cli.Flag{}...)
-	app.Run(os.Args)
+    app := cli.NewApp()
+    app.Name = "cron-scheduler"
+    app.Usage = "cron-scheduler service"
+    app.Version = AppVersion
+    app.Commands = []cli.Command{
+        cmd.CmdWeb,
+    }
+    app.Flags = append(app.Flags, []cli.Flag{}...)
+    app.Run(os.Args)
 }
