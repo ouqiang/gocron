@@ -1,11 +1,11 @@
 package models
 
 import (
-	"github.com/go-xorm/xorm"
 	"fmt"
-	"github.com/ouqiang/cron-scheduler/modules/setting"
-	"github.com/go-xorm/core"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/core"
+	"github.com/go-xorm/xorm"
+	"github.com/ouqiang/cron-scheduler/modules/setting"
 	"gopkg.in/macaron.v1"
 	"strings"
 )
@@ -16,21 +16,21 @@ type CommonMap map[string]interface{}
 var Db *xorm.Engine
 
 const (
-	Disabled Status = 0   // 禁用
-	Failure Status  = 0   // 失败
-	Enabled Status  = 1   // 启用
-	Running Status  = 1   // 运行中
-	Finish Status   = 2   // 完成
+	Disabled Status = 0 // 禁用
+	Failure  Status = 0 // 失败
+	Enabled  Status = 1 // 启用
+	Running  Status = 1 // 运行中
+	Finish   Status = 2 // 完成
 )
 
 const (
-	Page = 1            // 当前页数
-	PageSize = 20       // 每页多少条数据
-	MaxPageSize = 100000  // 每次最多取多少条
+	Page        = 1      // 当前页数
+	PageSize    = 20     // 每页多少条数据
+	MaxPageSize = 100000 // 每次最多取多少条
 )
 
 // 创建Db
-func CreateDb(configFile string) *xorm.Engine{
+func CreateDb(configFile string) *xorm.Engine {
 	config := getDbConfig(configFile)
 	dsn := getDbEngineDSN(config["engine"], config)
 	engine, err := xorm.NewEngine(config["engine"], dsn)
@@ -56,22 +56,22 @@ func getDbEngineDSN(engine string, config map[string]string) string {
 	engine = strings.ToLower(engine)
 	var dsn string = ""
 	switch engine {
-		case "mysql":
-			dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",
-				config["user"],
-				config["password"],
-				config["host"],
-				config["port"],
-				config["database"],
-				config["charset"])
+	case "mysql":
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",
+			config["user"],
+			config["password"],
+			config["host"],
+			config["port"],
+			config["database"],
+			config["charset"])
 	}
 
 	return dsn
 }
 
 // 获取数据库配置
-func getDbConfig(configFile string) (map[string]string){
-	config,err := setting.Read(configFile)
+func getDbConfig(configFile string) map[string]string {
+	config, err := setting.Read(configFile)
 	if err != nil {
 		panic(err)
 	}

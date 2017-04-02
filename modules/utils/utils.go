@@ -1,17 +1,16 @@
 package utils
 
 import (
-	"os/exec"
-	"math/rand"
-	"time"
 	"crypto/md5"
 	"encoding/hex"
 	"log"
+	"math/rand"
+	"os/exec"
+	"time"
 )
 
-
 // 执行shell命令
-func ExecShell(command string, args... string) (string, error) {
+func ExecShell(command string, args ...string) (string, error) {
 	result, err := exec.Command(command, args...).CombinedOutput()
 
 	return string(result), err
@@ -48,6 +47,6 @@ func RandNumber(max int) int {
 
 // 日志记录
 // todo 保存到哪里 文件,数据库还是elasticsearch?，暂时输出到终端
-func RecordLog(v... interface{})  {
+func RecordLog(v ...interface{}) {
 	log.Println(v)
 }

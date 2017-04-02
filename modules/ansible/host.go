@@ -1,12 +1,12 @@
 package ansible
 
 import (
-	"github.com/ouqiang/cron-scheduler/models"
-	"sync"
-	"io/ioutil"
 	"bytes"
-	"strconv"
+	"github.com/ouqiang/cron-scheduler/models"
 	"github.com/ouqiang/cron-scheduler/modules/utils"
+	"io/ioutil"
+	"strconv"
+	"sync"
 )
 
 // 主机名
@@ -17,7 +17,7 @@ type Hosts struct {
 	filename string
 }
 
-func NewHosts(hostFilename string) *Hosts  {
+func NewHosts(hostFilename string) *Hosts {
 	h := &Hosts{sync.RWMutex{}, hostFilename}
 	h.Write()
 
@@ -25,16 +25,15 @@ func NewHosts(hostFilename string) *Hosts  {
 }
 
 // 获取hosts文件名
-func(h *Hosts) GetFilename() string {
+func (h *Hosts) GetFilename() string {
 	h.RLock()
 	defer h.RUnlock()
 
 	return h.filename
 }
 
-
 // 写入hosts
-func(h *Hosts) Write() {
+func (h *Hosts) Write() {
 	host := new(models.Host)
 	hostModels, err := host.List()
 	if err != nil {
@@ -46,7 +45,7 @@ func(h *Hosts) Write() {
 		return
 	}
 	buffer := bytes.Buffer{}
-	for _, hostModel := range(hostModels) {
+	for _, hostModel := range hostModels {
 		buffer.WriteString(strconv.Itoa(int(hostModel.Id)))
 		buffer.WriteString(" ansible_ssh_host=")
 		buffer.WriteString(hostModel.Name)
@@ -54,7 +53,7 @@ func(h *Hosts) Write() {
 		buffer.WriteString(strconv.Itoa(hostModel.Port))
 		buffer.WriteString(" ansible_ssh_user=")
 		buffer.WriteString(hostModel.Username)
-		if (hostModel.LoginType != models.PublicKey && hostModel.Password != "") {
+		if hostModel.LoginType != models.PublicKey && hostModel.Password != "" {
 			buffer.WriteString(" ansible_ssh_pass=")
 			buffer.WriteString(hostModel.Password)
 		}
@@ -66,5 +65,3 @@ func(h *Hosts) Write() {
 
 	return
 }
-
-

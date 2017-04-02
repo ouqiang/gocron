@@ -1,27 +1,28 @@
 package cmd
 
 import (
-	"github.com/urfave/cli"
-	"gopkg.in/macaron.v1"
+	"github.com/go-macaron/csrf"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/session"
-	"github.com/go-macaron/csrf"
 	"github.com/ouqiang/cron-scheduler/modules/app"
 	"github.com/ouqiang/cron-scheduler/routers"
+	"github.com/urfave/cli"
+	"gopkg.in/macaron.v1"
 )
 
 // web服务器默认端口
 const DefaultPort = 5920
+
 // 静态文件目录
 const StaticDir = "public"
 
 var CmdWeb = cli.Command{
-	Name: "server",
-	Usage: "start scheduler web server",
+	Name:   "server",
+	Usage:  "start scheduler web server",
 	Action: run,
 	Flags: []cli.Flag{
 		cli.IntFlag{
-			Name: "port,p",
+			Name:  "port,p",
 			Value: DefaultPort,
 			Usage: "bind port number",
 		},
@@ -40,13 +41,13 @@ func run(ctx *cli.Context) {
 }
 
 // 中间件注册
-func registerMiddleware(m *macaron.Macaron)  {
+func registerMiddleware(m *macaron.Macaron) {
 	m.Use(macaron.Logger())
 	m.Use(macaron.Recovery())
 	m.Use(gzip.Gziper())
 	m.Use(macaron.Static(StaticDir))
 	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory: "templates",
+		Directory:  "templates",
 		Extensions: []string{".html"},
 		// 模板语法分隔符，默认为 ["{{", "}}"]
 		Delims: macaron.Delims{"{{{", "}}}"},
@@ -64,7 +65,7 @@ func registerMiddleware(m *macaron.Macaron)  {
 // 解析端口
 func parsePort(ctx *cli.Context) int {
 	var port int
-	if (ctx.IsSet("port")) {
+	if ctx.IsSet("port") {
 		port = ctx.Int("port")
 	}
 	if port <= 0 || port >= 65535 {

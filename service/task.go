@@ -1,22 +1,22 @@
 package service
 
 import (
+	"fmt"
 	"github.com/ouqiang/cron-scheduler/models"
+	"github.com/ouqiang/cron-scheduler/modules/ansible"
+	"github.com/ouqiang/cron-scheduler/modules/crontask"
 	"github.com/ouqiang/cron-scheduler/modules/utils"
-	"net/http"
+	"github.com/robfig/cron"
 	"io/ioutil"
+	"net/http"
 	"strconv"
 	"time"
-	"github.com/ouqiang/cron-scheduler/modules/crontask"
-	"github.com/robfig/cron"
-	"github.com/ouqiang/cron-scheduler/modules/ansible"
-	"fmt"
 )
 
-type Task struct {}
+type Task struct{}
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
-func(task *Task) Initialize() {
+func (task *Task) Initialize() {
 	taskModel := new(models.Task)
 	taskList, err := taskModel.ActiveList()
 	if err != nil {
@@ -27,15 +27,13 @@ func(task *Task) Initialize() {
 		utils.RecordLog("任务列表为空")
 		return
 	}
-	for _, item := range(taskList) {
+	for _, item := range taskList {
 		task.Add(item)
 	}
 }
 
-
-
 // 添加任务
-func(task *Task) Add(taskModel models.Task) {
+func (task *Task) Add(taskModel models.Task) {
 	taskFunc := createHandlerJob(taskModel)
 	if taskFunc == nil {
 		utils.RecordLog("添加任务#不存在的任务协议编号", taskModel.Protocol)
@@ -49,7 +47,7 @@ func(task *Task) Add(taskModel models.Task) {
 		}
 	} else if taskModel.Type == models.Delay {
 		// 延时任务
-		time.AfterFunc(time.Duration(taskModel.Delay) * time.Second, taskFunc)
+		time.AfterFunc(time.Duration(taskModel.Delay)*time.Second, taskFunc)
 	}
 }
 
@@ -58,11 +56,11 @@ type Handler interface {
 }
 
 // HTTP任务
-type HTTPHandler struct {}
+type HTTPHandler struct{}
 
-func(h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
+func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
 	client := &http.Client{}
-	if (taskModel.Timeout > 0) {
+	if taskModel.Timeout > 0 {
 		client.Timeout = time.Duration(taskModel.Timeout) * time.Second
 	}
 	req, err := http.NewRequest("POST", taskModel.Command, nil)
@@ -88,36 +86,35 @@ func(h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
 		utils.RecordLog("读取HTTP请求返回值失败-", err.Error())
 	}
 
-	return string(body),err
+	return string(body), err
 }
 
 // SSH-command任务
-type SSHCommandHandler struct {}
+type SSHCommandHandler struct{}
 
-func(ssh *SSHCommandHandler) Run(taskModel models.Task) (string, error) {
+func (ssh *SSHCommandHandler) Run(taskModel models.Task) (string, error) {
 	return execSSHHandler("shell", taskModel)
 }
 
-
 // SSH-script任务
-type SSHScriptHandler struct {}
+type SSHScriptHandler struct{}
 
-func(ssh *SSHScriptHandler) Run(taskModel models.Task) (string, error) {
+func (ssh *SSHScriptHandler) Run(taskModel models.Task) (string, error) {
 	return execSSHHandler("script", taskModel)
 }
 
 // SSH任务
-func execSSHHandler(module string, taskModel models.Task) (string, error)  {
-	var args []string = []string{ taskModel.Command }
-	if (taskModel.Timeout > 0) {
+func execSSHHandler(module string, taskModel models.Task) (string, error) {
+	var args []string = []string{taskModel.Command}
+	if taskModel.Timeout > 0 {
 		// -B 异步执行超时时间, -P 轮询时间
 		args = append(args, "-B", strconv.Itoa(taskModel.Timeout), "-P", "10")
 	}
 	if module == "shell" {
-		return ansible.Shell(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(),  args...)
+		return ansible.Shell(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(), args...)
 	}
 	if module == "script" {
-		return ansible.Script(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(),  args...)
+		return ansible.Script(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(), args...)
 	}
 
 	return "", nil
@@ -146,19 +143,19 @@ func updateTaskLog(taskLogId int, result string, err error) (int64, error) {
 	return taskLogModel.Update(taskLogId, models.CommonMap{
 		"status": status,
 		"result": result,
-	});
+	})
 
 }
 
 func createHandlerJob(taskModel models.Task) cron.FuncJob {
 	var handler Handler = nil
 	switch taskModel.Protocol {
-		case models.HTTP:
-			handler = new(HTTPHandler)
-		case models.SSHCommand:
-			handler = new(SSHCommandHandler)
-		case models.SSHScript:
-			handler = new(SSHScriptHandler)
+	case models.HTTP:
+		handler = new(HTTPHandler)
+	case models.SSHCommand:
+		handler = new(SSHCommandHandler)
+	case models.SSHScript:
+		handler = new(SSHScriptHandler)
 	}
 	taskFunc := func() {
 		taskLogId, err := createTaskLog(taskModel.Id)

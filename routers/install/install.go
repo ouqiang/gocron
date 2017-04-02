@@ -1,31 +1,31 @@
 package install
 
 import (
-	"gopkg.in/macaron.v1"
-	"github.com/ouqiang/cron-scheduler/modules/app"
-	"github.com/ouqiang/cron-scheduler/modules/utils"
 	"github.com/ouqiang/cron-scheduler/models"
+	"github.com/ouqiang/cron-scheduler/modules/app"
 	"github.com/ouqiang/cron-scheduler/modules/setting"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
+	"gopkg.in/macaron.v1"
 	"strconv"
 )
 
 // 系统安装
 
 type InstallForm struct {
-	DbType string `binding:"IN(mysql)"`
-	DbHost string `binding:"Required"`
-	DbPort int `binding:"Required"`
-	DbUsername string `binding:"Required"`
-	DbPassword string `binding:"Required"`
-	DbName string `binding:"Required"`
+	DbType        string `binding:"IN(mysql)"`
+	DbHost        string `binding:"Required"`
+	DbPort        int    `binding:"Required"`
+	DbUsername    string `binding:"Required"`
+	DbPassword    string `binding:"Required"`
+	DbName        string `binding:"Required"`
 	DbTablePrefix string
 	AdminUsername string `binding:"Required;MinSize(3)"`
 	AdminPassword string `binding:"Required;MinSize(6)"`
-	AdminEmail string `binding:"Email"`
+	AdminEmail    string `binding:"Email"`
 }
 
 // 显示安装页面
-func Show(ctx *macaron.Context)  {
+func Show(ctx *macaron.Context) {
 	if app.Installed {
 		ctx.Redirect("/")
 	}
@@ -81,14 +81,14 @@ func Install(ctx *macaron.Context, form InstallForm) string {
 func writeConfig(form InstallForm) error {
 	dbConfig := map[string]map[string]string{
 		"db": map[string]string{
-			"engine": form.DbType,
-			"host": form.DbHost,
-			"port": strconv.Itoa(form.DbPort),
-			"user": form.DbUsername,
+			"engine":   form.DbType,
+			"host":     form.DbHost,
+			"port":     strconv.Itoa(form.DbPort),
+			"user":     form.DbUsername,
 			"password": form.DbPassword,
 			"database": form.DbName,
-			"prefix": form.DbTablePrefix,
-			"charset": "utf8",
+			"prefix":   form.DbTablePrefix,
+			"charset":  "utf8",
 		},
 	}
 

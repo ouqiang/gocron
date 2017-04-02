@@ -1,10 +1,10 @@
 package crontask
 
 import (
-	"github.com/robfig/cron"
 	"errors"
-	"sync"
+	"github.com/robfig/cron"
 	"strings"
+	"sync"
 )
 
 var DefaultCronTask *CronTask
@@ -17,7 +17,7 @@ type CronTask struct {
 }
 
 func NewCronTask() *CronTask {
-	return &CronTask {
+	return &CronTask{
 		sync.RWMutex{},
 		make(CronMap),
 	}
@@ -26,7 +26,7 @@ func NewCronTask() *CronTask {
 // 新增定时任务,如果name存在，则添加失败
 // name 任务名称
 // spec crontab时间格式定义  可定义多个时间\n分隔
-func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err error) {
+func (cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob) (err error) {
 	if name == "" || spec == "" || cmd == nil {
 		return errors.New("参数不完整")
 	}
@@ -39,13 +39,13 @@ func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err e
 	defer cronTask.Unlock()
 	cronTask.tasks[name] = cron.New()
 	specs := strings.Split(spec, "|||")
-	for _, item := range(specs) {
+	for _, item := range specs {
 		_, err = cron.Parse(item)
 		if err != nil {
 			return err
 		}
 	}
-	for _, item := range(specs) {
+	for _, item := range specs {
 		err = cronTask.tasks[name].AddFunc(item, cmd)
 	}
 	cronTask.tasks[name].Start()
@@ -54,7 +54,7 @@ func(cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob ) (err e
 }
 
 // 任务不存在则新增，任务已存在则删除后新增
-func(cronTask *CronTask) AddOrReplace(name string, spec string, cmd cron.FuncJob) error {
+func (cronTask *CronTask) AddOrReplace(name string, spec string, cmd cron.FuncJob) error {
 	if cronTask.IsExist(name) {
 		cronTask.Delete(name)
 	}
@@ -62,9 +62,8 @@ func(cronTask *CronTask) AddOrReplace(name string, spec string, cmd cron.FuncJob
 	return cronTask.Add(name, spec, cmd)
 }
 
-
 // 判断任务是否存在
-func(cronTask *CronTask) IsExist(name string) bool {
+func (cronTask *CronTask) IsExist(name string) bool {
 	cronTask.RLock()
 	defer cronTask.RUnlock()
 	_, ok := cronTask.tasks[name]
@@ -73,14 +72,14 @@ func(cronTask *CronTask) IsExist(name string) bool {
 }
 
 // 停止任务
-func(cronTask *CronTask) Stop(name string) {
+func (cronTask *CronTask) Stop(name string) {
 	if cronTask.IsExist(name) {
 		cronTask.tasks[name].Stop()
 	}
 }
 
 // 删除任务
-func(cronTask *CronTask) Delete(name string) {
+func (cronTask *CronTask) Delete(name string) {
 	cronTask.Stop(name)
 	cronTask.Lock()
 	defer cronTask.Unlock()

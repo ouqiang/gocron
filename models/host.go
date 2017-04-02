@@ -1,30 +1,29 @@
 package models
 
-
 // 主机
 type Host struct {
-	Id int16 `xorm:"smallint pk autoincr"`
-	Name string `xorm:"varchar(128) notnull"` // 主机名称
-	Alias string `xorm:"varchar(32) notnull default '' "` // 主机别名
-	Username string `xorm:"varchar(32) notnull default '' "` // ssh 用户名
-	Password string `xorm:"varchar(64) notnull default ''"`  // ssh 密码
-	Port int `xorm:"notnull default 22"`  // 主机端口
-	LoginType LoginType `xorm:"tinyint notnull default 1"` // ssh登录方式  1:公钥认证  2:账号密码
-	Remark string `xorm:"varchar(512) notnull default '' "` // 备注
-	Page  int `xorm:"-"`
-	PageSize int `xorm:"-"`
+	Id        int16     `xorm:"smallint pk autoincr"`
+	Name      string    `xorm:"varchar(128) notnull"`             // 主机名称
+	Alias     string    `xorm:"varchar(32) notnull default '' "`  // 主机别名
+	Username  string    `xorm:"varchar(32) notnull default '' "`  // ssh 用户名
+	Password  string    `xorm:"varchar(64) notnull default ''"`   // ssh 密码
+	Port      int       `xorm:"notnull default 22"`               // 主机端口
+	LoginType LoginType `xorm:"tinyint notnull default 1"`        // ssh登录方式  1:公钥认证  2:账号密码
+	Remark    string    `xorm:"varchar(512) notnull default '' "` // 备注
+	Page      int       `xorm:"-"`
+	PageSize  int       `xorm:"-"`
 }
 
-type LoginType int8;
+type LoginType int8
 
 const (
-	PublicKey = 1
+	PublicKey    = 1
 	UserPassword = 2
 )
 
 // 新增
-func(host *Host) Create() (insertId int16, err error) {
-	_, err =  Db.Insert(host)
+func (host *Host) Create() (insertId int16, err error) {
+	_, err = Db.Insert(host)
 	if err == nil {
 		insertId = host.Id
 	}
@@ -33,16 +32,16 @@ func(host *Host) Create() (insertId int16, err error) {
 }
 
 // 更新
-func(host *Host) Update(id int, data CommonMap) (int64, error) {
+func (host *Host) Update(id int, data CommonMap) (int64, error) {
 	return Db.Table(host).ID(id).Update(data)
 }
 
 // 删除
-func(host *Host) Delete(id int) (int64, error) {
+func (host *Host) Delete(id int) (int64, error) {
 	return Db.Id(id).Delete(host)
 }
 
-func(host *Host) List() ([]Host, error) {
+func (host *Host) List() ([]Host, error) {
 	host.parsePageAndPageSize()
 	list := make([]Host, 0)
 	err := Db.Desc("id").Limit(host.PageSize, host.pageLimitOffset()).Find(&list)
@@ -50,19 +49,19 @@ func(host *Host) List() ([]Host, error) {
 	return list, err
 }
 
-func(host *Host) Total() (int64, error) {
+func (host *Host) Total() (int64, error) {
 	return Db.Count(host)
 }
 
-func(host *Host) parsePageAndPageSize()  {
-	if (host.Page <= 0) {
+func (host *Host) parsePageAndPageSize() {
+	if host.Page <= 0 {
 		host.Page = Page
 	}
-	if (host.PageSize >= 0 || host.PageSize > MaxPageSize) {
+	if host.PageSize >= 0 || host.PageSize > MaxPageSize {
 		host.PageSize = PageSize
 	}
 }
 
-func(host *Host) pageLimitOffset() int  {
+func (host *Host) pageLimitOffset() int {
 	return (host.Page - 1) * host.PageSize
 }

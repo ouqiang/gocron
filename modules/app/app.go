@@ -4,21 +4,21 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/ouqiang/cron-scheduler/modules/utils"
-	"github.com/ouqiang/cron-scheduler/modules/crontask"
 	"github.com/ouqiang/cron-scheduler/models"
 	"github.com/ouqiang/cron-scheduler/modules/ansible"
+	"github.com/ouqiang/cron-scheduler/modules/crontask"
+	"github.com/ouqiang/cron-scheduler/modules/utils"
 	"github.com/ouqiang/cron-scheduler/service"
 )
 
-var  (
-	AppDir string    // 应用根目录
-	ConfDir string   // 配置目录
-	LogDir string    // 日志目录
-	DataDir string   // 数据目录，存放session文件等
-	AppConfig string // 应用配置文件
+var (
+	AppDir       string // 应用根目录
+	ConfDir      string // 配置目录
+	LogDir       string // 日志目录
+	DataDir      string // 数据目录，存放session文件等
+	AppConfig    string // 应用配置文件
 	AnsibleHosts string // ansible hosts文件
-	Installed bool   // 应用是否安装过
+	Installed    bool   // 应用是否安装过
 )
 
 func InitEnv() {
@@ -29,7 +29,7 @@ func InitEnv() {
 	}
 	AppDir = wd
 	ConfDir = AppDir + "/conf"
-	LogDir  = AppDir + "/log"
+	LogDir = AppDir + "/log"
 	DataDir = AppDir + "/data"
 	AppConfig = ConfDir + "/app.ini"
 	AnsibleHosts = ConfDir + "/ansible_hosts.ini"
@@ -54,7 +54,7 @@ func IsInstalled() bool {
 }
 
 // 检测环境
-func CheckEnv()  {
+func CheckEnv() {
 	// ansible不支持安装在windows上, windows只能作为被控机
 	if runtime.GOOS == "windows" {
 		panic("不支持在windows上运行")
@@ -79,7 +79,6 @@ func CreateInstallLock() error {
 	return err
 }
 
-
 // 初始化资源
 func InitResource() {
 	// 初始化ansible Hosts
@@ -91,13 +90,13 @@ func InitResource() {
 }
 
 // 初始化DB
-func InitDb()  {
+func InitDb() {
 	models.Db = models.CreateDb(AppConfig)
 }
 
 // 检测目录是否存在
-func checkDirExists(path... string)  {
-	for _, value := range(path) {
+func checkDirExists(path ...string) {
+	for _, value := range path {
 		_, err := os.Stat(value)
 		if os.IsNotExist(err) {
 			panic(value + "目录不存在")
