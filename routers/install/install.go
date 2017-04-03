@@ -7,6 +7,7 @@ import (
     "github.com/ouqiang/cron-scheduler/modules/utils"
     "gopkg.in/macaron.v1"
     "strconv"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
 )
 
 // 系统安装
@@ -38,17 +39,18 @@ func Show(ctx *macaron.Context) {
 func Install(ctx *macaron.Context, form InstallForm) string {
     json := utils.Json{}
     if app.Installed {
+        logger.Warn("系统重复安装")
         return json.Failure(utils.ResponseFailure, "系统已安装!")
     }
     err := testDbConnection(form)
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return json.Failure(utils.ResponseFailure, "数据库连接失败")
     }
     // 写入数据库配置
     err = writeConfig(form)
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return json.Failure(utils.ResponseFailure, "数据库配置写入文件失败")
     }
 
@@ -57,21 +59,21 @@ func Install(ctx *macaron.Context, form InstallForm) string {
     migration := new(models.Migration)
     err = migration.Exec(form.DbName)
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return json.Failure(utils.ResponseFailure, "创建数据库表失败")
     }
 
     // 创建管理员账号
     err = createAdminUser(form)
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return json.Failure(utils.ResponseFailure, "创建管理员账号失败")
     }
 
     // 创建安装锁
     err = app.CreateInstallLock()
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return json.Failure(utils.ResponseFailure, "创建文件安装锁失败")
     }
 
@@ -122,9 +124,12 @@ func testDbConnection(form InstallForm) error {
     dbConfig["password"] = form.DbPassword
     dbConfig["charset"] = "utf8"
     db, err := models.CreateTmpDb(dbConfig)
-    if err == nil {
-       db.Close()
+    if err != nil {
+        return err
     }
+
+    defer  db.Close()
+    err = db.Ping()
 
     return err
 

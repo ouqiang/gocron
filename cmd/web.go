@@ -26,10 +26,16 @@ var CmdWeb = cli.Command{
             Value: DefaultPort,
             Usage: "bind port number",
         },
+        cli.StringFlag{
+            Name: "env,e",
+            Value: "dev",
+            Usage: "runtime environment, dev|test|prod",
+        },
     },
 }
 
 func run(ctx *cli.Context) {
+    setEnvironment(ctx)
     app.InitEnv()
     m := macaron.Classic()
     // 注册路由
@@ -64,7 +70,7 @@ func registerMiddleware(m *macaron.Macaron) {
 
 // 解析端口
 func parsePort(ctx *cli.Context) int {
-    var port int
+    var port int = DefaultPort
     if ctx.IsSet("port") {
         port = ctx.Int("port")
     }
@@ -73,4 +79,15 @@ func parsePort(ctx *cli.Context) int {
     }
 
     return port
+}
+
+func setEnvironment(ctx *cli.Context)  {
+    var env string = ""
+    if ctx.IsSet("env") {
+        env = ctx.String("env")
+    }
+
+    if env == "prod" {
+        macaron.Env = macaron.PROD
+    }
 }

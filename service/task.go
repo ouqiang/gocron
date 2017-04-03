@@ -5,12 +5,12 @@ import (
     "github.com/ouqiang/cron-scheduler/models"
     "github.com/ouqiang/cron-scheduler/modules/ansible"
     "github.com/ouqiang/cron-scheduler/modules/crontask"
-    "github.com/ouqiang/cron-scheduler/modules/utils"
     "github.com/robfig/cron"
     "io/ioutil"
     "net/http"
     "strconv"
     "time"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
 )
 
 type Task struct{}
@@ -20,11 +20,11 @@ func (task *Task) Initialize() {
     taskModel := new(models.Task)
     taskList, err := taskModel.ActiveList()
     if err != nil {
-        utils.RecordLog("获取任务列表错误-", err.Error())
+        logger.Error("获取任务列表错误-", err.Error())
         return
     }
     if len(taskList) == 0 {
-        utils.RecordLog("任务列表为空")
+        logger.Debug("任务列表为空")
         return
     }
     for _, item := range taskList {
@@ -36,14 +36,14 @@ func (task *Task) Initialize() {
 func (task *Task) Add(taskModel models.Task) {
     taskFunc := createHandlerJob(taskModel)
     if taskFunc == nil {
-        utils.RecordLog("添加任务#不存在的任务协议编号", taskModel.Protocol)
+        logger.Error("添加任务#不存在的任务协议编号", taskModel.Protocol)
         return
     }
     // 定时任务
     if taskModel.Type == models.Timing {
         err := crontask.DefaultCronTask.AddOrReplace(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
         if err != nil {
-            utils.RecordLog(err)
+            logger.Error(err)
         }
     } else if taskModel.Type == models.Delay {
         // 延时任务
@@ -65,7 +65,7 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
     }
     req, err := http.NewRequest("POST", taskModel.Command, nil)
     if err != nil {
-        utils.RecordLog("创建HTTP请求错误-", err.Error())
+        logger.Error("创建HTTP请求错误-", err.Error())
         return
     }
     req.Header.Set("Content-type", "application/x-www-form-urlencoded")
@@ -78,12 +78,12 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
         }
     }()
     if err != nil {
-        utils.RecordLog("HTTP请求错误-", err.Error())
+        logger.Error("HTTP请求错误-", err.Error())
         return
     }
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
-        utils.RecordLog("读取HTTP请求返回值失败-", err.Error())
+        logger.Error("读取HTTP请求返回值失败-", err.Error())
     }
 
     return string(body), err
@@ -160,14 +160,14 @@ func createHandlerJob(taskModel models.Task) cron.FuncJob {
     taskFunc := func() {
         taskLogId, err := createTaskLog(taskModel.Id)
         if err != nil {
-            utils.RecordLog("写入任务日志失败-", err)
+            logger.Error("写入任务日志失败-", err)
             return
         }
         // err != nil 执行失败
         result, err := handler.Run(taskModel)
         _, err = updateTaskLog(int(taskLogId), result, err)
         if err != nil {
-            utils.RecordLog("更新任务日志失败-", err)
+            logger.Error("更新任务日志失败-", err)
         }
     }
 

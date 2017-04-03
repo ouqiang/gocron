@@ -10,6 +10,7 @@ import (
     "github.com/ouqiang/cron-scheduler/modules/utils"
     "github.com/ouqiang/cron-scheduler/service"
     "github.com/ouqiang/cron-scheduler/modules/setting"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
 )
 
 var (
@@ -23,6 +24,7 @@ var (
 )
 
 func InitEnv() {
+    logger.InitLogger()
     CheckEnv()
     wd, err := os.Getwd()
     if err != nil {
@@ -58,15 +60,11 @@ func IsInstalled() bool {
 func CheckEnv() {
     // ansible不支持安装在windows上, windows只能作为被控机
     if runtime.GOOS == "windows" {
-        panic("不支持在windows上运行")
+        logger.Fatal("不支持在windows上运行")
     }
     _, err := utils.ExecShell("ansible", "--version")
     if err != nil {
-        panic(err)
-    }
-    _, err = utils.ExecShell("ansible-playbook", "--version")
-    if err != nil {
-        panic(err)
+        logger.Fatal(err)
     }
 }
 
@@ -74,7 +72,7 @@ func CheckEnv() {
 func CreateInstallLock() error {
     _, err := os.Create(ConfDir + "/install.lock")
     if err != nil {
-        utils.RecordLog("创建安装锁文件失败")
+        logger.Error("创建安装锁文件失败")
     }
 
     return err
@@ -101,10 +99,10 @@ func checkDirExists(path ...string) {
     for _, value := range path {
         _, err := os.Stat(value)
         if os.IsNotExist(err) {
-            panic(value + "目录不存在")
+            logger.Fatal(value + "目录不存在")
         }
         if os.IsPermission(err) {
-            panic(value + "目录无权限操作")
+            logger.Fatal(value + "目录无权限操作")
         }
     }
 }
@@ -113,11 +111,11 @@ func checkDirExists(path ...string) {
 func getDbConfig(configFile string) map[string]string {
     config, err := setting.Read(configFile)
     if err != nil {
-        panic(err)
+        logger.Fatal(err)
     }
     section := config.Section("db")
     if err != nil {
-        panic(err)
+        logger.Fatal(err)
     }
     var db map[string]string = make(map[string]string)
     db["user"] = section.Key("user").String()

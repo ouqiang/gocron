@@ -3,7 +3,6 @@ package utils
 import (
     "crypto/md5"
     "encoding/hex"
-    "log"
     "math/rand"
     "os/exec"
     "time"
@@ -43,10 +42,4 @@ func RandNumber(max int) int {
     r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
     return r.Intn(max)
-}
-
-// 日志记录
-// todo 保存到哪里 文件,数据库还是elasticsearch?，暂时输出到终端
-func RecordLog(v ...interface{}) {
-    log.Println(v)
 }

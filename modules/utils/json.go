@@ -1,6 +1,9 @@
 package utils
 
-import "encoding/json"
+import (
+    "encoding/json"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
+)
 
 // json 格式输出
 
@@ -32,7 +35,7 @@ func (j *Json) response(code int, message string, data interface{}) string {
 
     result, err := json.Marshal(resp)
     if err != nil {
-        RecordLog(err)
+        logger.Error(err)
     }
 
     return string(result)

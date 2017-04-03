@@ -3,10 +3,10 @@ package ansible
 import (
     "bytes"
     "github.com/ouqiang/cron-scheduler/models"
-    "github.com/ouqiang/cron-scheduler/modules/utils"
     "io/ioutil"
     "strconv"
     "sync"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
 )
 
 // 主机名
@@ -37,11 +37,11 @@ func (h *Hosts) Write() {
     host := new(models.Host)
     hostModels, err := host.List()
     if err != nil {
-        utils.RecordLog(err)
+        logger.Error(err)
         return
     }
     if len(hostModels) == 0 {
-        utils.RecordLog("hosts内容为空")
+        logger.Info("hosts内容为空")
         return
     }
     buffer := bytes.Buffer{}

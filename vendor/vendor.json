@@ -9,6 +9,42 @@
 			"revisionTime": "2017-02-13T07:20:14Z"
 		},
 		{
+			"checksumSHA1": "1bK29RcAjCAMCYS2HS3O18w4m8k=",
+			"path": "github.com/cihub/seelog",
+			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
+			"revisionTime": "2017-01-30T13:45:32Z"
+		},
+		{
+			"checksumSHA1": "iMU6SM/jawaCOJnyvR5/w8C/C1w=",
+			"path": "github.com/cihub/seelog/archive",
+			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
+			"revisionTime": "2017-01-30T13:45:32Z"
+		},
+		{
+			"checksumSHA1": "oSd7EVei192qS3uYyCAMx9zV3Y8=",
+			"path": "github.com/cihub/seelog/archive/gzip",
+			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
+			"revisionTime": "2017-01-30T13:45:32Z"
+		},
+		{
+			"checksumSHA1": "emesF9mCsIQC59VUE2lvjZYpAHU=",
+			"path": "github.com/cihub/seelog/archive/tar",
+			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
+			"revisionTime": "2017-01-30T13:45:32Z"
+		},
+		{
+			"checksumSHA1": "TXLSkZsRlMifg3mg9+6QgEZJ6m4=",
+			"path": "github.com/cihub/seelog/archive/zip",
+			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
+			"revisionTime": "2017-01-30T13:45:32Z"
+		},
+		{
+			"checksumSHA1": "foY4H6dyBE6AmY0uTZ2rfH+34Q4=",
+			"path": "github.com/donnie4w/go-logger",
+			"revision": "34aa9bcfff225db756df097fc49ffd35b68412bb",
+			"revisionTime": "2016-05-29T15:11:07Z"
+		},
+		{
 			"checksumSHA1": "OkqfwXeTVoiIxNMDA7HKvmrCDw8=",
 			"path": "github.com/go-macaron/binding",
 			"revision": "48920167fa152d02f228cfbece7e0f1e452d200a",
@@ -59,10 +95,6 @@
 			"path": "github.com/go-xorm/xorm",
 			"revision": "e8fbd41c16b9c0468dbae8db2fe0161a21265b8a",
 			"revisionTime": "2017-02-21T11:08:50Z"
-		},
-		{
-			"path": "github.com/go-yaml/yaml",
-			"revision": ""
 		},
 		{
 			"checksumSHA1": "iKPMvbAueGfdyHcWCgzwKzm8WVo=",
