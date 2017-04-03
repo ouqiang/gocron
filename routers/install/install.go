@@ -38,16 +38,20 @@ func Show(ctx *macaron.Context) {
 func Install(ctx *macaron.Context, form InstallForm) string {
     json := utils.Json{}
     if app.Installed {
-        return json.Failure(utils.ResponseFailure, "系统已安装成功")
+        return json.Failure(utils.ResponseFailure, "系统已安装!")
+    }
+    err := testDbConnection(form)
+    if err != nil {
+        utils.RecordLog(err)
+        return json.Failure(utils.ResponseFailure, "数据库连接失败")
     }
     // 写入数据库配置
-    err := writeConfig(form)
+    err = writeConfig(form)
     if err != nil {
         utils.RecordLog(err)
         return json.Failure(utils.ResponseFailure, "数据库配置写入文件失败")
     }
 
-    // 初始化Db
     app.InitDb()
     // 创建数据库表
     migration := new(models.Migration)
@@ -106,4 +110,22 @@ func createAdminUser(form InstallForm) error {
     _, err := user.Create()
 
     return err
+}
+
+// 测试数据库连接
+func testDbConnection(form InstallForm) error {
+    var dbConfig map[string]string = make(map[string]string)
+    dbConfig["engine"] = form.DbType
+    dbConfig["host"] = form.DbHost
+    dbConfig["port"] = strconv.Itoa(form.DbPort)
+    dbConfig["user"] = form.DbUsername
+    dbConfig["password"] = form.DbPassword
+    dbConfig["charset"] = "utf8"
+    db, err := models.CreateTmpDb(dbConfig)
+    if err == nil {
+       db.Close()
+    }
+
+    return err
+
 }

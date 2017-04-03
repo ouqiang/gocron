@@ -5,7 +5,6 @@ import (
     _ "github.com/go-sql-driver/mysql"
     "github.com/go-xorm/core"
     "github.com/go-xorm/xorm"
-    "github.com/ouqiang/cron-scheduler/modules/setting"
     "gopkg.in/macaron.v1"
     "strings"
     "time"
@@ -31,8 +30,7 @@ const (
 )
 
 // 创建Db
-func CreateDb(configFile string) *xorm.Engine {
-    config := getDbConfig(configFile)
+func CreateDb(config map[string]string) *xorm.Engine {
     dsn := getDbEngineDSN(config["engine"], config)
     engine, err := xorm.NewEngine(config["engine"], dsn)
     if err != nil {
@@ -54,6 +52,13 @@ func CreateDb(configFile string) *xorm.Engine {
     return engine
 }
 
+// 创建临时数据库连接
+func CreateTmpDb(config map[string]string) (*xorm.Engine, error)  {
+    dsn := getDbEngineDSN(config["engine"], config)
+
+    return xorm.NewEngine(config["engine"], dsn)
+}
+
 // 获取数据库引擎DSN  mysql,sqlite
 func getDbEngineDSN(engine string, config map[string]string) string {
     engine = strings.ToLower(engine)
@@ -70,29 +75,6 @@ func getDbEngineDSN(engine string, config map[string]string) string {
     }
 
     return dsn
-}
-
-// 获取数据库配置
-func getDbConfig(configFile string) map[string]string {
-    config, err := setting.Read(configFile)
-    if err != nil {
-        panic(err)
-    }
-    section := config.Section("db")
-    if err != nil {
-        panic(err)
-    }
-    var db map[string]string = make(map[string]string)
-    db["user"] = section.Key("user").String()
-    db["password"] = section.Key("password").String()
-    db["host"] = section.Key("host").String()
-    db["port"] = section.Key("port").String()
-    db["database"] = section.Key("database").String()
-    db["charset"] = section.Key("charset").String()
-    db["prefix"] = section.Key("prefix").String()
-    db["engine"] = section.Key("engine").String()
-
-    return db
 }
 
 // 定时ping, 防止因数据库超时设置被断开

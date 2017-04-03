@@ -9,6 +9,7 @@ import (
     "github.com/ouqiang/cron-scheduler/modules/crontask"
     "github.com/ouqiang/cron-scheduler/modules/utils"
     "github.com/ouqiang/cron-scheduler/service"
+    "github.com/ouqiang/cron-scheduler/modules/setting"
 )
 
 var (
@@ -90,8 +91,9 @@ func InitResource() {
 }
 
 // 初始化DB
-func InitDb() {
-    models.Db = models.CreateDb(AppConfig)
+func InitDb()  {
+    dbConfig := getDbConfig(AppConfig)
+    models.Db = models.CreateDb(dbConfig)
 }
 
 // 检测目录是否存在
@@ -105,4 +107,27 @@ func checkDirExists(path ...string) {
             panic(value + "目录无权限操作")
         }
     }
+}
+
+// 获取数据库配置
+func getDbConfig(configFile string) map[string]string {
+    config, err := setting.Read(configFile)
+    if err != nil {
+        panic(err)
+    }
+    section := config.Section("db")
+    if err != nil {
+        panic(err)
+    }
+    var db map[string]string = make(map[string]string)
+    db["user"] = section.Key("user").String()
+    db["password"] = section.Key("password").String()
+    db["host"] = section.Key("host").String()
+    db["port"] = section.Key("port").String()
+    db["database"] = section.Key("database").String()
+    db["charset"] = section.Key("charset").String()
+    db["prefix"] = section.Key("prefix").String()
+    db["engine"] = section.Key("engine").String()
+
+    return db
 }
