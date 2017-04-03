@@ -8,6 +8,7 @@ import (
     "github.com/ouqiang/cron-scheduler/modules/setting"
     "gopkg.in/macaron.v1"
     "strings"
+    "time"
 )
 
 type Status int8
@@ -42,11 +43,13 @@ func CreateDb(configFile string) *xorm.Engine {
         mapper := core.NewPrefixMapper(core.SnakeMapper{}, config["prefix"])
         engine.SetTableMapper(mapper)
     }
-    // 本地环境开始日志
+    // 本地环境开启日志
     if macaron.Env == macaron.DEV {
         engine.ShowSQL(true)
         engine.Logger().SetLevel(core.LOG_DEBUG)
     }
+
+    go keepDbAlived(engine)
 
     return engine
 }
@@ -90,4 +93,13 @@ func getDbConfig(configFile string) map[string]string {
     db["engine"] = section.Key("engine").String()
 
     return db
+}
+
+// 定时ping, 防止因数据库超时设置被断开
+func keepDbAlived(engine *xorm.Engine)  {
+    t := time.Tick(180 * time.Second)
+    for {
+        <- t
+        engine.Ping()
+    }
 }
