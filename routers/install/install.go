@@ -71,6 +71,7 @@ func Install(ctx *macaron.Context, form InstallForm) string {
         return json.Failure(utils.ResponseFailure, "创建文件安装锁失败")
     }
 
+    app.Installed = true
     // 初始化定时任务等
     app.InitResource()
 
