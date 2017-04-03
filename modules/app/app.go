@@ -28,7 +28,7 @@ func InitEnv() {
     CheckEnv()
     wd, err := os.Getwd()
     if err != nil {
-        panic(err)
+        logger.Fatal(err)
     }
     AppDir = wd
     ConfDir = AppDir + "/conf"
