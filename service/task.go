@@ -1,7 +1,6 @@
 package service
 
 import (
-    "fmt"
     "github.com/ouqiang/cron-scheduler/models"
     "github.com/ouqiang/cron-scheduler/modules/ansible"
     "github.com/ouqiang/cron-scheduler/modules/crontask"
@@ -131,7 +130,6 @@ func createTaskLog(taskId int) (int, error) {
 }
 
 func updateTaskLog(taskLogId int, result string, err error) (int64, error) {
-    fmt.Println(taskLogId)
     taskLogModel := new(models.TaskLog)
     var status models.Status
     if err != nil {

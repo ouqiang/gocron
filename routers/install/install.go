@@ -15,7 +15,7 @@ import (
 type InstallForm struct {
     DbType        string `binding:"IN(mysql)"`
     DbHost        string `binding:"Required"`
-    DbPort        int    `binding:"Required"` // todo 限制端口范围1-65535, 为什么规则未生效？
+    DbPort        int    `binding:"Required;Range(1-65535)"` // todo 限制端口范围1-65535, 为什么规则未生效？
     DbUsername    string `binding:"Required"`
     DbPassword    string `binding:"Required"`
     DbName        string `binding:"Required"`
