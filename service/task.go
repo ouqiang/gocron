@@ -69,7 +69,7 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
         return
     }
     req.Header.Set("Content-type", "application/x-www-form-urlencoded")
-    req.Header.Set("User-Agent", "golang-cron/scheduler")
+    req.Header.Set("User-Agent", "golang/cron-scheduler")
 
     resp, err := client.Do(req)
     defer func() {
