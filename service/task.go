@@ -46,7 +46,8 @@ func (task *Task) Add(taskModel models.Task) {
         }
     } else if taskModel.Type == models.Delay {
         // 延时任务
-        time.AfterFunc(time.Duration(taskModel.Delay)*time.Second, taskFunc)
+        delay := time.Duration(taskModel.Delay) * time.Second
+        time.AfterFunc(delay, taskFunc)
     }
 }
 
