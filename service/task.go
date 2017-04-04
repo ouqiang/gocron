@@ -156,6 +156,9 @@ func createHandlerJob(taskModel models.Task) cron.FuncJob {
     case models.SSHScript:
         handler = new(SSHScriptHandler)
     }
+    if handler == nil {
+        return nil
+    }
     taskFunc := func() {
         taskLogId, err := createTaskLog(taskModel.Id)
         if err != nil {
