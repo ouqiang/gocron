@@ -117,10 +117,17 @@ func catchSignal()  {
     c := make(chan os.Signal)
     signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM,
         syscall.SIGUSR1, syscall.SIGUSR2)
-    s := <- c
-    // todo 信号处理, 清理资源, 准备退出
-    logger.Info("收到信号 ", s)
-    os.Exit(1)
+    for {
+        s := <- c
+        logger.Info("收到信号 -- ", s)
+        switch s {
+            case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
+                // 清理资源, 准备退出
+                os.Exit(1)
+            case syscall.SIGUSR1, syscall.SIGUSR2:
+                // 热更新
+        }
+    }
 }
 
 func becomeDaemon(ctx *cli.Context) {
