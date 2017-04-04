@@ -8,7 +8,15 @@ import (
     "github.com/ouqiang/cron-scheduler/routers"
     "github.com/urfave/cli"
     "gopkg.in/macaron.v1"
+    "os"
+    "os/signal"
+    "path/filepath"
+    "os/exec"
+    "syscall"
+    "github.com/ouqiang/cron-scheduler/modules/logger"
 )
+
+const InitProcess = 1
 
 // web服务器默认端口
 const DefaultPort = 5920
@@ -31,12 +39,24 @@ var CmdWeb = cli.Command{
             Value: "dev",
             Usage: "runtime environment, dev|test|prod",
         },
+        cli.StringFlag{
+            Name: "d",
+            Value: "false",
+            Usage: "-d=true, run app as daemon",
+        },
     },
 }
 
 func run(ctx *cli.Context) {
+    // 作为守护进程运行
+    becomeDaemon(ctx);
+    // 设置运行环境
     setEnvironment(ctx)
+    // 初始化应用
     app.InitEnv()
+    // 捕捉信号,配置热更新等
+    go catchSignal()
+
     m := macaron.Classic()
     // 注册路由
     routers.Register(m)
@@ -90,4 +110,41 @@ func setEnvironment(ctx *cli.Context)  {
     if env == "prod" {
         macaron.Env = macaron.PROD
     }
+}
+
+// 捕捉信号
+func catchSignal()  {
+    c := make(chan os.Signal)
+    signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM,
+        syscall.SIGUSR1, syscall.SIGUSR2)
+    s := <- c
+    // todo 信号处理, 清理资源, 准备退出
+    logger.Info("收到信号 ", s)
+    os.Exit(1)
+}
+
+func becomeDaemon(ctx *cli.Context) {
+    var daemond string = "false"
+    if ctx.IsSet("d") {
+        daemond = ctx.String("d")
+    }
+    if (daemond != "true") {
+        return
+    }
+
+
+    if os.Getppid() == InitProcess {
+        // 子进程不再处理
+        return
+    }
+
+    filePath, _:= filepath.Abs(os.Args[0])
+    cmd := exec.Command(filePath, os.Args[1:]...)
+    cmd.Stdin = os.Stdin
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+    cmd.Start()
+
+    // 父进程退出, 子进程由init-1号进程收养
+    os.Exit(0)
 }
