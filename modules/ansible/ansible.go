@@ -7,6 +7,14 @@ import (
     "github.com/ouqiang/cron-scheduler/modules/utils"
 )
 
+// ansible是否有安装
+func IsInstalled() bool  {
+    _, err := utils.ExecShell("ansible", "--version")
+
+
+    return err == nil
+}
+
 /**
  * 执行ad-hoc
  * hosts  主机名或主机别名 逗号分隔

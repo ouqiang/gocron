@@ -7,7 +7,6 @@ import (
     "github.com/ouqiang/cron-scheduler/models"
     "github.com/ouqiang/cron-scheduler/modules/ansible"
     "github.com/ouqiang/cron-scheduler/modules/crontask"
-    "github.com/ouqiang/cron-scheduler/modules/utils"
     "github.com/ouqiang/cron-scheduler/service"
     "github.com/ouqiang/cron-scheduler/modules/setting"
     "github.com/ouqiang/cron-scheduler/modules/logger"
@@ -21,11 +20,11 @@ var (
     AppConfig    string // 应用配置文件
     AnsibleHosts string // ansible hosts文件
     Installed    bool   // 应用是否安装过
+    IsWindows    bool   // 是否是在windows上运行
 )
 
 func InitEnv() {
     logger.InitLogger()
-    CheckEnv()
     wd, err := os.Getwd()
     if err != nil {
         logger.Fatal(err)
@@ -36,6 +35,7 @@ func InitEnv() {
     DataDir = AppDir + "/data"
     AppConfig = ConfDir + "/app.ini"
     AnsibleHosts = ConfDir + "/ansible_hosts.ini"
+    IsWindows = runtime.GOOS == "windows"
     checkDirExists(ConfDir, LogDir, DataDir)
     // ansible配置文件目录
     os.Setenv("ANSIBLE_CONFIG", ConfDir)
@@ -54,18 +54,6 @@ func IsInstalled() bool {
     }
 
     return true
-}
-
-// 检测环境
-func CheckEnv() {
-    // ansible不支持安装在windows上, windows只能作为被控机
-    if runtime.GOOS == "windows" {
-        logger.Fatal("不支持在windows上运行")
-    }
-    _, err := utils.ExecShell("ansible", "--version")
-    if err != nil {
-        logger.Fatal(err)
-    }
 }
 
 // 创建安装锁文件
