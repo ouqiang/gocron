@@ -1,0 +1,15 @@
+language: go
+
+go:
+  - 1.5.x
+  - 1.6.x
+  - 1.7.x
+  - 1.8.x
+  - master
+
+env:
+  - GO15VENDOREXPERIMENT=1
+
+os:
+  - linux
+  - osx
