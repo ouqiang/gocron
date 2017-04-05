@@ -20,7 +20,6 @@ var (
     AppConfig    string // 应用配置文件
     AnsibleHosts string // ansible hosts文件
     Installed    bool   // 应用是否安装过
-    IsWindows    bool   // 是否是在windows上运行
 )
 
 func InitEnv() {
@@ -29,13 +28,13 @@ func InitEnv() {
     if err != nil {
         logger.Fatal(err)
     }
+    checkEnv()
     AppDir = wd
     ConfDir = AppDir + "/conf"
     LogDir = AppDir + "/log"
     DataDir = AppDir + "/data"
     AppConfig = ConfDir + "/app.ini"
     AnsibleHosts = ConfDir + "/ansible_hosts.ini"
-    IsWindows = runtime.GOOS == "windows"
     checkDirExists(ConfDir, LogDir, DataDir)
     // ansible配置文件目录
     os.Setenv("ANSIBLE_CONFIG", ConfDir)
@@ -45,6 +44,13 @@ func InitEnv() {
         InitResource()
     }
 }
+
+func checkEnv()  {
+    if runtime.GOOS == "windows" {
+        logger.Fatal("不支持在windows上运行")
+    }
+}
+
 
 // 判断应用是否安装过
 func IsInstalled() bool {
