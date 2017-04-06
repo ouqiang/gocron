@@ -40,7 +40,7 @@ func (task *Task) Add(taskModel models.Task) {
     }
     // 定时任务
     if taskModel.Type == models.Timing {
-        err := crontask.DefaultCronTask.AddOrReplace(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
+        err := crontask.DefaultCronTask.Update(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
         if err != nil {
             logger.Error(err)
         }
@@ -120,9 +120,16 @@ func execSSHHandler(module string, taskModel models.Task) (string, error) {
     return "", nil
 }
 
-func createTaskLog(taskId int) (int, error) {
+func createTaskLog(taskModel models.Task) (int, error) {
     taskLogModel := new(models.TaskLog)
-    taskLogModel.TaskId = taskId
+    taskLogModel.Name = taskModel.Name
+    taskLogModel.Spec = taskModel.Spec
+    taskLogModel.Protocol = taskModel.Protocol
+    taskLogModel.Type = taskModel.Type
+    taskLogModel.Command = taskModel.Command
+    taskLogModel.Timeout = taskModel.Timeout
+    taskLogModel.Delay = taskModel.Delay
+    taskLogModel.SshHosts = taskModel.SshHosts
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = models.Running
     insertId, err := taskLogModel.Create()
@@ -160,7 +167,7 @@ func createHandlerJob(taskModel models.Task) cron.FuncJob {
         return nil
     }
     taskFunc := func() {
-        taskLogId, err := createTaskLog(taskModel.Id)
+        taskLogId, err := createTaskLog(taskModel)
         if err != nil {
             logger.Error("写入任务日志失败-", err)
             return

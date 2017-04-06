@@ -54,7 +54,7 @@ func (cronTask *CronTask) Add(name string, spec string, cmd cron.FuncJob) (err e
 }
 
 // 任务不存在则新增，任务已存在则删除后新增
-func (cronTask *CronTask) AddOrReplace(name string, spec string, cmd cron.FuncJob) error {
+func (cronTask *CronTask) Update(name string, spec string, cmd cron.FuncJob) error {
     if cronTask.IsExist(name) {
         cronTask.Delete(name)
     }
@@ -84,4 +84,11 @@ func (cronTask *CronTask) Delete(name string) {
     cronTask.Lock()
     defer cronTask.Unlock()
     delete(cronTask.tasks, name)
+}
+
+// 删除所有任务
+func(cronTask *CronTask) DeleteAll()  {
+    for taskName, _ := range(cronTask.tasks) {
+        cronTask.Delete(taskName)
+    }
 }

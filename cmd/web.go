@@ -14,8 +14,10 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/cron-scheduler/modules/crontask"
 )
 
+// 1号进程id
 const InitProcess = 1
 
 // web服务器默认端口
@@ -56,7 +58,6 @@ func run(ctx *cli.Context) {
     app.InitEnv()
     // 捕捉信号,配置热更新等
     go catchSignal()
-
     m := macaron.Classic()
     // 注册路由
     routers.Register(m)
@@ -115,17 +116,16 @@ func setEnvironment(ctx *cli.Context)  {
 // 捕捉信号
 func catchSignal()  {
     c := make(chan os.Signal)
-    signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM,
-        syscall.SIGUSR1, syscall.SIGUSR2)
+    // todo 配置热更新, windows 不支持 syscall.SIGUSR1, syscall.SIGUSR2
+    signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
     for {
         s := <- c
         logger.Info("收到信号 -- ", s)
         switch s {
             case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
-                // 清理资源, 准备退出
+                // 删除所有任务
+                crontask.DefaultCronTask.DeleteAll()
                 os.Exit(1)
-            case syscall.SIGUSR1, syscall.SIGUSR2:
-                // 热更新
         }
     }
 }
@@ -141,7 +141,7 @@ func becomeDaemon(ctx *cli.Context) {
 
 
     if os.Getppid() == InitProcess {
-        // 子进程不再处理
+        // 已是守护进程，不再处理
         return
     }
 
