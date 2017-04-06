@@ -44,7 +44,7 @@ var CmdWeb = cli.Command{
         cli.StringFlag{
             Name: "d",
             Value: "false",
-            Usage: "-d=true, run app as daemon",
+            Usage: "-d=true, run app as daemon, not support windows",
         },
     },
 }
@@ -131,6 +131,10 @@ func catchSignal()  {
 }
 
 func becomeDaemon(ctx *cli.Context) {
+    // 不支持windows
+    if app.IsWindows {
+        return
+    }
     var daemond string = "false"
     if ctx.IsSet("d") {
         daemond = ctx.String("d")
@@ -138,7 +142,6 @@ func becomeDaemon(ctx *cli.Context) {
     if (daemond != "true") {
         return
     }
-
 
     if os.Getppid() == InitProcess {
         // 已是守护进程，不再处理

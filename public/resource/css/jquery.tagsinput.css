@@ -1,0 +1,22 @@
+div.tagsinput { border: 1px solid rgba(0, 0, 0, 0.15); background: #FFF; padding:5px; width:300px; height:100px; overflow-y: auto; border-radius: 0.3125em;-webkit-box-shadow: 0em 0em 0em 0em rgba(0, 0, 0, 0.3) inset;box-shadow: 0em 0em 0em 0em rgba(0, 0, 0, 0.3) inset;-webkit-appearance: none;}
+div.tagsinput span.tag { border: 1px solid #a5d24a; -moz-border-radius:2px; -webkit-border-radius:2px; display: block; float: left; padding: 5px; text-decoration:none; background: #cde69c; color: #638421; margin-right: 5px; margin-bottom:5px;font-family: helvetica;  font-size:13px;}
+div.tagsinput span.tag a { font-weight: bold; color: #82ad2b; text-decoration:none; font-size: 11px;  }
+div.tagsinput input { width:120px !important; margin:0px;font-size: 13px; border:1px solid transparent; padding:5px; background: transparent; color: #000; outline:0px;  margin-right:5px; margin-bottom:5px;
+-webkit-transition: background-color 0.3s ease-out, -webkit-box-shadow 0.2s ease, border-color 0.2s ease;
+transition: background-color 0.3s ease-out, box-shadow 0.2s ease, border-color 0.2s ease;
+-webkit-box-shadow: 0em 0em 0em 0em rgba(0, 0, 0, 0.3) inset;
+box-shadow: 0em 0em 0em 0em rgba(0, 0, 0, 0.3) inset;
+-webkit-appearance: none;
+-webkit-tap-highlight-color: rgba(255, 255, 255, 0);
+}
+div.tagsinput input:focus {
+    color: rgba(0, 0, 0, 0.85) !important;
+    border-bottom-left-radius: 0;
+    border-top-left-radius: 0;
+    -webkit-appearance: none;
+    -webkit-box-shadow: 0.3em 0em 0em 0em rgba(0, 0, 0, 0.2) inset;
+    box-shadow: 0.3em 0em 0em 0em rgba(0, 0, 0, 0.2) inset;
+}
+div.tagsinput div { display:block; float: left; }
+.tags_clear { clear: both; width: 100%; height: 0px; }
+.not_valid {background: #FBD8DB !important; color: #90111A !important;}

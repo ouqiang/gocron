@@ -2,7 +2,6 @@ package app
 
 import (
     "os"
-    "runtime"
 
     "github.com/ouqiang/cron-scheduler/models"
     "github.com/ouqiang/cron-scheduler/modules/ansible"
@@ -10,6 +9,7 @@ import (
     "github.com/ouqiang/cron-scheduler/service"
     "github.com/ouqiang/cron-scheduler/modules/setting"
     "github.com/ouqiang/cron-scheduler/modules/logger"
+    "runtime"
 )
 
 var (
@@ -20,7 +20,12 @@ var (
     AppConfig    string // 应用配置文件
     AnsibleHosts string // ansible hosts文件
     Installed    bool   // 应用是否安装过
+    IsWindows    bool   // 是否是在windows上运行
 )
+
+func init()  {
+    IsWindows = runtime.GOOS == "windows"
+}
 
 func InitEnv() {
     logger.InitLogger()
@@ -28,7 +33,6 @@ func InitEnv() {
     if err != nil {
         logger.Fatal(err)
     }
-    checkEnv()
     AppDir = wd
     ConfDir = AppDir + "/conf"
     LogDir = AppDir + "/log"
@@ -44,13 +48,6 @@ func InitEnv() {
         InitResource()
     }
 }
-
-func checkEnv()  {
-    if runtime.GOOS == "windows" {
-        logger.Fatal("不支持在windows上运行")
-    }
-}
-
 
 // 判断应用是否安装过
 func IsInstalled() bool {
