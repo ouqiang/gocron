@@ -5,6 +5,7 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/utils"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/modules/ansible"
 )
 
 func Create(ctx *macaron.Context)  {
@@ -37,6 +38,8 @@ func Store(ctx *macaron.Context, form HostForm) string  {
         logger.Error(err)
         return json.Failure(utils.ResponseFailure, "保存失败")
     }
+
+    ansible.DefaultHosts.Write()
 
     return json.Success("保存成功", nil)
 }

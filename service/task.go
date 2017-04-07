@@ -105,7 +105,7 @@ func (ssh *SSHScriptHandler) Run(taskModel models.Task) (string, error) {
 
 // SSH任务
 func execSSHHandler(module string, taskModel models.Task) (string, error) {
-    var args []string = []string{"-a", "'" + taskModel.Command + "'"}
+    var args []string = []string{"-a", taskModel.Command}
     if taskModel.Timeout > 0 {
         // -B 异步执行超时时间, -P 轮询时间
         args = append(args, "-B", strconv.Itoa(taskModel.Timeout), "-P", "10")

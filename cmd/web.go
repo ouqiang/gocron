@@ -14,7 +14,6 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
-    "fmt"
 )
 
 // 1号进程id

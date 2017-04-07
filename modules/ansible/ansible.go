@@ -32,7 +32,6 @@ func ExecCommand(hosts string, hostFile string, module string, args ...string) (
     if len(args) > 0 {
         commandArgs = append(commandArgs, args...)
     }
-    logger.Info(commandArgs)
     output, err = utils.ExecShell("ansible", commandArgs...)
 
     return
