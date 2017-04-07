@@ -2,11 +2,11 @@ package ansible
 
 import (
     "bytes"
-    "github.com/ouqiang/cron-scheduler/models"
+    "github.com/ouqiang/gocron/models"
     "io/ioutil"
     "strconv"
     "sync"
-    "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 // 主机名

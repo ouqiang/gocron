@@ -4,7 +4,7 @@ package ansible
 
 import (
     "errors"
-    "github.com/ouqiang/cron-scheduler/modules/utils"
+    "github.com/ouqiang/gocron/modules/utils"
 )
 
 // ansible是否有安装

@@ -1,13 +1,13 @@
 package install
 
 import (
-    "github.com/ouqiang/cron-scheduler/models"
-    "github.com/ouqiang/cron-scheduler/modules/app"
-    "github.com/ouqiang/cron-scheduler/modules/setting"
-    "github.com/ouqiang/cron-scheduler/modules/utils"
+    "github.com/ouqiang/gocron/models"
+    "github.com/ouqiang/gocron/modules/app"
+    "github.com/ouqiang/gocron/modules/setting"
+    "github.com/ouqiang/gocron/modules/utils"
     "gopkg.in/macaron.v1"
     "strconv"
-    "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/gocron/modules/logger"
     "github.com/go-macaron/binding"
 )
 

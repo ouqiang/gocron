@@ -2,10 +2,10 @@ package routers
 
 import (
     "github.com/go-macaron/binding"
-    "github.com/ouqiang/cron-scheduler/routers/install"
+    "github.com/ouqiang/gocron/routers/install"
     "gopkg.in/macaron.v1"
-    "github.com/ouqiang/cron-scheduler/routers/task"
-    "github.com/ouqiang/cron-scheduler/routers/host"
+    "github.com/ouqiang/gocron/routers/task"
+    "github.com/ouqiang/gocron/routers/host"
 )
 
 // 路由注册

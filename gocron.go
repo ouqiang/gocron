@@ -10,15 +10,15 @@ import (
     "github.com/urfave/cli"
     "os"
 
-    "github.com/ouqiang/cron-scheduler/cmd"
+    "github.com/ouqiang/gocron/cmd"
 )
 
 const AppVersion = "0.0.1"
 
 func main() {
     app := cli.NewApp()
-    app.Name = "cron-scheduler"
-    app.Usage = "cron-scheduler service"
+    app.Name = "gocron"
+    app.Usage = "gocron service"
     app.Version = AppVersion
     app.Commands = []cli.Command{
         cmd.CmdWeb,

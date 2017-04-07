@@ -3,12 +3,12 @@ package app
 import (
     "os"
 
-    "github.com/ouqiang/cron-scheduler/models"
-    "github.com/ouqiang/cron-scheduler/modules/ansible"
-    "github.com/ouqiang/cron-scheduler/modules/crontask"
-    "github.com/ouqiang/cron-scheduler/service"
-    "github.com/ouqiang/cron-scheduler/modules/setting"
-    "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/gocron/models"
+    "github.com/ouqiang/gocron/modules/ansible"
+    "github.com/ouqiang/gocron/modules/crontask"
+    "github.com/ouqiang/gocron/service"
+    "github.com/ouqiang/gocron/modules/setting"
+    "github.com/ouqiang/gocron/modules/logger"
     "runtime"
 )
 

@@ -1,15 +1,15 @@
 package service
 
 import (
-    "github.com/ouqiang/cron-scheduler/models"
-    "github.com/ouqiang/cron-scheduler/modules/ansible"
-    "github.com/ouqiang/cron-scheduler/modules/crontask"
+    "github.com/ouqiang/gocron/models"
+    "github.com/ouqiang/gocron/modules/ansible"
+    "github.com/ouqiang/gocron/modules/crontask"
     "github.com/robfig/cron"
     "io/ioutil"
     "net/http"
     "strconv"
     "time"
-    "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 type Task struct{}
@@ -69,7 +69,7 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
         return
     }
     req.Header.Set("Content-type", "application/x-www-form-urlencoded")
-    req.Header.Set("User-Agent", "golang/cron-scheduler")
+    req.Header.Set("User-Agent", "golang/gocron")
 
     resp, err := client.Do(req)
     defer func() {

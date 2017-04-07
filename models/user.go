@@ -1,7 +1,7 @@
 package models
 
 import (
-    "github.com/ouqiang/cron-scheduler/modules/utils"
+    "github.com/ouqiang/gocron/modules/utils"
     "time"
 )
 

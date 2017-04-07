@@ -4,8 +4,8 @@ import (
     "github.com/go-macaron/csrf"
     "github.com/go-macaron/gzip"
     "github.com/go-macaron/session"
-    "github.com/ouqiang/cron-scheduler/modules/app"
-    "github.com/ouqiang/cron-scheduler/routers"
+    "github.com/ouqiang/gocron/modules/app"
+    "github.com/ouqiang/gocron/routers"
     "github.com/urfave/cli"
     "gopkg.in/macaron.v1"
     "os"
@@ -13,7 +13,7 @@ import (
     "path/filepath"
     "os/exec"
     "syscall"
-    "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 // 1号进程id
