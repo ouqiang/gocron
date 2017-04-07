@@ -14,7 +14,6 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/cron-scheduler/modules/logger"
-    "github.com/ouqiang/cron-scheduler/modules/crontask"
 )
 
 // 1号进程id
@@ -123,8 +122,6 @@ func catchSignal()  {
         logger.Info("收到信号 -- ", s)
         switch s {
             case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
-                // 删除所有任务
-                crontask.DefaultCronTask.DeleteAll()
                 os.Exit(1)
         }
     }

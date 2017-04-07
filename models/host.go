@@ -17,8 +17,8 @@ type Host struct {
 type LoginType int8
 
 const (
-    PublicKey    = 1
-    UserPassword = 2
+    PublicKey    = iota + 1  // 公钥认证
+    UserPassword             // 用户名密码认证
 )
 
 // 新增

@@ -1,0 +1,78 @@
+{{{ template "common/header" . }}}
+
+<div class="ui grid">
+    <!--the vertical menu-->
+   {{{ template "host/menu" . }}}
+
+    <div class="twelve wide column">
+        <form class="ui form fluid vertical segment">
+            <div class="two fields">
+                <div class="field">
+                    <label>主机名 (域名或IP)</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="127.0.0.1" name="name">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>主机别名 (方便记忆和引用)</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="db" name="alias">
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>SSH用户名</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="root" name="username">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>SSH密码</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="123456" name="password">
+                    </div>
+                </div>
+
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>SSH端口</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="22" name="port" value="22">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>认证方式 (建议使用公钥认证)</label>
+                    <div class="ui dropdown selection">
+                        <input type="hidden" name="login_type" value="1">
+                        <div class="default text">公钥</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="item active" data-value="1">公钥</div>
+                            <div class="item" data-value="2">用户名密码</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>备注</label>
+                    <div class="ui small left icon input">
+                        <textarea rows="5" name="remark" placeholder="数据库服务器"></textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="ui primary submit button">提交</div>
+        </form>
+    </div>
+    <!--the newDevice form-->
+</div>
+
+
+<script type="text/javascript">
+
+</script>
+
+{{{ template "common/footer" . }}}

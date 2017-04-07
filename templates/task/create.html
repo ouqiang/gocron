@@ -1,0 +1,95 @@
+{{{ template "common/header" . }}}
+
+<div class="ui grid">
+    <!--the vertical menu-->
+
+    {{{template "task/menu" .}}}
+    <div class="twelve wide column">
+    <form class="ui form fluid vertical segment">
+        <div class="two fields">
+            <div class="field">
+                <label>任务名称</label>
+                <div class="ui small left icon input">
+                    <input type="text" placeholder="数据库备份" name="name">
+                </div>
+            </div>
+        </div>
+        <div class="two fields">
+            <div class="field">
+                <label>crontab表达式 (每行一个表达式)</label>
+                <textarea rows="5" name="spec" placeholder="*/5 * * * * * *"></textarea>
+            </div>
+        </div>
+        <div class="three fields">
+            <div class="field">
+                <label>协议</label>
+                <div class="ui dropdown selection">
+                    <input type="hidden" name="protocol" value="2">
+                    <div class="default text">SSH-Command (执行shell命令)</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item active" data-value="2">SSH-Command (执行shell命令)</div>
+                        <div class="item" data-value="3">SSH-Script (执行shell脚本,把本地脚本复制到远程运行)</div>
+                        <div class="item" data-value="1">HTTP (执行http-post请求)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>任务类型</label>
+                <div class="ui dropdown selection">
+                    <input type="hidden" name="type" value="1">
+                    <div class="default text">定时任务</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item active" data-value="1">定时任务</div>
+                        <div class="item" data-value="2">延时任务</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="field">
+                <label>主机</label>
+                <div class="ui dropdown selection">
+                    <input type="hidden" name="type" value="1">
+                    <div class="default text">定时任务</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item active" data-value="1">定时任务</div>
+                        <div class="item" data-value="2">延时任务</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="field">
+            <label>命令 (根据选择的协议类型确定，shell命令|shell脚本名称|URL地址)</label>
+            <input type="text"  name="spec" placeholder="tail -n 10 /var/log/nginx/error.log">
+        </div>
+        <div class="three fields">
+            <div class="field">
+                <label>任务超时时间 (单位秒,0不限制)</label>
+                <input type="text"  name="timeout" placeholder="60">
+            </div>
+            <div class="field">
+                <label>延时时间 (单位秒)</label>
+                <input type="text"  name="timeout" placeholder="60">
+            </div>
+        </div>
+        <div class="three field">
+            <div class="field">
+                <label>备注</label>
+                <textarea rows="5" name="remark" placeholder="数据库备份, 每天凌晨执行一次"></textarea>
+            </div>
+        </div>
+        <div class="ui primary submit button">提交</div>
+    </form>
+    </div>
+    <!--the newDevice form-->
+</div>
+
+
+<script type="text/javascript">
+
+</script>
+
+{{{ template "common/footer" . }}}

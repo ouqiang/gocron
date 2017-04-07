@@ -1,54 +1,67 @@
 {{{ template "common/header" . }}}
 
-<h1 class="ui header center aligned">安装</h1>
+<div class="ui grid">
+    {{{ template "install/menu" . }}}
+    <div class="twelve wide column">
 <form class="ui form">
-    <div class="ui grey inverted segment center aligned">数据库配置</div>
-    <div class="field">
-        <label>数据库(目前只支持MySQL)</label>
-        <select class="ui search dropdown"  name="db_type">
-            <option value="mysql">MySQL</option>
-        </select>
+    <div class="three fields">
+        <div class="field">
+            <label>数据库(目前只支持MySQL)</label>
+            <select class="ui search dropdown"  name="db_type">
+                <option value="mysql">MySQL</option>
+            </select>
+        </div>
+        <div class="field">
+            <label>主机名</label>
+            <input type="text"  name="db_host" value="127.0.0.1">
+        </div>
+        <div class="field">
+            <label>端口</label>
+            <input type="text"  name="db_port" value="3306">
+        </div>
     </div>
-    <div class="field">
-        <label>主机名</label>
-        <input type="text" placeholder="主机名" name="db_host" value="127.0.0.1">
+    <div class="two fields">
+        <div class="field">
+            <label>用户名</label>
+            <input type="text" name="db_username">
+        </div>
+        <div class="field">
+            <label>密码</label>
+            <input type="text"  name="db_password">
+        </div>
     </div>
-    <div class="field">
-        <label>端口</label>
-        <input type="text" placeholder="端口" name="db_port" value="3306">
+    <div class="two fields">
+            <div class="field">
+                <label>数据库名称</label>
+                <input type="text" name="db_name">
+            </div>
+            <div class="field">
+                <label>表前缀</label>
+                <input type="text" name="db_table_prefix" value="cron_">
+            </div>
     </div>
-    <div class="field">
-        <label>用户名</label>
-        <input type="text" placeholder="用户名" name="db_username">
+    <div class="two fields">
+        <div class="field">
+            <label>管理员账号</label>
+            <input type="text"   name="admin_username">
+        </div>
     </div>
-    <div class="field">
-        <label>密码</label>
-        <input type="text"  placeholder="密码" name="db_password">
+    <div class="two fields">
+        <div class="field">
+            <label>管理员密码</label>
+            <input type="text"   name="admin_password">
+        </div>
     </div>
-    <div class="field">
-        <label>数据库名称</label>
-        <input type="text" placeholder="数据库名称"  name="db_name">
-    </div>
-    <div class="field">
-        <label>表前缀</label>
-        <input type="text" placeholder="cron_"  name="db_table_prefix" value="cron_">
-    </div>
-
-    <div class="ui grey inverted segment center aligned">管理员账号配置</div>
-    <div class="field">
-        <label>管理员账号</label>
-        <input type="text"  placeholder="管理员账号"  name="admin_username">
-    </div>
-    <div class="field">
-        <label>管理员密码</label>
-        <input type="text"  placeholder="管理员密码"  name="admin_password">
-    </div>
-    <div class="field">
-        <label>管理员邮箱</label>
-        <input type="text" placeholder="管理员邮箱"  name="admin_email">
+    <div class="two fields">
+        <div class="field">
+            <label>管理员邮箱</label>
+            <input type="text" name="admin_email">
+        </div>
     </div>
     <div class="ui primary submit button">提交</div>
 </form>
+    </div>
+</div>
 
 <script type="text/javascript">
     // 表单验证规则
@@ -56,7 +69,7 @@
             .form({
                 onSuccess: function(event, fields) {
                     var util = new Util();
-                    util.post('/install', fields, function(code, message) {
+                    util.post('/install/store', fields, function(code, message) {
 
                     });
                     return false;

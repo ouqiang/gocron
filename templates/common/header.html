@@ -1,24 +1,52 @@
 <!doctype html>
-<html>
+<html lang="zh-CN">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
     <title>{{{.Title}}}</title>
-    <link rel="stylesheet" href="/plugins/semantic-ui/semantic.min.css">
-    <script type="text/javascript" src="/js/jquery-3.1.1.min.js"></script>
-    <script type="text/javascript" src="/js/vue.min.js"></script>
-    <script type="text/javascript" src="/js/main.js"></script>
-    <script type="text/javascript" src="/plugins/semantic-ui/semantic.min.js"></script>
+    <link type="text/css" rel="stylesheet" href="/resource/css/framework.css" />
+    <link type="text/css" rel="stylesheet" href="/resource/css/main.css" />
 </head>
 <body>
-<div class="ui container" style="padding:30px;">
-{{{/* 控制导航栏是否显示 */}}}
-{{{if not .DisableNav}}}
-    <div class="ui menu">
-        <a class="item">主页</a>
-        <a class="item">Submit</a>
-        <div class="right menu">
-            <a class="item">注册/登录</a>
-            <a class="item">帮助</a>
+<div class="page">
+    <!--header begin-->
+    <header>
+        <div class="bigcontainer">
+            <div id="logo">
+                定时任务管理平台
+            </div>
+            <div class="user">
+                <div class="ui inline labeled icon top right pointing dropdown">
+                    {{{if not .Logined}}}
+                        <img class="ui avatar image" src="/resource/images/gopher-avatar.png">
+                        你好
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <a class="item" href="/user/logout"><i class="sign in icon"></i>登录</a>
+                        </div>
+                    {{{else}}}
+                        <img class="ui avatar image" src="/resource/images/gopher-avatar.png">
+                        你好，{{{.Username}}}
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <a class="item" href="/"><i class="reply mail icon"></i>返回首页</a>
+                            <a class="item" href="/user/logout"><i class="sign out icon"></i>注销登录</a>
+                        </div>
+                    {{{end}}}
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- the main menu-->
+    <div class="ui teal inverted menu">
+        <div class="bigcontainer">
+            <div class="right menu">
+                <a class="item" href="/"><i class="home icon"></i>首页</a>
+                <a class="item" href="/task"><i class="tasks icon"></i>任务</a>
+                <a class="item" href="/host"><i class="linux icon"></i>主机</a>
+                <a class="active item" href="/user"><i class="user icon"></i>账户</a>
+            </div>
         </div>
     </div>
-{{{end}}}
+    <div class="container">

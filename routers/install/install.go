@@ -8,6 +8,7 @@ import (
     "gopkg.in/macaron.v1"
     "strconv"
     "github.com/ouqiang/cron-scheduler/modules/logger"
+    "github.com/go-macaron/binding"
 )
 
 // 系统安装
@@ -15,7 +16,7 @@ import (
 type InstallForm struct {
     DbType        string `binding:"IN(mysql)"`
     DbHost        string `binding:"Required"`
-    DbPort        int    `binding:"Required;Range(1-65535)"` // todo 限制端口范围1-65535, 为什么规则未生效？
+    DbPort        int    `binding:"Required;Range(1,65535)"`
     DbUsername    string `binding:"Required"`
     DbPassword    string `binding:"Required"`
     DbName        string `binding:"Required"`
@@ -25,18 +26,21 @@ type InstallForm struct {
     AdminEmail    string `binding:"Email"`
 }
 
-// 显示安装页面
-func Show(ctx *macaron.Context) {
+func(f InstallForm) Error(ctx *macaron.Context, errs binding.Errors)  {
+    logger.Error(errs)
+}
+
+func Create(ctx *macaron.Context) {
     if app.Installed {
         ctx.Redirect("/")
     }
     ctx.Data["Title"] = "安装"
     ctx.Data["DisableNav"] = true
-    ctx.HTML(200, "install/show")
+    ctx.HTML(200, "install/create")
 }
 
-// 安装,
-func Install(ctx *macaron.Context, form InstallForm) string {
+// 安装
+func Store(ctx *macaron.Context, form InstallForm) string {
     json := utils.Json{}
     if app.Installed {
         logger.Warn("系统重复安装")

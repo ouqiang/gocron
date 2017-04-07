@@ -9,21 +9,21 @@ type Protocol int8
 type TaskType int8
 
 const (
-    HTTP       Protocol = 1
-    SSHCommand Protocol = 2
-    SSHScript  Protocol = 3
+    HTTP       Protocol = iota + 1 // HTTP协议
+    SSHCommand  // SSHM命令
+    SSHScript
 )
 
 const (
-    Timing TaskType = 1
-    Delay  TaskType = 2
+    Timing TaskType = iota + 1 // 定时任务
+    Delay // 延时任务
 )
 
 // 任务
 type Task struct {
     Id       int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(64) notnull"`              // 任务名称
-    Spec     string    `xorm:"varchar(64) notnull"`              // crontab 时间格式
+    Spec     string    `xorm:"varchar(64) notnull"`              // crontab
     Protocol Protocol  `xorm:"tinyint notnull"`                  // 协议 1:http 2:ssh-command 3:ssh-script
     Type     TaskType  `xorm:"tinyint notnull default 1"`        // 任务类型 1: 定时任务 2: 延时任务
     Command  string    `xorm:"varchar(512) notnull"`             // URL地址或shell命令
