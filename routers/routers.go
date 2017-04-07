@@ -14,6 +14,7 @@ func Register(m *macaron.Macaron) {
     m.SetAutoHead(true)
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
+        // 判断是否get请求还是post, get返回页面, post返回json
         ctx.HTML(404, "error/404")
     })
     // 50x错误
@@ -38,13 +39,13 @@ func Register(m *macaron.Macaron) {
     // 任务
     m.Group("/task", func() {
         m.Get("/create", task.Create)
-        m.Post("/store", task.Store)
+        m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
     })
 
     // 主机
     m.Group("/host", func() {
         m.Get("/create", host.Create)
-        m.Get("/store", host.Store)
+        m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
     })
 
     // 任务日志

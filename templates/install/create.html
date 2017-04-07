@@ -3,87 +3,96 @@
 <div class="ui grid">
     {{{ template "install/menu" . }}}
     <div class="twelve wide column">
-<form class="ui form">
-    <div class="three fields">
-        <div class="field">
-            <label>数据库(目前只支持MySQL)</label>
-            <select class="ui search dropdown"  name="db_type">
-                <option value="mysql">MySQL</option>
-            </select>
-        </div>
-        <div class="field">
-            <label>主机名</label>
-            <input type="text"  name="db_host" value="127.0.0.1">
-        </div>
-        <div class="field">
-            <label>端口</label>
-            <input type="text"  name="db_port" value="3306">
-        </div>
-    </div>
-    <div class="two fields">
-        <div class="field">
-            <label>用户名</label>
-            <input type="text" name="db_username">
-        </div>
-        <div class="field">
-            <label>密码</label>
-            <input type="text"  name="db_password">
-        </div>
-    </div>
-    <div class="two fields">
-            <div class="field">
-                <label>数据库名称</label>
-                <input type="text" name="db_name">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <i class="large add icon"></i>
+                    <div class="content">
+                        安装gocron
+                    </div>
+                </h3>
             </div>
-            <div class="field">
-                <label>表前缀</label>
-                <input type="text" name="db_table_prefix" value="cron_">
+        </div>
+        <form class="ui form">
+            <div class="three fields">
+                <div class="field">
+                    <label>数据库(目前只支持MySQL)</label>
+                    <div class="ui dropdown selection">
+                        <input type="hidden" name="db_type" value="mysql">
+                        <div class="default text">MySQL</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="item active" data-value="mysql">MySQL</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-    </div>
-    <div class="two fields">
-        <div class="field">
-            <label>管理员账号</label>
-            <input type="text"   name="admin_username">
-        </div>
-    </div>
-    <div class="two fields">
-        <div class="field">
-            <label>管理员密码</label>
-            <input type="text"   name="admin_password">
-        </div>
-    </div>
-    <div class="two fields">
-        <div class="field">
-            <label>管理员邮箱</label>
-            <input type="text" name="admin_email">
-        </div>
-    </div>
-    <div class="ui primary submit button">提交</div>
-</form>
+            <div class="three fields">
+                <div class="field">
+                    <label>主机名</label>
+                    <input type="text"  name="db_host" value="127.0.0.1">
+                </div>
+                <div class="field">
+                    <label>端口</label>
+                    <input type="text"  name="db_port" value="3306">
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>用户名</label>
+                    <input type="text" name="db_username">
+                </div>
+                <div class="field">
+                    <label>密码</label>
+                    <input type="text"  name="db_password">
+                </div>
+            </div>
+            <div class="two fields">
+                    <div class="field">
+                        <label>数据库名称</label>
+                        <input type="text" name="db_name">
+                    </div>
+                    <div class="field">
+                        <label>表前缀</label>
+                        <input type="text" name="db_table_prefix" value="cron_">
+                    </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>管理员账号</label>
+                    <input type="text"   name="admin_username">
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>管理员密码</label>
+                    <input type="text"   name="admin_password">
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>管理员邮箱</label>
+                    <input type="text" name="admin_email">
+                </div>
+            </div>
+            <div class="ui blue submit button">保存</div>
+        </form>
     </div>
 </div>
 
 <script type="text/javascript">
     // 表单验证规则
-    $('.ui.form')
-            .form({
+    $('.ui.form').form(
+            {
                 onSuccess: function(event, fields) {
                     var util = new Util();
                     util.post('/install/store', fields, function(code, message) {
-
+                        swal('安装成功');
+                        location.href = "/";
                     });
                     return false;
                 },
                 fields: {
-                    dbType: {
-                        identifier  : 'db_type',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请选择数据库'
-                            }
-                        ]
-                    },
                     dbHost: {
                         identifier  : 'db_host',
                         rules: [

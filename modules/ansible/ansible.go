@@ -5,6 +5,7 @@ package ansible
 import (
     "errors"
     "github.com/ouqiang/gocron/modules/utils"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 // ansible是否有安装
@@ -31,6 +32,7 @@ func ExecCommand(hosts string, hostFile string, module string, args ...string) (
     if len(args) > 0 {
         commandArgs = append(commandArgs, args...)
     }
+    logger.Info(commandArgs)
     output, err = utils.ExecShell("ansible", commandArgs...)
 
     return

@@ -5,6 +5,16 @@
    {{{ template "host/menu" . }}}
 
     <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <i class="large add icon"></i>
+                    <div class="content">
+                        添加主机
+                    </div>
+                </h3>
+            </div>
+        </div>
         <form class="ui form fluid vertical segment">
             <div class="two fields">
                 <div class="field">
@@ -72,7 +82,56 @@
 
 
 <script type="text/javascript">
+    $('.ui.form').form(
+            {
+                onSuccess: function(event, fields) {
+                    var util = new Util();
+                    util.post('/host/store', fields, function(code, message) {
+                        location.reload();
+                    });
 
+                    return false;
+                },
+                fields: {
+                    name: {
+                        identifier  : 'name',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入主机名'
+                            }
+                        ]
+                    },
+                    alias: {
+                        identifier  : 'alias',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入主机别名'
+                            }
+                        ]
+                    },
+                    username: {
+                        identifier  : 'username',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入SSH用户名'
+                            }
+                        ]
+                    },
+                    port: {
+                        identifier  : 'port',
+                        rules: [
+                            {
+                                type   : 'integer',
+                                prompt : '请输入SSH端口'
+                            }
+                        ]
+                    }
+                },
+                inline : true
+            });
 </script>
 
 {{{ template "common/footer" . }}}

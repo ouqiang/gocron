@@ -7,6 +7,12 @@
     <title>{{{.Title}}}</title>
     <link type="text/css" rel="stylesheet" href="/resource/css/framework.css" />
     <link type="text/css" rel="stylesheet" href="/resource/css/main.css" />
+    <link type="text/css" rel="stylesheet" href="/resource/sweetalert/sweetalert.css" />
+    <script type="text/javascript" src="/resource/javascript/jquery.min.js"></script>
+    <script type="text/javascript" src="/resource/javascript/framework.js"></script>
+    <script type="text/javascript" src="/resource/javascript/form.min.js"></script>
+    <script type="text/javascript" src="/resource/sweetalert/sweetalert.min.js"></script>
+    <script type="text/javascript" src="/resource/javascript/main.js"></script>
 </head>
 <body>
 <div class="page">
@@ -23,15 +29,14 @@
                         你好
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <a class="item" href="/user/logout"><i class="sign in icon"></i>登录</a>
+                            <a class="item" href="/user/login"><i class="sign in icon"></i>登录</a>
                         </div>
                     {{{else}}}
                         <img class="ui avatar image" src="/resource/images/gopher-avatar.png">
                         你好，{{{.Username}}}
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <a class="item" href="/"><i class="reply mail icon"></i>返回首页</a>
-                            <a class="item" href="/user/logout"><i class="sign out icon"></i>注销登录</a>
+                            <a class="item" href="/user/logout"><i class="sign out icon"></i>退出</a>
                         </div>
                     {{{end}}}
                 </div>

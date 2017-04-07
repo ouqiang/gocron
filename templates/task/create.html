@@ -5,6 +5,16 @@
 
     {{{template "task/menu" .}}}
     <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <i class="large add icon"></i>
+                    <div class="content">
+                        添加任务
+                    </div>
+                </h3>
+            </div>
+        </div>
     <form class="ui form fluid vertical segment">
         <div class="two fields">
             <div class="field">
@@ -47,23 +57,23 @@
                     </div>
                 </div>
             </div>
-
-            <div class="field">
-                <label>主机</label>
-                <div class="ui dropdown selection">
-                    <input type="hidden" name="type" value="1">
-                    <div class="default text">定时任务</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        <div class="item active" data-value="1">定时任务</div>
-                        <div class="item" data-value="2">延时任务</div>
+        </div>
+        <div class="field">
+            <label>主机</label>
+            <div class="inline fields">
+                {{{range $i, $v := .Hosts}}}
+                <div class="field">
+                    <div class="ui checkbox">
+                        <input type="checkbox" name="hosts[]" tabindex="0" class="hidden" value="{{{.Alias}}}">
+                        <label>{{{.Alias}}}-{{{.Name}}}</label>
                     </div>
                 </div>
+                {{{end}}}
             </div>
         </div>
         <div class="field">
             <label>命令 (根据选择的协议类型确定，shell命令|shell脚本名称|URL地址)</label>
-            <input type="text"  name="spec" placeholder="tail -n 10 /var/log/nginx/error.log">
+            <input type="text"  name="command" placeholder="tail -n 10 /var/log/nginx/error.log">
         </div>
         <div class="three fields">
             <div class="field">
@@ -72,7 +82,7 @@
             </div>
             <div class="field">
                 <label>延时时间 (单位秒)</label>
-                <input type="text"  name="timeout" placeholder="60">
+                <input type="text"  name="delay" placeholder="60">
             </div>
         </div>
         <div class="three field">
@@ -89,7 +99,57 @@
 
 
 <script type="text/javascript">
+    $('.ui.checkbox')
+            .checkbox()
+    ;
+    $('.ui.form').form(
+            {
+                onSuccess: function(event, fields) {
+                    var util = new Util();
+                    util.post('/task/store', fields, function(code, message) {
+                    });
 
+                    return false;
+                },
+                fields: {
+                    name: {
+                        identifier  : 'name',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入任务名称'
+                            }
+                        ]
+                    },
+                    spec: {
+                        identifier  : 'spec',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入crontab格式表达式'
+                            }
+                        ]
+                    },
+                    command: {
+                        identifier  : 'command',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入任务命令'
+                            }
+                        ]
+                    }, hosts: {
+                        identifier  : 'hosts',
+                        rules: [
+                            {
+                                type   : 'checked',
+                                prompt : '请选择主机'
+                            }
+                        ]
+                    }
+                },
+                inline : true
+            });
 </script>
 
 {{{ template "common/footer" . }}}
