@@ -35,7 +35,7 @@ func (h *Hosts) GetFilename() string {
 // 写入hosts
 func (h *Hosts) Write() {
     host := new(models.Host)
-    hostModels, err := host.List()
+    hostModels, err := host.AllList()
     if err != nil {
         logger.Error(err)
         return

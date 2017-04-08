@@ -1,0 +1,109 @@
+{{{ template "common/header" . }}}
+
+<div class="ui grid">
+    <!--the vertical menu-->
+
+    {{{template "task/menu" .}}}
+    <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <i class="tasks icon"></i>
+                    <div class="content">
+                        任务列表
+                    </div>
+                </h3>
+            </div>
+        </div>
+        <table class="ui single line table">
+            <thead>
+            <tr>
+                <th>任务名称</th>
+                <th>cron表达式</th>
+                <th>协议</th>
+                <th>任务类型</th>
+                <th>命令</th>
+                <th>超时时间(秒)</th>
+                <th>延迟时间(秒)</th>
+                <th>主机</th>
+                <th>备注</th>
+                <th>状态</th>
+            </tr>
+            </thead>
+            <tbody>
+                {{{range $i, $v := .Tasks}}}
+                <tr>
+                    <td>{{{.Name}}}</td>
+                    <td>{{{.Spec}}}</td>
+                    <td>{{{.Protocol}}}</td>
+                    <td>{{{.Type}}}</td>
+                    <td>{{{.Command}}}</td>
+                    <td>{{{.Timeout}}}</td>
+                    <td>{{{.Delay}}}</td>
+                    <td>{{{.SshHosts}}}</td>
+                    <td>{{{.Remark}}}</td>
+                    <td>{{{.Status}}}</td>
+                </tr>
+                {{{end}}}
+            </tbody>
+        </table>
+    </div>
+    <!--the newDevice form-->
+</div>
+
+
+<script type="text/javascript">
+    $('.ui.checkbox')
+            .checkbox()
+    ;
+    $('.ui.form').form(
+            {
+                onSuccess: function(event, fields) {
+                    var util = new Util();
+                    util.post('/task/store', fields, function(code, message) {
+                    });
+
+                    return false;
+                },
+                fields: {
+                    name: {
+                        identifier  : 'name',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入任务名称'
+                            }
+                        ]
+                    },
+                    spec: {
+                        identifier  : 'spec',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入crontab格式表达式'
+                            }
+                        ]
+                    },
+                    command: {
+                        identifier  : 'command',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入任务命令'
+                            }
+                        ]
+                    }, hosts: {
+                        identifier  : 'hosts',
+                        rules: [
+                            {
+                                type   : 'checked',
+                                prompt : '请选择主机'
+                            }
+                        ]
+                    }
+                },
+                inline : true
+            });
+</script>
+
+{{{ template "common/footer" . }}}

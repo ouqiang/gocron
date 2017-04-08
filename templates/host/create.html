@@ -87,7 +87,7 @@
                 onSuccess: function(event, fields) {
                     var util = new Util();
                     util.post('/host/store', fields, function(code, message) {
-                        location.reload();
+                        location.href = "/host"
                     });
 
                     return false;

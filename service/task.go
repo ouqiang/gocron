@@ -172,8 +172,17 @@ func createHandlerJob(taskModel models.Task) cron.FuncJob {
             logger.Error("写入任务日志失败-", err)
             return
         }
-        // err != nil 执行失败
-        result, err := handler.Run(taskModel)
+        // err != nil 执行失败, 失败重试3次
+        retryTime := 4
+        var result string = ""
+        for i := 0; i < retryTime; i++ {
+            result, err = handler.Run(taskModel)
+            if err == nil {
+                break
+            } else {
+                logger.Error("执行失败#tasklog.id-" + strconv.Itoa(taskLogId) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
+            }
+        }
         _, err = updateTaskLog(int(taskLogId), result, err)
         if err != nil {
             logger.Error("更新任务日志失败-", err)

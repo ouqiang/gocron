@@ -1,13 +1,13 @@
-<div class="four wide column">
+<div class="three wide column">
     <div class="verticalMenu">
         <div class="ui vertical pointing menu fluid">
-            <a class="active teal item" href="/task">
+            <a class="{{{if eq .URI "/task"}}}active teal{{{end}}}  item" href="/task">
                 <i class="tasks icon"></i> 任务列表
             </a>
-            <a class="item" href="/task/create">
+            <a class="item {{{if eq .URI "/task/create"}}}active teal{{{end}}} " href="/task/create">
                 <i class="plus icon"></i> 添加任务
             </a>
-            <a class="item" href="">
+            <a class="item {{{if eq .URI "/task/log"}}}active teal{{{end}}} " href="/task/log">
                 <i class="bar chart icon"></i> 任务日志
             </a>
         </div>

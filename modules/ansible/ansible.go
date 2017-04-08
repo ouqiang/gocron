@@ -5,7 +5,7 @@ package ansible
 import (
     "errors"
     "github.com/ouqiang/gocron/modules/utils"
-    "github.com/ouqiang/gocron/modules/logger"
+    "strings"
 )
 
 // ansible是否有安装
@@ -32,7 +32,15 @@ func ExecCommand(hosts string, hostFile string, module string, args ...string) (
     if len(args) > 0 {
         commandArgs = append(commandArgs, args...)
     }
-    output, err = utils.ExecShell("ansible", commandArgs...)
+    retryTimes := 2
+    for i := 0; i < retryTimes; i++ {
+        output, err = utils.ExecShell("ansible", commandArgs...)
+        // todo 偶尔出现Failed to connect to the host via ssh. 暂时重试解决
+        if err == nil || !strings.HasPrefix(err.Error(), "exit status 3") {
+            break;
+        }
+    }
+
 
     return
 }

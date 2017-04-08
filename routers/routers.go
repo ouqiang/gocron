@@ -6,6 +6,7 @@ import (
     "gopkg.in/macaron.v1"
     "github.com/ouqiang/gocron/routers/task"
     "github.com/ouqiang/gocron/routers/host"
+    "github.com/ouqiang/gocron/routers/tasklog"
 )
 
 // 路由注册
@@ -14,7 +15,6 @@ func Register(m *macaron.Macaron) {
     m.SetAutoHead(true)
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
-        // 判断是否get请求还是post, get返回页面, post返回json
         ctx.HTML(404, "error/404")
     })
     // 50x错误
@@ -40,21 +40,33 @@ func Register(m *macaron.Macaron) {
     m.Group("/task", func() {
         m.Get("/create", task.Create)
         m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
+        m.Get("", task.Index)
+        m.Get("/log", tasklog.Index)
     })
 
     // 主机
     m.Group("/host", func() {
         m.Get("/create", host.Create)
         m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
-    })
-
-    // 任务日志
-    m.Group("/tasklog/", func() {
-
+        m.Get("", host.Index)
     })
 
     // API接口
     m.Group("/api/v1", func() {
 
     })
+}
+
+func isAjaxRequest(ctx *macaron.Context) bool {
+    req := ctx.Req.Header.Get("X-Requested-With")
+    if req == "XMLHttpRequest" {
+        return true
+    }
+
+
+    return false
+}
+
+func isGetRequest(ctx *macaron.Context) bool {
+    return ctx.Req.Method == "GET"
 }

@@ -107,6 +107,7 @@
                 onSuccess: function(event, fields) {
                     var util = new Util();
                     util.post('/task/store', fields, function(code, message) {
+                        location.href = "/task"
                     });
 
                     return false;

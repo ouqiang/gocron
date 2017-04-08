@@ -49,6 +49,16 @@ func (host *Host) List() ([]Host, error) {
     return list, err
 }
 
+func (host *Host) AllList() ([]Host, error) {
+    host.parsePageAndPageSize()
+    list := make([]Host, 0)
+    err := Db.Desc("id").Find(&list)
+
+    return list, err
+}
+
+
+
 func (host *Host) Total() (int64, error) {
     return Db.Count(host)
 }
