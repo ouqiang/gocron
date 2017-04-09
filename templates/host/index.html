@@ -1,16 +1,15 @@
 {{{ template "common/header" . }}}
 
 <div class="ui grid">
-    <!--the vertical menu-->
    {{{ template "host/menu" . }}}
 
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="large add icon"></i>
+                    <i class="linux icon"></i>
                     <div class="content">
-                        添加主机
+                        主机列表
                     </div>
                 </h3>
             </div>
@@ -35,68 +34,13 @@
                 <td>{{{.Username}}}</td>
                 <td>{{{.Password}}}</td>
                 <td>{{{.Port}}}</td>
-                <td>{{{.LoginType}}}</td>
+                <td>{{{if eq .LoginType 1}}}公钥{{{else}}}密码{{{end}}}</td>
                 <td>{{{.Remark}}}</td>
             </tr>
             {{{end}}}
             </tbody>
         </table>
     </div>
-    <!--the newDevice form-->
 </div>
-
-
-<script type="text/javascript">
-    $('.ui.form').form(
-            {
-                onSuccess: function(event, fields) {
-                    var util = new Util();
-                    util.post('/host/store', fields, function(code, message) {
-                        location.reload();
-                    });
-
-                    return false;
-                },
-                fields: {
-                    name: {
-                        identifier  : 'name',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入主机名'
-                            }
-                        ]
-                    },
-                    alias: {
-                        identifier  : 'alias',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入主机别名'
-                            }
-                        ]
-                    },
-                    username: {
-                        identifier  : 'username',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入SSH用户名'
-                            }
-                        ]
-                    },
-                    port: {
-                        identifier  : 'port',
-                        rules: [
-                            {
-                                type   : 'integer',
-                                prompt : '请输入SSH端口'
-                            }
-                        ]
-                    }
-                },
-                inline : true
-            });
-</script>
 
 {{{ template "common/footer" . }}}

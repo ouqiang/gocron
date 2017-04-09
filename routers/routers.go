@@ -7,6 +7,8 @@ import (
     "github.com/ouqiang/gocron/routers/task"
     "github.com/ouqiang/gocron/routers/host"
     "github.com/ouqiang/gocron/routers/tasklog"
+    "runtime"
+    "strconv"
 )
 
 // 路由注册
@@ -34,6 +36,13 @@ func Register(m *macaron.Macaron) {
     // 用户
     m.Group("/user", func() {
 
+    })
+
+    // 监控
+    m.Group("/monitor", func() {
+        m.Any("/goroutine-num", func(ctx *macaron.Context) string {
+            return "goroutine数量-" + strconv.Itoa(runtime.NumGoroutine())
+        })
     })
 
     // 任务

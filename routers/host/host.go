@@ -16,11 +16,13 @@ func Index(ctx *macaron.Context)  {
     }
     ctx.Data["Title"] = "主机列表"
     ctx.Data["Hosts"] = hosts
+    ctx.Data["URI"] = "/host"
     ctx.HTML(200, "host/index")
 }
 
 func Create(ctx *macaron.Context)  {
     ctx.Data["Title"] = "添加主机"
+    ctx.Data["URI"] = "/host/create"
     ctx.HTML(200, "host/create")
 }
 

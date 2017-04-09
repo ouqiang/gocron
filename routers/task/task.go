@@ -50,10 +50,11 @@ type TaskForm struct {
 
 // 保存任务
 func Store(ctx *macaron.Context, form TaskForm) string  {
+    json := utils.Json{}
     hosts := ctx.Req.Form["hosts[]"]
     taskModel := models.Task{}
     taskModel.Name = form.Name
-    taskModel.Spec = form.Spec
+    taskModel.Spec = strings.Replace(form.Spec, "\n", "|||", 100)
     taskModel.Protocol = form.Protocol
     taskModel.Type = form.Type
     taskModel.Command = form.Command
@@ -62,7 +63,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.Remark = form.Remark
     taskModel.SshHosts = strings.Join(hosts, ",")
     _, err := taskModel.Create()
-    json := utils.Json{}
     if err != nil {
         logger.Error(err)
         return json.Failure(utils.ResponseFailure, "保存失败")

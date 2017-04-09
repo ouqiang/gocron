@@ -14,6 +14,7 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/go-macaron/toolbox"
 )
 
 // 1号进程id
@@ -86,6 +87,7 @@ func registerMiddleware(m *macaron.Macaron) {
     }))
     m.Use(session.Sessioner())
     m.Use(csrf.Csrfer())
+    m.Use(toolbox.Toolboxer(m))
 }
 
 // 解析端口

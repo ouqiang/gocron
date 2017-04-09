@@ -73,6 +73,12 @@
 			"revisionTime": "2016-11-21T22:59:37Z"
 		},
 		{
+			"checksumSHA1": "VMRkwnbl0mKWWvK/62CnIlv1oOg=",
+			"path": "github.com/go-macaron/toolbox",
+			"revision": "6766b8f16d1b135b250f09ba4dc4e24ab65b1107",
+			"revisionTime": "2017-02-20T18:37:56Z"
+		},
+		{
 			"checksumSHA1": "QD6LqgLz2JMxXqns8TaxtK9AuHs=",
 			"path": "github.com/go-sql-driver/mysql",
 			"revision": "2e00b5cd70399450106cec6431c2e2ce3cae5034",
@@ -145,5 +151,5 @@
 			"revisionTime": "2017-02-08T14:18:51Z"
 		}
 	],
-	"rootPath": "github.com/ouqiang/cron-scheduler"
+	"rootPath": "github.com/ouqiang/gocron"
 }
