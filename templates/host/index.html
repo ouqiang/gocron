@@ -22,7 +22,6 @@
                 <th>用户名</th>
                 <th>密码</th>
                 <th>端口</th>
-                <th>认证方式</th>
                 <th>备注</th>
             </tr>
             </thead>
@@ -34,7 +33,6 @@
                 <td>{{{.Username}}}</td>
                 <td>{{{.Password}}}</td>
                 <td>{{{.Port}}}</td>
-                <td>{{{if eq .LoginType 1}}}公钥{{{else}}}密码{{{end}}}</td>
                 <td>{{{.Remark}}}</td>
             </tr>
             {{{end}}}

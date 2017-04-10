@@ -9,12 +9,12 @@ type TaskLog struct {
     Id        int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(64) notnull"`               // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`               // crontab
-    Protocol Protocol  `xorm:"tinyint notnull"`                   // 协议 1:http 2:ssh-command 3:ssh-script
+    Protocol Protocol  `xorm:"tinyint notnull"`                   // 协议 1:http 2:ssh-command
     Type     TaskType  `xorm:"tinyint notnull default 1"`         // 任务类型 1: 定时任务 2: 延时任务
     Command  string    `xorm:"varchar(512) notnull"`              // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`       // 任务执行超时时间(单位秒),0不限制
     Delay    int       `xorm:"int notnull default 0"`             // 延时任务，延时时间(单位秒)
-    SshHosts string    `xorm:"varchar(1024) notnull defalut '' "` // SSH主机名，逗号分隔
+    Hostname string       `xorm:"varchar(512) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
     Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 1:执行中  2:执行完毕 0:执行失败

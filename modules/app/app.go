@@ -4,7 +4,6 @@ import (
     "os"
 
     "github.com/ouqiang/gocron/models"
-    "github.com/ouqiang/gocron/modules/ansible"
     "github.com/ouqiang/gocron/modules/crontask"
     "github.com/ouqiang/gocron/service"
     "github.com/ouqiang/gocron/modules/setting"
@@ -18,7 +17,6 @@ var (
     LogDir       string // 日志目录
     DataDir      string // 数据目录，存放session文件等
     AppConfig    string // 应用配置文件
-    AnsibleHosts string // ansible hosts文件
     Installed    bool   // 应用是否安装过
     IsWindows    bool   // 是否是在windows上运行
 )
@@ -38,10 +36,7 @@ func InitEnv() {
     LogDir = AppDir + "/log"
     DataDir = AppDir + "/data"
     AppConfig = ConfDir + "/app.ini"
-    AnsibleHosts = ConfDir + "/ansible_hosts.ini"
     checkDirExists(ConfDir, LogDir, DataDir)
-    // ansible配置文件目录
-    os.Setenv("ANSIBLE_CONFIG", ConfDir)
     Installed = IsInstalled()
     if Installed {
         InitDb()
@@ -71,8 +66,6 @@ func CreateInstallLock() error {
 
 // 初始化资源
 func InitResource() {
-    // 初始化ansible Hosts
-    ansible.DefaultHosts = ansible.NewHosts(AnsibleHosts)
     // 初始化定时任务
     crontask.DefaultCronTask = crontask.NewCronTask()
     serviceTask := new(service.Task)

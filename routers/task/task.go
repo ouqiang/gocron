@@ -6,7 +6,6 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/utils"
     "strings"
-    "github.com/ouqiang/gocron/service"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -45,13 +44,13 @@ type TaskForm struct {
     Command string `binding:"Required"`
     Timeout int
     Delay int
+    HostId int16 `binding:"Required;"`
     Remark string
 }
 
 // 保存任务
 func Store(ctx *macaron.Context, form TaskForm) string  {
     json := utils.Json{}
-    hosts := ctx.Req.Form["hosts[]"]
     taskModel := models.Task{}
     taskModel.Name = form.Name
     taskModel.Spec = strings.Replace(form.Spec, "\n", "|||", 100)
@@ -59,17 +58,14 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.Type = form.Type
     taskModel.Command = form.Command
     taskModel.Timeout = form.Timeout
+    taskModel.HostId = form.HostId
     taskModel.Delay = form.Delay
     taskModel.Remark = form.Remark
-    taskModel.SshHosts = strings.Join(hosts, ",")
     _, err := taskModel.Create()
     if err != nil {
         logger.Error(err)
         return json.Failure(utils.ResponseFailure, "保存失败")
     }
-
-    serviceTask := new(service.Task)
-    serviceTask.Add(taskModel)
 
     return json.Success("保存成功", nil)
 }

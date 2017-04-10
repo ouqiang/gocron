@@ -61,7 +61,7 @@ func run(ctx *cli.Context) {
     m := macaron.Classic()
     // 注册路由
     routers.Register(m)
-    // 注册中间件
+    // 注册中间件.
     registerMiddleware(m)
     port := parsePort(ctx)
     m.Run(port)

@@ -2,7 +2,6 @@ package service
 
 import (
     "github.com/ouqiang/gocron/models"
-    "github.com/ouqiang/gocron/modules/ansible"
     "github.com/ouqiang/gocron/modules/crontask"
     "github.com/robfig/cron"
     "io/ioutil"
@@ -10,6 +9,7 @@ import (
     "strconv"
     "time"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/modules/ssh"
 )
 
 type Task struct{}
@@ -32,7 +32,7 @@ func (task *Task) Initialize() {
 }
 
 // 添加任务
-func (task *Task) Add(taskModel models.Task) {
+func (task *Task) Add(taskModel models.TaskHost) {
     taskFunc := createHandlerJob(taskModel)
     if taskFunc == nil {
         logger.Error("添加任务#不存在的任务协议编号", taskModel.Protocol)
@@ -52,13 +52,13 @@ func (task *Task) Add(taskModel models.Task) {
 }
 
 type Handler interface {
-    Run(taskModel models.Task) (string, error)
+    Run(taskModel models.TaskHost) (string, error)
 }
 
 // HTTP任务
 type HTTPHandler struct{}
 
-func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
+func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) {
     client := &http.Client{}
     if taskModel.Timeout > 0 {
         client.Timeout = time.Duration(taskModel.Timeout) * time.Second
@@ -92,44 +92,28 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
 // SSH-command任务
 type SSHCommandHandler struct{}
 
-func (ssh *SSHCommandHandler) Run(taskModel models.Task) (string, error) {
-    return execSSHHandler("shell", taskModel)
+func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
+    sshConfig := ssh.SSHConfig{
+        User: taskModel.Username,
+        Password: taskModel.Password,
+        Host: taskModel.Name,
+        Port: taskModel.Port,
+        ExecTimeout: taskModel.Timeout,
+    }
+    return ssh.Exec(sshConfig, taskModel.Command)
 }
 
-// SSH-script任务
-type SSHScriptHandler struct{}
 
-func (ssh *SSHScriptHandler) Run(taskModel models.Task) (string, error) {
-    return execSSHHandler("script", taskModel)
-}
-
-// SSH任务
-func execSSHHandler(module string, taskModel models.Task) (string, error) {
-    var args []string = []string{"-a", taskModel.Command}
-    if taskModel.Timeout > 0 {
-        // -B 异步执行超时时间, -P 轮询时间
-        args = append(args, "-B", strconv.Itoa(taskModel.Timeout), "-P", "10")
-    }
-    if module == "shell" {
-        return ansible.Shell(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(), args...)
-    }
-    if module == "script" {
-        return ansible.Script(taskModel.SshHosts, ansible.DefaultHosts.GetFilename(), args...)
-    }
-
-    return "", nil
-}
-
-func createTaskLog(taskModel models.Task) (int, error) {
+func createTaskLog(taskModel models.TaskHost) (int, error) {
     taskLogModel := new(models.TaskLog)
-    taskLogModel.Name = taskModel.Name
+    taskLogModel.Name = taskModel.Task.Name
     taskLogModel.Spec = taskModel.Spec
     taskLogModel.Protocol = taskModel.Protocol
     taskLogModel.Type = taskModel.Type
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
     taskLogModel.Delay = taskModel.Delay
-    taskLogModel.SshHosts = taskModel.SshHosts
+    taskLogModel.Hostname = taskModel.Name
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = models.Running
     insertId, err := taskLogModel.Create()
@@ -153,15 +137,13 @@ func updateTaskLog(taskLogId int, result string, err error) (int64, error) {
 
 }
 
-func createHandlerJob(taskModel models.Task) cron.FuncJob {
+func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
     var handler Handler = nil
     switch taskModel.Protocol {
     case models.HTTP:
         handler = new(HTTPHandler)
     case models.SSHCommand:
         handler = new(SSHCommandHandler)
-    case models.SSHScript:
-        handler = new(SSHScriptHandler)
     }
     if handler == nil {
         return nil

@@ -40,7 +40,7 @@
                     <td>{{{.Command}}}</td>
                     <td>{{{.Timeout}}}</td>
                     <td>{{{.Delay}}}</td>
-                    <td>{{{.SshHosts}}}</td>
+                    <td>{{{.Hostname}}}</td>
                     <td>{{{.Remark}}}</td>
                     <td>{{{.Status}}}</td>
                 </tr>
@@ -53,57 +53,7 @@
 
 
 <script type="text/javascript">
-    $('.ui.checkbox')
-            .checkbox()
-    ;
-    $('.ui.form').form(
-            {
-                onSuccess: function(event, fields) {
-                    var util = new Util();
-                    util.post('/task/store', fields, function(code, message) {
-                    });
-
-                    return false;
-                },
-                fields: {
-                    name: {
-                        identifier  : 'name',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入任务名称'
-                            }
-                        ]
-                    },
-                    spec: {
-                        identifier  : 'spec',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入crontab格式表达式'
-                            }
-                        ]
-                    },
-                    command: {
-                        identifier  : 'command',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入任务命令'
-                            }
-                        ]
-                    }, hosts: {
-                        identifier  : 'hosts',
-                        rules: [
-                            {
-                                type   : 'checked',
-                                prompt : '请选择主机'
-                            }
-                        ]
-                    }
-                },
-                inline : true
-            });
+    $('.ui.checkbox').checkbox();
 </script>
 
 {{{ template "common/footer" . }}}
