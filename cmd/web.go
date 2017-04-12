@@ -15,6 +15,7 @@ import (
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/go-macaron/toolbox"
+    "strings"
 )
 
 // 1号进程id
@@ -88,6 +89,16 @@ func registerMiddleware(m *macaron.Macaron) {
     m.Use(session.Sessioner())
     m.Use(csrf.Csrfer())
     m.Use(toolbox.Toolboxer(m))
+    // 系统未安装，重定向到安装页面
+    m.Use(func(ctx *macaron.Context) {
+        installUrl := "/install"
+        if strings.HasPrefix(ctx.Req.RequestURI, installUrl) {
+            return
+        }
+        if !app.Installed {
+            ctx.Redirect(installUrl)
+        }
+    })
 }
 
 // 解析端口
