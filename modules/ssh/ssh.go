@@ -27,7 +27,6 @@ func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
     var timeoutChan chan bool = make(chan bool)
     go execCommand(sshConfig, cmd, resultChan)
     go triggerTimeout(timeoutChan, sshConfig.ExecTimeout)
-
     select {
         case result := <- resultChan:
             output = result.Output
@@ -81,5 +80,5 @@ func triggerTimeout(ch chan bool, timeout int){
         timeout = 86400
     }
     time.Sleep(time.Duration(timeout) * time.Second)
-    ch <- true
+    close(ch)
 }
