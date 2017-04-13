@@ -30,4 +30,4 @@ conf/install.lock
 conf/app.ini
 conf/ansible_hosts.ini
 profile/*
-public/js/vue.js
+public/resource/javascript/vue.js
