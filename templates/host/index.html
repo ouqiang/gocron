@@ -23,6 +23,7 @@
                 <th>密码</th>
                 <th>端口</th>
                 <th>备注</th>
+                <th>操作</th>
             </tr>
             </thead>
             <tbody>
@@ -34,6 +35,7 @@
                 <td>{{{.Password}}}</td>
                 <td>{{{.Port}}}</td>
                 <td>{{{.Remark}}}</td>
+                <td><button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button></td>
             </tr>
             {{{end}}}
             </tbody>

@@ -1,5 +1,13 @@
 {{{ template "common/header" . }}}
-
+<style type="text/css">
+    pre {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        padding:10px;
+        background-color: #4C4C4C;
+        color: white;
+    }
+</style>
 <div class="ui grid">
     <!--the vertical menu-->
    {{{ template "task/menu" . }}}
@@ -8,28 +16,25 @@
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="large add icon"></i>
                     <div class="content">
-                        任务日志
+                        <button class="ui small teal button" onclick="clearLog()">清空日志</button>
                     </div>
+
                 </h3>
             </div>
         </div>
-        <table class="ui single line table">
+        <table class="ui pink table">
             <thead>
             <tr>
-                <th width="8%">任务名称</th>
-                <th width="8%">cron表达式</th>
-                <th width="8%">协议</th>
-                <th width="8%">任务类型</th>
-                <th width="8%">命令</th>
-                <th width="8%">超时时间(秒)</th>
-                <th width="8%">延迟时间(秒)</th>
-                <th width="8%">主机</th>
-                <th width="8%">开始时间</th>
-                <th width="8%">结束时间</th>
-                <th width="8%">状态</th>
-                <th width="8%">执行结果</th>
+                <th>任务名称</th>
+                <th>cron表达式</th>
+                <th>协议</th>
+                <th>超时时间(秒)</th>
+                <th>主机</th>
+                <th>开始时间</th>
+                <th>结束时间</th>
+                <th>状态</th>
+                <th>执行结果</th>
             </tr>
             </thead>
             <tbody>
@@ -37,30 +42,89 @@
             <tr>
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
-                <td>{{{.Protocol}}}</td>
-                <td>{{{.Type}}}</td>
-                <td>{{{.Command}}}</td>
+                <td>{{{if eq .Protocol 1}}} HTTP {{{else}}} SSH {{{end}}}</td>
                 <td>{{{.Timeout}}}</td>
-                <td>{{{.Delay}}}</td>
-                <td>{{{.SshHosts}}}</td>
-                <td>{{{.StartTime}}}</td>
-                <td>{{{.EndTime}}}</td>
-                <td>{{{.Status}}}</td>
-                <td>{{{.Result}}}</td>
+                <td>{{{.Hostname}}}</td>
+                <td>
+                        {{{.StartTime.Format "2006-01-02 15:03:04" }}}
+                </td>
+                <td>
+                        {{{.EndTime.Format "2006-01-02 15:03:04" }}}
+                </td>
+                <td>
+                    {{{if eq .Status 2}}}
+                        成功
+                    {{{else if eq .Status 1}}}
+                        <span style="color:green">执行中</span>
+                    {{{else if eq .Status 0}}}
+                        <span style="color:red">失败</span>
+                    {{{else}}}
+                        <span style="color:#4499EE">待执行</span>
+                    {{{end}}}
+                </td>
+                <td>
+                    <button class="ui small primary button"
+                            onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
+                            >查看结果
+                    </button>
+                </td>
             </tr>
             {{{end}}}
             </tbody>
         </table>
     </div>
-    <!--the newDevice form-->
 </div>
 
+<div class="message">
+    <result></result>
+</div>
+
+<script type="text/x-vue-template" id="task-result">
+    <div class="ui modal">
+        <i class="close icon"></i>
+        <div class="header">
+            {{name}}
+        </div>
+        <div>
+            <pre style="background-color:#04477C;color:lightslategray">{{command}}</pre>
+        </div>
+        <div>
+             <pre>{{result}}</pre>
+        </div>
+    </div>
+</script>
 
 <script type="text/javascript">
+  function  showResult(name, command,result) {
+      $('.message').html($('#task-result').html());
+      new Vue(
+              {
+                  el: '.message',
+                  data: {
+                      result: result.replace(/\\n/,"<br>"),
+                      name: name,
+                      command: command
+                  }
+              }
+      );
+      $('.ui.modal.transition').remove();
+      $('.ui.modal').modal({
+          detachable: false,
+          observeChanges: true
+      }).modal('refresh').modal('show');
+  }
+
+  function clearLog() {
+      util.confirm("确定要删除所有日志吗？", function() {
+          util.post("/task/log/clear",{}, function() {
+              location.reload();
+          });
+      });
+  }
+
     $('.ui.form').form(
             {
                 onSuccess: function(event, fields) {
-                    var util = new Util();
                     util.post('/host/store', fields, function(code, message) {
                         location.reload();
                     });
@@ -108,5 +172,4 @@
                 inline : true
             });
 </script>
-
 {{{ template "common/footer" . }}}

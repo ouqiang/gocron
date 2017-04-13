@@ -4,7 +4,6 @@ import (
     "os"
 
     "github.com/ouqiang/gocron/models"
-    "github.com/ouqiang/gocron/modules/crontask"
     "github.com/ouqiang/gocron/service"
     "github.com/ouqiang/gocron/modules/setting"
     "github.com/ouqiang/gocron/modules/logger"
@@ -67,7 +66,6 @@ func CreateInstallLock() error {
 // 初始化资源
 func InitResource() {
     // 初始化定时任务
-    crontask.DefaultCronTask = crontask.NewCronTask()
     serviceTask := new(service.Task)
     serviceTask.Initialize()
 }

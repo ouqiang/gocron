@@ -1,8 +1,6 @@
 {{{ template "common/header" . }}}
 
 <div class="ui grid">
-    <!--the vertical menu-->
-
     {{{template "task/menu" .}}}
     <div class="twelve wide column">
         <div class="pageHeader">
@@ -38,21 +36,8 @@
                     <div class="default text">SSH-Command (执行shell命令)</div>
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <div class="item active" data-value="2">SSH-Command (执行shell命令)</div>
-                        <div class="item" data-value="1">HTTP (执行http-post请求)</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="field">
-                <label>任务类型</label>
-                <div class="ui dropdown selection">
-                    <input type="hidden" name="type" value="1">
-                    <div class="default text">定时任务</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        <div class="item active" data-value="1">定时任务</div>
-                        <div class="item" data-value="2">延时任务</div>
+                        <div class="item active" data-value="2">SSH</div>
+                        <div class="item" data-value="1">HTTP</div>
                     </div>
                 </div>
             </div>
@@ -71,29 +56,38 @@
             </div>
         </div>
         <div class="field">
-            <label>命令 (根据选择的协议类型确定，shell命令|URL地址)</label>
+            <label>命令(shell命令|URL地址, 多条shell命令";"分隔)</label>
             <input type="text"  name="command" placeholder="tail -n 10 /var/log/nginx/error.log">
         </div>
         <div class="three fields">
             <div class="field">
-                <label>任务超时时间 (单位秒,0不限制,不能超过24小时, 默认0)</label>
-                <input type="text"  name="timeout" placeholder="60">
-            </div>
-            <div class="field">
-                <label>延时时间 (单位秒)</label>
-                <input type="text"  name="delay" placeholder="60">
+                <label>任务超时时间 (单位秒,0不限制,不能超过24小时)</label>
+                <input type="text"  name="timeout" placeholder="0" value="180">
             </div>
         </div>
-        <div class="three field">
+        <div class="three fields">
+            <div class="field">
+                <label>任务状态 (任务添加成功后，是否立即调度)</label>
+                <div class="ui dropdown selection">
+                    <input type="hidden" name="status" value="0">
+                    <div class="default text">激活</div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item active" data-value="0">暂停</div>
+                        <div class="item" data-value="1">激活</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="two field">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark" placeholder="数据库备份, 每天凌晨执行一次"></textarea>
+                <textarea rows="5" name="remark" placeholder="任务备注"></textarea>
             </div>
         </div>
         <div class="ui primary submit button">提交</div>
     </form>
     </div>
-    <!--the newDevice form-->
 </div>
 
 
@@ -104,7 +98,6 @@
     $('.ui.form').form(
             {
                 onSuccess: function(event, fields) {
-                    var util = new Util();
                     util.post('/task/store', fields, function(code, message) {
                         location.href = "/task"
                     });

@@ -103,16 +103,16 @@
 			"revisionTime": "2017-02-21T11:08:50Z"
 		},
 		{
+			"checksumSHA1": "j22mTM0X/UI4kbff6RaPeMNH4XY=",
+			"path": "github.com/jakecoffman/cron",
+			"revision": "57ac9950da80b6e2c12df9042429278cf8c729eb",
+			"revisionTime": "2016-09-12T16:42:50Z"
+		},
+		{
 			"checksumSHA1": "iKPMvbAueGfdyHcWCgzwKzm8WVo=",
 			"path": "github.com/klauspost/cpuid",
 			"revision": "09cded8978dc9e80714c4d85b0322337b0a1e5e0",
 			"revisionTime": "2016-03-02T07:53:16Z"
-		},
-		{
-			"checksumSHA1": "PphQA6j/DEDbg3WIsdBDYALOOYs=",
-			"path": "github.com/robfig/cron",
-			"revision": "9585fd555638e77bba25f25db5c44b41f264aeb7",
-			"revisionTime": "2016-09-27T16:42:31Z"
 		},
 		{
 			"checksumSHA1": "1keN4Q9F8uHk/Gt5YXG0oCEecKM=",

@@ -1,9 +1,6 @@
 package cmd
 
 import (
-    "github.com/go-macaron/csrf"
-    "github.com/go-macaron/gzip"
-    "github.com/go-macaron/session"
     "github.com/ouqiang/gocron/modules/app"
     "github.com/ouqiang/gocron/routers"
     "github.com/urfave/cli"
@@ -14,8 +11,6 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
-    "github.com/go-macaron/toolbox"
-    "strings"
 )
 
 // 1号进程id
@@ -23,9 +18,6 @@ const InitProcess = 1
 
 // web服务器默认端口
 const DefaultPort = 5920
-
-// 静态文件目录
-const StaticDir = "public"
 
 var CmdWeb = cli.Command{
     Name:   "server",
@@ -63,42 +55,9 @@ func run(ctx *cli.Context) {
     // 注册路由
     routers.Register(m)
     // 注册中间件.
-    registerMiddleware(m)
+    routers.RegisterMiddleware(m)
     port := parsePort(ctx)
     m.Run(port)
-}
-
-// 中间件注册
-func registerMiddleware(m *macaron.Macaron) {
-    m.Use(macaron.Logger())
-    m.Use(macaron.Recovery())
-    m.Use(gzip.Gziper())
-    m.Use(macaron.Static(StaticDir))
-    m.Use(macaron.Renderer(macaron.RenderOptions{
-        Directory:  "templates",
-        Extensions: []string{".html"},
-        // 模板语法分隔符，默认为 ["{{", "}}"]
-        Delims: macaron.Delims{"{{{", "}}}"},
-        // 追加的 Content-Type 头信息，默认为 "UTF-8"
-        Charset: "UTF-8",
-        // 渲染具有缩进格式的 JSON，默认为不缩进
-        IndentJSON: true,
-        // 渲染具有缩进格式的 XML，默认为不缩进
-        IndentXML: true,
-    }))
-    m.Use(session.Sessioner())
-    m.Use(csrf.Csrfer())
-    m.Use(toolbox.Toolboxer(m))
-    // 系统未安装，重定向到安装页面
-    m.Use(func(ctx *macaron.Context) {
-        installUrl := "/install"
-        if strings.HasPrefix(ctx.Req.RequestURI, installUrl) {
-            return
-        }
-        if !app.Installed {
-            ctx.Redirect(installUrl)
-        }
-    })
 }
 
 // 解析端口

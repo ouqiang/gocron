@@ -12,6 +12,7 @@
     <script type="text/javascript" src="/resource/javascript/framework.js"></script>
     <script type="text/javascript" src="/resource/javascript/form.min.js"></script>
     <script type="text/javascript" src="/resource/sweetalert/sweetalert.min.js"></script>
+    <script type="text/javascript" src="/resource/javascript/vue.min.js"></script>
     <script type="text/javascript" src="/resource/javascript/main.js"></script>
 </head>
 <body>
@@ -47,11 +48,11 @@
     <div class="ui teal inverted menu">
         <div class="bigcontainer">
             <div class="right menu">
-                <a class="item" href="/"><i class="home icon"></i>首页</a>
-                <a class="item" href="/task"><i class="tasks icon"></i>任务</a>
-                <a class="item" href="/host"><i class="linux icon"></i>主机</a>
-                <a class="active item" href="/user"><i class="user icon"></i>账户</a>
+                <a class="item {{{if eq .URI "/"}}}active{{{end}}}" href="/"><i class="home icon"></i>首页</a>
+                <a class="item {{{if eq .URI "/task"}}}active{{{end}}}" href="/task"><i class="tasks icon"></i>任务</a>
+                <a class="item {{{if eq .URI "/host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>主机</a>
+                <a class="item {{{if eq .URI "/user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a>
+                <a class="item {{{if eq .URI "/admin"}}}active{{{end}}}" href="/admin"><i class="settings icon"></i>管理</a>
             </div>
         </div>
     </div>
-    <div class="container">

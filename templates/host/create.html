@@ -73,7 +73,6 @@
     $('.ui.form').form(
             {
                 onSuccess: function(event, fields) {
-                    var util = new Util();
                     util.post('/host/store', fields, function(code, message) {
                         location.href = "/host"
                     });

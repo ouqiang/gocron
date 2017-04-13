@@ -1,5 +1,12 @@
 {{{ template "common/header" . }}}
-
-404错误
-
+<script>
+    swal({
+                title: "404 - NOT FOUND",
+                text: "您访问的页面不存在",
+                type: "warning"
+            },
+            function(){
+                location.href = "/"
+            });
+</script>
 {{{ template "common/footer" . }}}

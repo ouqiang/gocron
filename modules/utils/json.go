@@ -13,20 +13,33 @@ type response struct {
     Data    interface{} `json:"data"`    // 数据
 }
 
-type Json struct{}
+type JsonResponse struct{}
 
 const ResponseSuccess = 0
 const ResponseFailure = 1
+const NotFound = 2
+const AuthError = 3
+const ServerError = 4
 
-func (j *Json) Success(message string, data interface{}) string {
+const SuccessContent = "操作成功"
+const FailureContent = "操作失败"
+
+func (j *JsonResponse) Success(message string, data interface{}) string {
     return j.response(ResponseSuccess, message, data)
 }
 
-func (j *Json) Failure(code int, message string) string {
+func (j *JsonResponse) Failure(code int, message string) string {
     return j.response(code, message, nil)
 }
 
-func (j *Json) response(code int, message string, data interface{}) string {
+func (j *JsonResponse) CommonFailure(message string, err... error) string {
+    if len(err) > 0 {
+        logger.Warn(err)
+    }
+    return j.Failure(ResponseFailure, message)
+}
+
+func (j *JsonResponse) response(code int, message string, data interface{}) string {
     resp := response{
         Code:    code,
         Message: message,

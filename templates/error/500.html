@@ -1,5 +1,11 @@
 {{{ template "common/header" . }}}
-
-500错误
-
+<script>
+    swal({
+                title: "500 - INTERNAL SERVER ERROR",
+                text: "网站暂时无法访问, 请稍后再试.",
+                type: "warning",
+                confirmButtonColor: "#DD6B55",
+                confirmButtonText: "确定"
+            });
+</script>
 {{{ template "common/footer" . }}}

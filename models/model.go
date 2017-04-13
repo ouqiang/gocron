@@ -29,6 +29,8 @@ const (
     MaxPageSize = 100000 // 每次最多取多少条
 )
 
+const DefaultTimeFormat = "2006-01-02 15:04:05"
+
 // 创建Db
 func CreateDb(config map[string]string) *xorm.Engine {
     dsn := getDbEngineDSN(config["engine"], config)

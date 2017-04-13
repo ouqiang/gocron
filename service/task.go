@@ -2,20 +2,23 @@ package service
 
 import (
     "github.com/ouqiang/gocron/models"
-    "github.com/ouqiang/gocron/modules/crontask"
-    "github.com/robfig/cron"
     "io/ioutil"
     "net/http"
     "strconv"
     "time"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/ssh"
+    "github.com/jakecoffman/cron"
 )
+
+var Cron *cron.Cron
 
 type Task struct{}
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task *Task) Initialize() {
+    Cron = cron.New()
+    Cron.Start()
     taskModel := new(models.Task)
     taskList, err := taskModel.ActiveList()
     if err != nil {
@@ -38,17 +41,10 @@ func (task *Task) Add(taskModel models.TaskHost) {
         logger.Error("添加任务#不存在的任务协议编号", taskModel.Protocol)
         return
     }
-    // 定时任务
-    if taskModel.Type == models.Timing {
-        err := crontask.DefaultCronTask.Update(strconv.Itoa(taskModel.Id), taskModel.Spec, taskFunc)
-        if err != nil {
-            logger.Error(err)
-        }
-    } else if taskModel.Type == models.Delay {
-        // 延时任务
-        delay := time.Duration(taskModel.Delay) * time.Second
-        time.AfterFunc(delay, taskFunc)
-    }
+
+    cronName := strconv.Itoa(taskModel.Id)
+    Cron.RemoveJob(cronName)
+    Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
 }
 
 type Handler interface {
@@ -104,15 +100,13 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
 }
 
 
-func createTaskLog(taskModel models.TaskHost) (int, error) {
+func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.Name = taskModel.Task.Name
     taskLogModel.Spec = taskModel.Spec
     taskLogModel.Protocol = taskModel.Protocol
-    taskLogModel.Type = taskModel.Type
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
-    taskLogModel.Delay = taskModel.Delay
     taskLogModel.Hostname = taskModel.Name
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = models.Running
@@ -121,7 +115,7 @@ func createTaskLog(taskModel models.TaskHost) (int, error) {
     return insertId, err
 }
 
-func updateTaskLog(taskLogId int, result string, err error) (int64, error) {
+func updateTaskLog(taskLogId int64, result string, err error) (int64, error) {
     taskLogModel := new(models.TaskLog)
     var status models.Status
     if err != nil {
@@ -140,9 +134,9 @@ func updateTaskLog(taskLogId int, result string, err error) (int64, error) {
 func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
     var handler Handler = nil
     switch taskModel.Protocol {
-    case models.HTTP:
+    case models.TaskHTTP:
         handler = new(HTTPHandler)
-    case models.SSHCommand:
+    case models.TaskSSH:
         handler = new(SSHCommandHandler)
     }
     if handler == nil {
@@ -162,10 +156,10 @@ func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
             if err == nil {
                 break
             } else {
-                logger.Error("执行失败#tasklog.id-" + strconv.Itoa(taskLogId) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
+                logger.Error("执行失败#tasklog.id-" + strconv.FormatInt(taskLogId, 10) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
             }
         }
-        _, err = updateTaskLog(int(taskLogId), result, err)
+        _, err = updateTaskLog(taskLogId, result, err)
         if err != nil {
             logger.Error("更新任务日志失败-", err)
         }

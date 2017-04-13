@@ -85,7 +85,6 @@
     $('.ui.form').form(
             {
                 onSuccess: function(event, fields) {
-                    var util = new Util();
                     util.post('/install/store', fields, function(code, message) {
                         swal('安装成功');
                         location.href = "/";

@@ -33,6 +33,12 @@ func (host *Host) Delete(id int) (int64, error) {
     return Db.Id(id).Delete(host)
 }
 
+func (host *Host) NameExists(name string) (bool, error)  {
+    count, err := Db.Where("name = ?", name).Count(host);
+
+    return count > 0, err
+}
+
 func (host *Host) List() ([]Host, error) {
     host.parsePageAndPageSize()
     list := make([]Host, 0)
@@ -48,8 +54,6 @@ func (host *Host) AllList() ([]Host, error) {
 
     return list, err
 }
-
-
 
 func (host *Host) Total() (int64, error) {
     return Db.Count(host)

@@ -4,18 +4,11 @@ import (
     "time"
 )
 
-type Protocol int8
-
-type TaskType int8
+type TaskProtocol int8
 
 const (
-    HTTP       Protocol = iota + 1 // HTTP协议
-    SSHCommand  // SSHM命令
-)
-
-const (
-    Timing TaskType = iota + 1 // 定时任务
-    Delay // 延时任务
+    TaskHTTP TaskProtocol = iota + 1 // HTTP协议
+    TaskSSH  // SSH命令
 )
 
 // 任务
@@ -23,12 +16,10 @@ type Task struct {
     Id       int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(64) notnull"`              // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`              // crontab
-    Protocol Protocol  `xorm:"tinyint notnull"`                  // 协议 1:http 2:ssh-command
-    Type     TaskType  `xorm:"tinyint notnull default 1"`        // 任务类型 1: 定时任务 2: 延时任务
+    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command
     Command  string    `xorm:"varchar(512) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
-    Delay    int       `xorm:"int notnull default 0"`            // 延时任务，延时时间(单位秒)
-    HostId   int16    `xorm:"smallint notnull default 0"`       // SSH host id，
+    HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
     Remark   string    `xorm:"varchar(512) notnull default ''"`  // 备注
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
@@ -43,6 +34,7 @@ type TaskHost struct {
     Port int
     Username string
     Password string
+    Alias string
 }
 
 func (TaskHost) TableName() string  {
@@ -51,8 +43,6 @@ func (TaskHost) TableName() string  {
 
 // 新增
 func (task *Task) Create() (insertId int, err error) {
-    task.Status = Enabled
-
     _, err = Db.Insert(task)
     if err == nil {
         insertId = task.Id
@@ -85,41 +75,55 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
     task.parsePageAndPageSize()
     list := make([]TaskHost, 0)
     fields := "t.*, host.name,host.username,host.password,host.port"
-    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("status = ?", Enabled).Cols(fields).Find(&list)
+    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
 
     return list, err
 }
 
-func(task *Task) Detail(id int) error  {
-    list := make([]TaskHost, 0)
-    fields := "t.*, host.name,host.username,host.password,host.port"
-    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Cols(fields).Find(list)
+// 判断主机id是否有引用
+func (task *Task) HostIdExist(hostId int16) (bool, error) {
+    count, err := Db.Where("host_id = ?", hostId).Count(task);
 
-    return err
+    return count > 0, err
+}
+
+// 判断任务名称是否存在
+func (task *Task) NameExist(name string) (bool, error)  {
+    count, err := Db.Where("name = ? AND status = ?", name, Enabled).Count(task);
+
+    return count > 0, err
+}
+
+func(task *Task) Detail(id int) (TaskHost, error)  {
+    taskHost := TaskHost{}
+    fields := "t.*, host.name,host.username,host.password,host.port"
+    _, err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
+
+    return taskHost, err
 }
 
 func (task *Task) List() ([]TaskHost, error) {
     task.parsePageAndPageSize()
     list := make([]TaskHost, 0)
-    fields := "t.*, host.name"
+    fields := "t.*, host.alias"
     err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
     return list, err
 }
 
-func (taskLog *TaskLog) Total() (int64, error) {
-    return Db.Count(taskLog)
+func (task *Task) Total() (int64, error) {
+    return Db.Count(task)
 }
 
-func (taskLog *TaskLog) parsePageAndPageSize() {
-    if taskLog.Page <= 0 {
-        taskLog.Page = Page
+func (task *Task) parsePageAndPageSize() {
+    if task.Page <= 0 {
+        task.Page = Page
     }
-    if taskLog.PageSize >= 0 || taskLog.PageSize > MaxPageSize {
-        taskLog.PageSize = PageSize
+    if task.PageSize >= 0 || task.PageSize > MaxPageSize {
+        task.PageSize = PageSize
     }
 }
 
-func (taskLog *TaskLog) pageLimitOffset() int {
-    return (taskLog.Page - 1) * taskLog.PageSize
+func (task *Task) pageLimitOffset() int {
+    return (task.Page - 1) * task.PageSize
 }

@@ -5,7 +5,8 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/utils"
-    "strings"
+    "github.com/ouqiang/gocron/service"
+    "strconv"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -16,7 +17,6 @@ func Index(ctx *macaron.Context)  {
     }
     ctx.Data["Title"] = "任务列表"
     ctx.Data["Tasks"] = tasks
-    ctx.Data["URI"] = "/task"
     ctx.HTML(200, "task/index")
 }
 
@@ -25,52 +25,123 @@ func Create(ctx *macaron.Context)  {
     hosts, err := hostModel.List()
     if err != nil || len(hosts) == 0 {
         logger.Error(err)
-        ctx.Redirect("/host/create")
     }
-    logger.Debug(hosts)
     ctx.Data["Title"] = "任务管理"
     ctx.Data["Hosts"] = hosts
-    ctx.Data["URI"] = "/task/create"
     ctx.Data["FirstHostName"] = hosts[0].Name
     ctx.Data["FirstHostId"] = hosts[0].Id
     ctx.HTML(200, "task/create")
 }
 
 type TaskForm struct {
-    Name string `binding:"Required"`
-    Spec string `binding:"Required"`
-    Protocol models.Protocol `binding:"Required"`
-    Type models.TaskType `binding:"Required"`
-    Command string `binding:"Required"`
-    Timeout int
-    Delay int
-    HostId int16 `binding:"Required;"`
+    Name string `binding:"Required;"`
+    Spec string `binding:"Required;MaxSize(64)"`
+    Protocol models.TaskProtocol `binding:"In(1,2)"`
+    Command string `binding:"Required;MaxSize(512)"`
+    Timeout int `binding:"Range(0,86400)"`
+    HostId int16
     Remark string
+    Status models.Status `binding:"In(1,0)"`
 }
 
 // 保存任务
 func Store(ctx *macaron.Context, form TaskForm) string  {
-    json := utils.Json{}
+    json := utils.JsonResponse{}
     taskModel := models.Task{}
+    nameExists, err := taskModel.NameExist(form.Name)
+    if err != nil {
+        return json.CommonFailure(utils.FailureContent, err)
+    }
+    if nameExists {
+        return json.CommonFailure("任务名称已存在")
+    }
+
+    if form.Protocol == models.TaskSSH && form.HostId <= 0 {
+        return json.CommonFailure("请选择主机名")
+    }
+
     taskModel.Name = form.Name
-    taskModel.Spec = strings.Replace(form.Spec, "\n", "|||", 100)
     taskModel.Protocol = form.Protocol
-    taskModel.Type = form.Type
     taskModel.Command = form.Command
     taskModel.Timeout = form.Timeout
     taskModel.HostId = form.HostId
-    taskModel.Delay = form.Delay
     taskModel.Remark = form.Remark
-    _, err := taskModel.Create()
+    taskModel.Status = form.Status
+    taskModel.Spec = form.Spec
+    insertId, err := taskModel.Create()
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "保存失败")
+        return json.CommonFailure("保存失败", err)
+    }
+
+    // 任务处于激活状态,加入调度管理
+    if (taskModel.Status == models.Enabled) {
+        addTaskToTimer(insertId)
     }
 
     return json.Success("保存成功", nil)
 }
 
 // 删除任务
-func Remove(ctx *macaron.Context)  {
+func Remove(ctx *macaron.Context) string {
+    id, err := strconv.Atoi(ctx.Params(":id"))
+    json := utils.JsonResponse{}
+    if err != nil {
+        return json.CommonFailure("参数错误", err)
+    }
+    taskModel := new(models.Task)
+    _, err = taskModel.Delete(id)
+    if err != nil {
+        return json.CommonFailure(utils.FailureContent, err)
+    }
 
+    service.Cron.RemoveJob(strconv.Itoa(id))
+
+    return json.Success(utils.SuccessContent, nil)
+}
+
+// 激活任务
+func Enable(ctx *macaron.Context) string {
+    return changeStatus(ctx, models.Enabled)
+}
+
+// 暂停任务
+func Disable(ctx *macaron.Context) string {
+    return changeStatus(ctx, models.Disabled)
+}
+
+// 改变任务状态
+func changeStatus(ctx *macaron.Context, status models.Status) string {
+    id, err := strconv.Atoi(ctx.Params(":id"))
+    json := utils.JsonResponse{}
+    if err != nil {
+        return json.CommonFailure("参数错误", err)
+    }
+    taskModel := new(models.Task)
+    _, err = taskModel.Update(id, models.CommonMap{
+        "Status": status,
+    })
+    if err != nil {
+        return json.CommonFailure(utils.FailureContent, err)
+    }
+
+    if status == models.Enabled {
+        addTaskToTimer(id)
+    } else {
+        service.Cron.RemoveJob(strconv.Itoa(id))
+    }
+
+    return json.Success(utils.SuccessContent, nil)
+}
+
+// 添加任务到定时器
+func addTaskToTimer(id int)  {
+    taskModel := new(models.Task)
+    task, err := taskModel.Detail(id)
+    if err != nil {
+        logger.Error(err)
+        return
+    }
+
+    taskService := service.Task{}
+    taskService.Add(task)
 }

@@ -1,8 +1,6 @@
 {{{ template "common/header" . }}}
 
 <div class="ui grid">
-    <!--the vertical menu-->
-
     {{{template "task/menu" .}}}
     <div class="twelve wide column">
         <div class="pageHeader">
@@ -15,45 +13,65 @@
                 </h3>
             </div>
         </div>
-        <table class="ui single line table">
+        <table class="ui violet table">
             <thead>
             <tr>
                 <th>任务名称</th>
                 <th>cron表达式</th>
                 <th>协议</th>
-                <th>任务类型</th>
-                <th>命令</th>
+                <th width="5%">命令</th>
                 <th>超时时间(秒)</th>
-                <th>延迟时间(秒)</th>
                 <th>主机</th>
                 <th>备注</th>
                 <th>状态</th>
+                <th>操作</th>
             </tr>
             </thead>
             <tbody>
                 {{{range $i, $v := .Tasks}}}
                 <tr>
-                    <td>{{{.Name}}}</td>
+                    <td>{{{.Task.Name}}}</td>
                     <td>{{{.Spec}}}</td>
-                    <td>{{{.Protocol}}}</td>
-                    <td>{{{.Type}}}</td>
+                    <td>{{{if eq .Protocol 1}}} HTTP {{{else}}} SSH {{{end}}}</td>
                     <td>{{{.Command}}}</td>
                     <td>{{{.Timeout}}}</td>
-                    <td>{{{.Delay}}}</td>
-                    <td>{{{.Hostname}}}</td>
+                    <td>{{{.Alias}}}</td>
                     <td>{{{.Remark}}}</td>
-                    <td>{{{.Status}}}</td>
+                    <td>{{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}</td>
+                    <td>
+                        {{{if eq .Status 1}}}
+                             <button class="ui primary button" onclick="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
+                        {{{else}}}
+                             <button class="ui blue button" onclick="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                        {{{end}}}
+                        <button class="ui positive button" onclick="util.removeConfirm('/task/remove/{{{.Id}}}')">删除</button>
+                        <button class="ui pink button">查看日志</button>
+                    </td>
                 </tr>
                 {{{end}}}
             </tbody>
         </table>
     </div>
-    <!--the newDevice form-->
 </div>
 
 
 <script type="text/javascript">
     $('.ui.checkbox').checkbox();
+
+    function changeStatus(id ,status) {
+        var url = '';
+        if (status) {
+            url = '/task/disable';
+        } else {
+            url = '/task/enable';
+        }
+        url += '/' + id;
+        util.post(url,{}, function() {
+            location.reload();
+        });
+    }
+
+
 </script>
 
 {{{ template "common/footer" . }}}

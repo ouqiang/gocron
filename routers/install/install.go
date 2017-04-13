@@ -14,16 +14,16 @@ import (
 // 系统安装
 
 type InstallForm struct {
-    DbType        string `binding:"IN(mysql)"`
-    DbHost        string `binding:"Required"`
+    DbType        string `binding:"In(mysql)"`
+    DbHost        string `binding:"Required;MaxSize(50)"`
     DbPort        int    `binding:"Required;Range(1,65535)"`
-    DbUsername    string `binding:"Required"`
-    DbPassword    string `binding:"Required"`
-    DbName        string `binding:"Required"`
-    DbTablePrefix string
-    AdminUsername string `binding:"Required;MinSize(3)"`
-    AdminPassword string `binding:"Required;MinSize(6)"`
-    AdminEmail    string `binding:"Email"`
+    DbUsername    string `binding:"Required;MaxSize(50)"`
+    DbPassword    string `binding:"Required;MaxSize(30)"`
+    DbName        string `binding:"Required;MaxSize(50)"`
+    DbTablePrefix string `binding:"MinSize(20)"`
+    AdminUsername string `binding:"Required;MaxSize(3)"`
+    AdminPassword string `binding:"Required;MaxSize(6)"`
+    AdminEmail    string `binding:"Required;Email;MaxSize(50)"`
 }
 
 func(f InstallForm) Error(ctx *macaron.Context, errs binding.Errors)  {
@@ -41,21 +41,18 @@ func Create(ctx *macaron.Context) {
 
 // 安装
 func Store(ctx *macaron.Context, form InstallForm) string {
-    json := utils.Json{}
+    json := utils.JsonResponse{}
     if app.Installed {
-        logger.Warn("系统重复安装")
-        return json.Failure(utils.ResponseFailure, "系统已安装!")
+        return json.CommonFailure("系统已安装!")
     }
     err := testDbConnection(form)
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "数据库连接失败")
+        return json.CommonFailure("数据库连接失败", err)
     }
     // 写入数据库配置
     err = writeConfig(form)
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "数据库配置写入文件失败")
+        return json.CommonFailure("数据库配置写入文件失败", err)
     }
 
     app.InitDb()
@@ -63,22 +60,19 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     migration := new(models.Migration)
     err = migration.Exec(form.DbName)
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "创建数据库表失败")
+        return json.CommonFailure("创建数据库表失败", err)
     }
 
     // 创建管理员账号
     err = createAdminUser(form)
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "创建管理员账号失败")
+        return json.CommonFailure("创建管理员账号失败", err)
     }
 
     // 创建安装锁
     err = app.CreateInstallLock()
     if err != nil {
-        logger.Error(err)
-        return json.Failure(utils.ResponseFailure, "创建文件安装锁失败")
+        return json.CommonFailure("创建文件安装锁失败", err)
     }
 
     app.Installed = true
