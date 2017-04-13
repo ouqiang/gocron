@@ -38,13 +38,14 @@ func (task *Task) Initialize() {
 func (task *Task) Add(taskModel models.TaskHost) {
     taskFunc := createHandlerJob(taskModel)
     if taskFunc == nil {
-        logger.Error("添加任务#不存在的任务协议编号", taskModel.Protocol)
+        logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
         return
     }
 
     cronName := strconv.Itoa(taskModel.Id)
     Cron.RemoveJob(cronName)
-    Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
+    err := Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
+    logger.Error("添加任务到调度器失败#", err)
 }
 
 type Handler interface {
@@ -61,7 +62,7 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
     }
     req, err := http.NewRequest("POST", taskModel.Command, nil)
     if err != nil {
-        logger.Error("创建HTTP请求错误-", err.Error())
+        logger.Error("任务处理#创建HTTP请求错误-", err.Error())
         return
     }
     req.Header.Set("Content-type", "application/x-www-form-urlencoded")
@@ -74,12 +75,12 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
         }
     }()
     if err != nil {
-        logger.Error("HTTP请求错误-", err.Error())
+        logger.Error("任务处理HTTP请求错误-", err.Error())
         return
     }
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
-        logger.Error("读取HTTP请求返回值失败-", err.Error())
+        logger.Error("任务处理#读取HTTP请求返回值失败-", err.Error())
     }
 
     return string(body), err
@@ -145,7 +146,7 @@ func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
     taskFunc := func() {
         taskLogId, err := createTaskLog(taskModel)
         if err != nil {
-            logger.Error("写入任务日志失败-", err)
+            logger.Error("任务开始执行#写入任务日志失败-", err)
             return
         }
         // err != nil 执行失败, 失败重试3次
@@ -156,12 +157,12 @@ func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
             if err == nil {
                 break
             } else {
-                logger.Error("执行失败#tasklog.id-" + strconv.FormatInt(taskLogId, 10) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
+                logger.Error("任务执行失败#tasklog.id-" + strconv.FormatInt(taskLogId, 10) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
             }
         }
         _, err = updateTaskLog(taskLogId, result, err)
         if err != nil {
-            logger.Error("更新任务日志失败-", err)
+            logger.Error("任务结束#更新任务日志失败-", err)
         }
     }
 

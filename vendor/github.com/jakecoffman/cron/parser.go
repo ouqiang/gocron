@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"fmt"
 )
 
 // Parse returns a new crontab schedule representing the given spec.
@@ -14,7 +15,10 @@ import (
 // It accepts
 //   - Full crontab specs, e.g. "* * * * * ?"
 //   - Descriptors, e.g. "@midnight", "@every 1h30m"
-func Parse(spec string) Schedule {
+func Parse(spec string) (Schedule, error) {
+	if len(spec) == 0 {
+		return nil, fmt.Errorf("Empty spec string")
+	}
 	if spec[0] == '@' {
 		return parseDescriptor(spec)
 	}
@@ -23,7 +27,7 @@ func Parse(spec string) Schedule {
 	// (second) (minute) (hour) (day of month) (month) (day of week, optional)
 	fields := strings.Fields(spec)
 	if len(fields) != 5 && len(fields) != 6 {
-		log.Panicf("Expected 5 or 6 fields, found %d: %s", len(fields), spec)
+		return nil, fmt.Errorf("Expected 5 or 6 fields, found %d: %s", len(fields), spec)
 	}
 
 	// If a sixth field is not provided (DayOfWeek), then it is equivalent to star.
@@ -40,7 +44,7 @@ func Parse(spec string) Schedule {
 		Dow:    getField(fields[5], dow),
 	}
 
-	return schedule
+	return schedule, nil
 }
 
 // getField returns an Int with the bits set representing all of the times that
@@ -156,7 +160,7 @@ func all(r bounds) uint64 {
 
 // parseDescriptor returns a pre-defined schedule for the expression, or panics
 // if none matches.
-func parseDescriptor(spec string) Schedule {
+func parseDescriptor(spec string) (Schedule,error) {
 	switch spec {
 	case "@yearly", "@annually":
 		return &SpecSchedule{
@@ -166,7 +170,7 @@ func parseDescriptor(spec string) Schedule {
 			Dom:    1 << dom.min,
 			Month:  1 << months.min,
 			Dow:    all(dow),
-		}
+		}, nil
 
 	case "@monthly":
 		return &SpecSchedule{
@@ -176,7 +180,7 @@ func parseDescriptor(spec string) Schedule {
 			Dom:    1 << dom.min,
 			Month:  all(months),
 			Dow:    all(dow),
-		}
+		}, nil
 
 	case "@weekly":
 		return &SpecSchedule{
@@ -186,7 +190,7 @@ func parseDescriptor(spec string) Schedule {
 			Dom:    all(dom),
 			Month:  all(months),
 			Dow:    1 << dow.min,
-		}
+		}, nil
 
 	case "@daily", "@midnight":
 		return &SpecSchedule{
@@ -196,7 +200,7 @@ func parseDescriptor(spec string) Schedule {
 			Dom:    all(dom),
 			Month:  all(months),
 			Dow:    all(dow),
-		}
+		}, nil
 
 	case "@hourly":
 		return &SpecSchedule{
@@ -206,18 +210,17 @@ func parseDescriptor(spec string) Schedule {
 			Dom:    all(dom),
 			Month:  all(months),
 			Dow:    all(dow),
-		}
+		}, nil
 	}
 
 	const every = "@every "
 	if strings.HasPrefix(spec, every) {
 		duration, err := time.ParseDuration(spec[len(every):])
 		if err != nil {
-			log.Panicf("Failed to parse duration %s: %s", spec, err)
-		}
-		return Every(duration)
+            return nil, fmt.Errorf("Failed to parse duration %s: %s", spec, err)
+        }
+		return Every(duration),nil
 	}
 
-	log.Panicf("Unrecognized descriptor: %s", spec)
-	return nil
+    return nil, fmt.Errorf("Unrecognized descriptor: %s", spec)
 }

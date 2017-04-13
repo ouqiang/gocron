@@ -7,6 +7,7 @@ import (
     "github.com/ouqiang/gocron/modules/utils"
     "github.com/ouqiang/gocron/service"
     "strconv"
+    "github.com/jakecoffman/cron"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -48,6 +49,10 @@ type TaskForm struct {
 func Store(ctx *macaron.Context, form TaskForm) string  {
     json := utils.JsonResponse{}
     taskModel := models.Task{}
+    _, err := cron.Parse(form.Spec)
+    if err != nil {
+        return json.CommonFailure("crontab表达式解析失败", err)
+    }
     nameExists, err := taskModel.NameExist(form.Name)
     if err != nil {
         return json.CommonFailure(utils.FailureContent, err)

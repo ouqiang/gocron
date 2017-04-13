@@ -31,3 +31,4 @@ conf/app.ini
 conf/ansible_hosts.ini
 profile/*
 public/resource/javascript/vue.js
+gocron
