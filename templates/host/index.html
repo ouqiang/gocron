@@ -14,7 +14,7 @@
                 </h3>
             </div>
         </div>
-        <table class="ui single line table">
+        <table class="ui striped table">
             <thead>
             <tr>
                 <th>主机名</th>
@@ -35,7 +35,10 @@
                 <td>{{{.Password}}}</td>
                 <td>{{{.Port}}}</td>
                 <td>{{{.Remark}}}</td>
-                <td><button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button></td>
+                <td>
+                    <button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button>
+                    <button class="ui pink button" >查看任务</button>
+                </td>
             </tr>
             {{{end}}}
             </tbody>

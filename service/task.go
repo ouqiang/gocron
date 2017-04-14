@@ -45,7 +45,9 @@ func (task *Task) Add(taskModel models.TaskHost) {
     cronName := strconv.Itoa(taskModel.Id)
     Cron.RemoveJob(cronName)
     err := Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
-    logger.Error("添加任务到调度器失败#", err)
+    if err != nil {
+        logger.Error("添加任务到调度器失败#", err)
+    }
 }
 
 type Handler interface {
@@ -103,6 +105,8 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
 
 func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel := new(models.TaskLog)
+    taskLogModel.TaskId = taskModel.Id
+    taskLogModel.Type = models.Timing
     taskLogModel.Name = taskModel.Task.Name
     taskLogModel.Spec = taskModel.Spec
     taskLogModel.Protocol = taskModel.Protocol

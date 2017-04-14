@@ -27,9 +27,11 @@
             <thead>
             <tr>
                 <th>任务名称</th>
+                <th>任务类型</th>
                 <th>cron表达式</th>
                 <th>协议</th>
                 <th>超时时间(秒)</th>
+                <th>延时时间(秒)</th>
                 <th>主机</th>
                 <th>开始时间</th>
                 <th>结束时间</th>
@@ -41,9 +43,11 @@
             {{{range $i, $v := .Logs}}}
             <tr>
                 <td>{{{.Name}}}</td>
+                <td>{{{if eq .Type 1}}}定时任务{{{else}}}延时任务{{{end}}}</td>
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else}}} SSH {{{end}}}</td>
                 <td>{{{.Timeout}}}</td>
+                <td>{{{.Delay}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>
                         {{{.StartTime.Format "2006-01-02 15:03:04" }}}
