@@ -34,23 +34,43 @@ func Debug(v ...interface{}) {
 	write(DEBUG, v)
 }
 
+func Debugf(format string, v... interface{})  {
+    writef(DEBUG, format, v)
+}
+
 func Info(v ...interface{}) {
 	write(INFO, v)
+}
+
+func Infof(format string, v... interface{})  {
+    writef(INFO, format, v)
 }
 
 func Warn(v ...interface{}) {
 	write(WARN, v)
 }
 
+func Warnf(format string, v... interface{})  {
+    writef(WARN, format, v)
+}
+
 func Error(v ...interface{}) {
 	write(ERROR, v)
+}
+
+func Errorf(format string, v... interface{})  {
+    writef(ERROR, format, v)
 }
 
 func Fatal(v ...interface{}) {
 	write(FATAL, v)
 }
 
-func write(level Level, v ...interface{}) {
+func Fatalf(format string, v... interface{})  {
+    writef(FATAL, format, v)
+}
+
+func write(level Level, v... interface{}) {
     defer logger.Flush()
 
     switch level {
@@ -66,6 +86,24 @@ func write(level Level, v ...interface{}) {
         case ERROR:
             logger.Error(v)
 	}
+}
+
+func writef(level Level, format string, v... interface{})  {
+    defer logger.Flush()
+
+    switch level {
+        case DEBUG:
+            logger.Debugf(v)
+        case INFO:
+            logger.Infof(v)
+        case WARN:
+            logger.Warnf(v)
+        case FATAL:
+            logger.Criticalf(v)
+            os.Exit(1)
+        case ERROR:
+            logger.Errorf(v)
+    }
 }
 
 func getLogConfig() string {
