@@ -14,7 +14,6 @@ import (
     "github.com/go-macaron/gzip"
     "strings"
     "github.com/ouqiang/gocron/modules/app"
-    "github.com/ouqiang/gocron/routers/api/v1/delaytask"
 )
 
 // 静态文件目录
@@ -75,12 +74,6 @@ func Register(m *macaron.Macaron) {
         m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)
-    })
-
-    // API接口
-    m.Group("/api/v1", func() {
-        // 添加延时任务
-        m.Post("/task/delay", delaytask.Create)
     })
 }
 

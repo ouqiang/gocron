@@ -6,17 +6,11 @@ import (
 
 type TaskType int8
 
-const (
-    Timing = iota + 1 // 定时任务
-    Delay // 延时任务
-)
 
 // 任务执行日志
 type TaskLog struct {
     Id        int64       `xorm:"bigint pk autoincr"`
     TaskId   int       `xorm:"int notnull index default 0"`       // 任务id
-    Type     TaskType  `xorm:"tinyint notnull default 1"`            // 任务类型 1 定时任务 2 延时任务
-    Delay    int       `xorm:"int notnull default 0"`             // 延时任务-延时时间
     Name     string    `xorm:"varchar(64) notnull"`               // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`               // crontab
     Protocol TaskProtocol  `xorm:"tinyint notnull"`               // 协议 1:http 2:ssh-command
@@ -25,7 +19,7 @@ type TaskLog struct {
     Hostname string       `xorm:"varchar(512) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
-    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 1:执行中  2:执行完毕 0:执行失败 -1 待执行
+    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 1:执行中  2:执行完毕 0:执行失败
     Result    string    `xorm:"varchar(65535) notnull defalut '' "` // 执行结果
     Page      int       `xorm:"-"`
     PageSize  int       `xorm:"-"`

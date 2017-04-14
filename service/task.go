@@ -106,7 +106,6 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
 func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
-    taskLogModel.Type = models.Timing
     taskLogModel.Name = taskModel.Task.Name
     taskLogModel.Spec = taskModel.Spec
     taskLogModel.Protocol = taskModel.Protocol

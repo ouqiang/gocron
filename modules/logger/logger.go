@@ -93,16 +93,16 @@ func writef(level Level, format string, v... interface{})  {
 
     switch level {
         case DEBUG:
-            logger.Debugf(v)
+            logger.Debugf(format, v)
         case INFO:
-            logger.Infof(v)
+            logger.Infof(format, v)
         case WARN:
-            logger.Warnf(v)
+            logger.Warnf(format, v)
         case FATAL:
-            logger.Criticalf(v)
+            logger.Criticalf(format, v)
             os.Exit(1)
         case ERROR:
-            logger.Errorf(v)
+            logger.Errorf(format, v)
     }
 }
 
