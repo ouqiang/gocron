@@ -33,6 +33,12 @@ func (host *Host) Delete(id int) (int64, error) {
     return Db.Id(id).Delete(host)
 }
 
+func (host *Host) Find(id int) error {
+    _, err := Db.Id(id).Get(host)
+
+    return err
+}
+
 func (host *Host) NameExists(name string) (bool, error)  {
     count, err := Db.Where("name = ?", name).Count(host);
 

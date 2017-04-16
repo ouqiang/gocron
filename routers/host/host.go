@@ -21,7 +21,19 @@ func Index(ctx *macaron.Context)  {
 
 func Create(ctx *macaron.Context)  {
     ctx.Data["Title"] = "添加主机"
-    ctx.HTML(200, "host/create")
+    ctx.HTML(200, "host/host_form")
+}
+
+func Edit(ctx *macaron.Context)  {
+    ctx.Data["Title"] = "编辑主机"
+    hostModel := new(models.Host)
+    id := ctx.ParamsInt(":id")
+    err := hostModel.Find(id)
+    if err != nil {
+        logger.Errorf("获取主机详情失败#主机id-%d", id)
+    }
+    ctx.Data["Host"] = hostModel
+    ctx.HTML(200, "host/host_form")
 }
 
 type HostForm struct {

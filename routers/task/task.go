@@ -31,7 +31,7 @@ func Create(ctx *macaron.Context)  {
     ctx.Data["Hosts"] = hosts
     ctx.Data["FirstHostName"] = hosts[0].Name
     ctx.Data["FirstHostId"] = hosts[0].Id
-    ctx.HTML(200, "task/create")
+    ctx.HTML(200, "task/task_form")
 }
 
 type TaskForm struct {
@@ -88,13 +88,10 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
 
 // 删除任务
 func Remove(ctx *macaron.Context) string {
-    id, err := strconv.Atoi(ctx.Params(":id"))
+    id  := ctx.ParamsInt(":id")
     json := utils.JsonResponse{}
-    if err != nil {
-        return json.CommonFailure("参数错误", err)
-    }
     taskModel := new(models.Task)
-    _, err = taskModel.Delete(id)
+    _, err := taskModel.Delete(id)
     if err != nil {
         return json.CommonFailure(utils.FailureContent, err)
     }
@@ -116,13 +113,10 @@ func Disable(ctx *macaron.Context) string {
 
 // 改变任务状态
 func changeStatus(ctx *macaron.Context, status models.Status) string {
-    id, err := strconv.Atoi(ctx.Params(":id"))
+    id  := ctx.ParamsInt(":id")
     json := utils.JsonResponse{}
-    if err != nil {
-        return json.CommonFailure("参数错误", err)
-    }
     taskModel := new(models.Task)
-    _, err = taskModel.Update(id, models.CommonMap{
+    _, err := taskModel.Update(id, models.CommonMap{
         "Status": status,
     })
     if err != nil {

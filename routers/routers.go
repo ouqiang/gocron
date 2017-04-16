@@ -36,7 +36,7 @@ func Register(m *macaron.Macaron) {
     // 50x错误
     m.InternalServerError(func(ctx *macaron.Context) {
         if isGetRequest(ctx) && !isAjaxRequest(ctx) {
-            ctx.Data["Title"] = "500 - SERVER INTERNAL ERROR"
+            ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
             ctx.HTML(500, "error/500")
         } else {
             json := utils.JsonResponse{}
@@ -71,6 +71,7 @@ func Register(m *macaron.Macaron) {
     // 主机
     m.Group("/host", func() {
         m.Get("/create", host.Create)
+        m.Get("/Edit", host.Edit)
         m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)
@@ -112,7 +113,6 @@ func RegisterMiddleware(m *macaron.Macaron) {
     // 设置模板共享变量
     m.Use(func(ctx *macaron.Context) {
         ctx.Data["URI"] = ctx.Req.RequestURI
-        ctx.Data["StandardTimeFormat"] = "2006-01-02 15:03:04"
     })
 }
 
