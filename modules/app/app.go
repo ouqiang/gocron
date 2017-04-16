@@ -25,6 +25,7 @@ func init()  {
 }
 
 func InitEnv() {
+    runtime.GOMAXPROCS(runtime.NumCPU())
     logger.InitLogger()
     wd, err := os.Getwd()
     if err != nil {

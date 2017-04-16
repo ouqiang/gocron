@@ -23,9 +23,26 @@ type Result struct {
 
 // 执行shell命令
 func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
+    client, err := getClient(sshConfig)
+    if err != nil {
+        return "", err
+    }
+    defer client.Close()
+
+    session, err := client.NewSession()
+
+    if err != nil {
+        return  "", err
+    }
+    defer session.Close()
+
     var resultChan chan Result = make(chan Result)
     var timeoutChan chan bool = make(chan bool)
-    go execCommand(sshConfig, cmd, resultChan)
+    go func() {
+        cmd += fmt.Sprintf(" & { sleep %d; eval 'kill  $!' &> /dev/null; }", sshConfig.ExecTimeout)
+        output, err := session.CombinedOutput(cmd)
+        resultChan <- Result{string(output), err}
+    }()
     go triggerTimeout(timeoutChan, sshConfig.ExecTimeout)
     select {
         case result := <- resultChan:
@@ -55,24 +72,6 @@ func getClient(sshConfig SSHConfig) (*ssh.Client, error)  {
     return ssh.Dial("tcp", addr, config)
 }
 
-func execCommand(sshConfig SSHConfig, cmd string, result chan Result)  {
-    client, err := getClient(sshConfig)
-    if err != nil {
-        result <- Result{"", err}
-        return
-    }
-    defer client.Close()
-
-    session, err := client.NewSession()
-
-    if err != nil {
-        result <- Result{"", err}
-        return
-    }
-    defer session.Close()
-    output, err := session.CombinedOutput(cmd)
-    result <- Result{string(output), err}
-}
 
 func triggerTimeout(ch chan bool, timeout int){
     // 最长执行时间不能超过24小时

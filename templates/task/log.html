@@ -42,7 +42,7 @@
             <tr>
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
-                <td>{{{if eq .Protocol 1}}} HTTP {{{else}}} SSH {{{end}}}</td>
+                <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else}}} 本地命令 {{{end}}}</td>
                 <td>{{{.Timeout}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>

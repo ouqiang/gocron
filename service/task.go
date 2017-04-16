@@ -9,6 +9,8 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/ssh"
     "github.com/jakecoffman/cron"
+    "github.com/ouqiang/gocron/modules/utils"
+    "strings"
 )
 
 var Cron *cron.Cron
@@ -52,6 +54,19 @@ func (task *Task) Add(taskModel models.TaskHost) {
 
 type Handler interface {
     Run(taskModel models.TaskHost) (string, error)
+}
+
+
+type LocalCommandHandler struct {}
+
+func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
+    args := strings.Split(taskModel.Command, " ")
+
+    if len(args) > 1 {
+        return utils.ExecShell(args[0], args[1:]...)
+    }
+
+    return utils.ExecShell(args[0])
 }
 
 // HTTP任务
@@ -138,10 +153,12 @@ func updateTaskLog(taskLogId int64, result string, err error) (int64, error) {
 func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
     var handler Handler = nil
     switch taskModel.Protocol {
-    case models.TaskHTTP:
-        handler = new(HTTPHandler)
-    case models.TaskSSH:
-        handler = new(SSHCommandHandler)
+        case models.TaskHTTP:
+            handler = new(HTTPHandler)
+        case models.TaskSSH:
+            handler = new(SSHCommandHandler)
+        case models.TaskLocalCommand:
+            handler = new(LocalCommandHandler)
     }
     if handler == nil {
         return nil
@@ -152,17 +169,7 @@ func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
             logger.Error("任务开始执行#写入任务日志失败-", err)
             return
         }
-        // err != nil 执行失败, 失败重试3次
-        retryTime := 4
-        var result string = ""
-        for i := 0; i < retryTime; i++ {
-            result, err = handler.Run(taskModel)
-            if err == nil {
-                break
-            } else {
-                logger.Error("任务执行失败#tasklog.id-" + strconv.FormatInt(taskLogId, 10) + "#尝试次数-" + strconv.Itoa(i + 1) + "#"  + err.Error() + " " + result)
-            }
-        }
+        result, err := handler.Run(taskModel)
         _, err = updateTaskLog(taskLogId, result, err)
         if err != nil {
             logger.Error("任务结束#更新任务日志失败-", err)

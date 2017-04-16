@@ -9,6 +9,7 @@ type TaskProtocol int8
 const (
     TaskHTTP TaskProtocol = iota + 1 // HTTP协议
     TaskSSH  // SSH命令
+    TaskLocalCommand // 本地命令
 )
 
 // 任务
@@ -16,7 +17,7 @@ type Task struct {
     Id       int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(64) notnull"`              // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`              // crontab
-    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command
+    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command 3: 本地命令
     Command  string    `xorm:"varchar(512) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
