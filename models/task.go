@@ -52,6 +52,10 @@ func (task *Task) Create() (insertId int, err error) {
     return
 }
 
+func (task *Task) UpdateBean(id int) (int64, error)  {
+    return Db.UseBool("status").Update(task)
+}
+
 // 更新
 func (task *Task) Update(id int, data CommonMap) (int64, error) {
     return Db.Table(task).ID(id).Update(data)
@@ -89,7 +93,11 @@ func (task *Task) HostIdExist(hostId int16) (bool, error) {
 }
 
 // 判断任务名称是否存在
-func (task *Task) NameExist(name string) (bool, error)  {
+func (task *Task) NameExist(name string, id int) (bool, error)  {
+    if id > 0 {
+        count, err := Db.Where("name = ? AND status = ? AND id != ?", name, Enabled, id).Count(task);
+        return count > 0, err
+    }
     count, err := Db.Where("name = ? AND status = ?", name, Enabled).Count(task);
 
     return count > 0, err

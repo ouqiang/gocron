@@ -39,7 +39,6 @@ func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
     var resultChan chan Result = make(chan Result)
     var timeoutChan chan bool = make(chan bool)
     go func() {
-        cmd += fmt.Sprintf(" & { sleep %d; eval 'kill  $!' &> /dev/null; }", sshConfig.ExecTimeout)
         output, err := session.CombinedOutput(cmd)
         resultChan <- Result{string(output), err}
     }()

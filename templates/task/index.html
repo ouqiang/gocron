@@ -39,6 +39,7 @@
                     <td>{{{.Remark}}}</td>
                     <td>{{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}</td>
                     <td>
+                        <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
                         {{{if eq .Status 1}}}
                              <button class="ui primary button" onclick="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
                         {{{else}}}

@@ -27,7 +27,31 @@ func Create(ctx *macaron.Context)  {
     if err != nil || len(hosts) == 0 {
         logger.Error(err)
     }
-    ctx.Data["Title"] = "任务管理"
+    ctx.Data["Title"] = "添加任务"
+    ctx.Data["Hosts"] = hosts
+    if len(hosts) > 0 {
+        ctx.Data["FirstHostName"] = hosts[0].Name
+        ctx.Data["FirstHostId"] = hosts[0].Id
+    }
+    ctx.HTML(200, "task/task_form")
+}
+
+func Edit(ctx *macaron.Context)  {
+    id := ctx.ParamsInt(":id")
+    hostModel := new(models.Host)
+    hosts, err := hostModel.List()
+    if err != nil || len(hosts) == 0 {
+        logger.Error(err)
+    }
+    taskModel := new(models.Task)
+    task, err := taskModel.Detail(id)
+    if err != nil {
+        logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
+        ctx.Redirect("/task")
+    }
+    ctx.Data["TaskId"] = id
+    ctx.Data["Task"]  = task
+    ctx.Data["Title"] = "编辑"
     ctx.Data["Hosts"] = hosts
     if len(hosts) > 0 {
         ctx.Data["FirstHostName"] = hosts[0].Name
@@ -37,6 +61,7 @@ func Create(ctx *macaron.Context)  {
 }
 
 type TaskForm struct {
+    Id int
     Name string `binding:"Required;"`
     Spec string `binding:"Required;MaxSize(64)"`
     Protocol models.TaskProtocol `binding:"In(1,2,3)"`
@@ -44,18 +69,19 @@ type TaskForm struct {
     Timeout int `binding:"Range(0,86400)"`
     HostId int16
     Remark string
-    Status models.Status `binding:"In(1,0)"`
+    Status models.Status `binding:"In(1,2)"`
 }
 
 // 保存任务
 func Store(ctx *macaron.Context, form TaskForm) string  {
     json := utils.JsonResponse{}
     taskModel := models.Task{}
+    var id int = form.Id
     _, err := cron.Parse(form.Spec)
     if err != nil {
         return json.CommonFailure("crontab表达式解析失败", err)
     }
-    nameExists, err := taskModel.NameExist(form.Name)
+    nameExists, err := taskModel.NameExist(form.Name, form.Id)
     if err != nil {
         return json.CommonFailure(utils.FailureContent, err)
     }
@@ -74,15 +100,22 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.HostId = form.HostId
     taskModel.Remark = form.Remark
     taskModel.Status = form.Status
+    if taskModel.Status != models.Enabled {
+        taskModel.Status = models.Disabled
+    }
     taskModel.Spec = form.Spec
-    insertId, err := taskModel.Create()
+    if id == 0 {
+        id, err = taskModel.Create()
+    } else {
+        _, err = taskModel.UpdateBean(id)
+    }
     if err != nil {
         return json.CommonFailure("保存失败", err)
     }
 
     // 任务处于激活状态,加入调度管理
     if (taskModel.Status == models.Enabled) {
-        addTaskToTimer(insertId)
+        addTaskToTimer(id)
     }
 
     return json.Success("保存成功", nil)

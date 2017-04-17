@@ -8,36 +8,41 @@
                 <h3 class="ui dividing header">
                     <i class="large add icon"></i>
                     <div class="content">
-                        添加任务
+                        {{{.Title}}}
                     </div>
                 </h3>
             </div>
         </div>
     <form class="ui form fluid vertical segment">
+        <input type="hidden" name="id" value="{{{.Task.Id}}}">
         <div class="two fields">
             <div class="field">
                 <label>任务名称</label>
                 <div class="ui small left icon input">
-                    <input type="text" placeholder="数据库备份" name="name">
+                    <input type="text" placeholder="数据库备份" name="name" value="{{{.Task.Task.Name}}}">
                 </div>
             </div>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>crontab表达式 (每行一个表达式)</label>
-                <textarea rows="5" name="spec" placeholder="*/5 * * * * * *"></textarea>
+                <textarea rows="5" name="spec" placeholder="*/5 * * * * * *">{{{.Task.Spec}}}</textarea>
             </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>协议</label>
                 <div class="ui dropdown selection">
-                    <input type="hidden" name="protocol" value="3">
+                    {{{if .Task}}}
+                         <input type="hidden" name="protocol" value="{{{if  (gt .Task.Protocol 0)}}}{{{.Task.Protocol}}}{{{else}}}3{{{end}}}">
+                    {{{else}}}
+                         <input type="hidden" name="protocol" value="3">
+                    {{{end}}}
                     <div class="default text">本地命令</div>
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <div class="item active" data-value="3">本地命令</div>
-                        <div class="item active" data-value="2">SSH</div>
+                        <div class="item" data-value="3">本地命令</div>
+                        <div class="item" data-value="2">SSH</div>
                         <div class="item" data-value="1">HTTP</div>
                     </div>
                 </div>
@@ -49,7 +54,13 @@
                 {{{range $i, $v := .Hosts}}}
                 <div class="field">
                     <div class="ui radio checkbox">
-                        <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}">
+                        {{{if $.Task}}}
+                             <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}"
+                               {{{if and .Task  (eq $.TaskId .Id)}}} checked {{{end}}}
+                                >
+                        {{{else}}}
+                            <input type="radio" name="host_id" tabindex="0" class="hidden">
+                        {{{end}}}
                         <label>{{{.Alias}}}-{{{.Name}}}</label>
                     </div>
                 </div>
@@ -58,23 +69,27 @@
         </div>
         <div class="field">
             <label>命令(shell命令|URL地址, 多条shell命令";"分隔)</label>
-            <input type="text"  name="command" placeholder="tail -n 10 /var/log/nginx/error.log">
+            <input type="text"  name="command" placeholder="tail -n 10 /var/log/nginx/error.log" value="{{{.Task.Command}}}">
         </div>
         <div class="three fields">
             <div class="field">
                 <label>任务超时时间 (单位秒,0不限制,不能超过24小时)</label>
-                <input type="text"  name="timeout" placeholder="0" value="180">
+                <input type="text"  name="timeout" placeholder="0" value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>任务状态 (任务添加成功后，是否立即调度)</label>
                 <div class="ui dropdown selection">
-                    <input type="hidden" name="status" value="0">
-                    <div class="default text">激活</div>
+                    {{{if .Task}}}
+                            <input type="hidden" name="status" value="{{{if and .Task.Status  (eq .Task.Status 1)}}}1{{{else}}}2{{{end}}}">
+                    {{{else}}}
+                         <input type="hidden" name="status" value="2">
+                    {{{end}}}
+                    <div class="default text">暂停</div>
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <div class="item active" data-value="0">暂停</div>
+                        <div class="item" data-value="2">暂停</div>
                         <div class="item" data-value="1">激活</div>
                     </div>
                 </div>
@@ -83,10 +98,10 @@
         <div class="two field">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark" placeholder="任务备注"></textarea>
+                <textarea rows="5" name="remark" placeholder="任务备注">{{{.Task.Remark}}}</textarea>
             </div>
         </div>
-        <div class="ui primary submit button">提交</div>
+        <div class="ui primary submit button">保存</div>
     </form>
     </div>
 </div>

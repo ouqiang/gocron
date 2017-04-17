@@ -60,6 +60,7 @@ func Register(m *macaron.Macaron) {
     m.Group("/task", func() {
         m.Get("/create", task.Create)
         m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
+        m.Get("/edit/:id", task.Edit)
         m.Get("", task.Index)
         m.Get("/log", tasklog.Index)
         m.Post("/log/clear", tasklog.Clear)
