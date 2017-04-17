@@ -29,8 +29,10 @@ func Create(ctx *macaron.Context)  {
     }
     ctx.Data["Title"] = "任务管理"
     ctx.Data["Hosts"] = hosts
-    ctx.Data["FirstHostName"] = hosts[0].Name
-    ctx.Data["FirstHostId"] = hosts[0].Id
+    if len(hosts) > 0 {
+        ctx.Data["FirstHostName"] = hosts[0].Name
+        ctx.Data["FirstHostId"] = hosts[0].Id
+    }
     ctx.HTML(200, "task/task_form")
 }
 

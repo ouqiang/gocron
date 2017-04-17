@@ -15,6 +15,20 @@ func ExecShell(command string, args ...string) (string, error) {
     return string(result), err
 }
 
+// 执行shell命令，可设置执行超时时间
+func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
+    cmd := exec.Command(command, args...)
+    d := time.Duration(timeout) * time.Second
+    timer := time.AfterFunc(d, func() {
+        // 执行超时kill进程
+        cmd.Process.Kill()
+    })
+    output ,err := cmd.CombinedOutput()
+    timer.Stop()
+
+    return string(output), err
+}
+
 // 生成长度为length的随机字符串
 func RandString(length int64) string {
     sources := []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")

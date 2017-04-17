@@ -9,8 +9,9 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/ssh"
     "github.com/jakecoffman/cron"
-    "github.com/ouqiang/gocron/modules/utils"
     "strings"
+    "github.com/ouqiang/gocron/modules/utils"
+    "errors"
 )
 
 var Cron *cron.Cron
@@ -57,16 +58,21 @@ type Handler interface {
 }
 
 
+// 本地命令
 type LocalCommandHandler struct {}
 
 func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
-    args := strings.Split(taskModel.Command, " ")
-
-    if len(args) > 1 {
-        return utils.ExecShell(args[0], args[1:]...)
+    if taskModel.Command == "" {
+        return "", errors.New("invalid command")
     }
-
-    return utils.ExecShell(args[0])
+    fields := strings.Split(taskModel.Command, " ")
+    var args []string
+    if len(fields) > 1 {
+        args = fields[1:]
+    } else {
+        args = []string{}
+    }
+    return utils.ExecShellWithTimeout(taskModel.Timeout, fields[0], args...)
 }
 
 // HTTP任务
