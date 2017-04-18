@@ -56,7 +56,7 @@
                     <div class="ui radio checkbox">
                         {{{if $.Task}}}
                              <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}"
-                               {{{if and .Task  (eq $.TaskId .Id)}}} checked {{{end}}}
+                               {{{if  eq $.Task.HostId .Id}}} checked {{{end}}}
                                 >
                         {{{else}}}
                             <input type="radio" name="host_id" tabindex="0" class="hidden">

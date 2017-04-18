@@ -45,11 +45,10 @@ func Edit(ctx *macaron.Context)  {
     }
     taskModel := new(models.Task)
     task, err := taskModel.Detail(id)
-    if err != nil {
+    if err != nil || taskModel.Id != id {
         logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
         ctx.Redirect("/task")
     }
-    ctx.Data["TaskId"] = id
     ctx.Data["Task"]  = task
     ctx.Data["Title"] = "编辑"
     ctx.Data["Hosts"] = hosts
