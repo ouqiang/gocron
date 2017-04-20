@@ -17,12 +17,7 @@ var (
     DataDir      string // 数据目录，存放session文件等
     AppConfig    string // 应用配置文件
     Installed    bool   // 应用是否安装过
-    IsWindows    bool   // 是否是在windows上运行
 )
-
-func init()  {
-    IsWindows = runtime.GOOS == "windows"
-}
 
 func InitEnv() {
     runtime.GOMAXPROCS(runtime.NumCPU())

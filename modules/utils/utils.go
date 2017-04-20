@@ -6,6 +6,8 @@ import (
     "math/rand"
     "os/exec"
     "time"
+    "runtime"
+    "github.com/Tang-RoseChild/mahonia"
 )
 
 // 执行shell命令
@@ -56,4 +58,16 @@ func RandNumber(max int) int {
     r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
     return r.Intn(max)
+}
+
+// 判断当前系统是否是windows
+func IsWindows() bool {
+    return runtime.GOOS == "windows"
+}
+
+// GBK编码转换为UTF8
+func GBK2UTF8(s string) (string, bool) {
+    dec := mahonia.NewDecoder("gbk")
+
+    return dec.ConvertStringOK(s)
 }

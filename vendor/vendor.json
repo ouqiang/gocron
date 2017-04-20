@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "dflqt5AxPeRWDNy1T1BuhINCpNo=",
+			"path": "github.com/Tang-RoseChild/mahonia",
+			"revision": "0eef680515ccaa6e08f5b759e42b2192126bc3be",
+			"revisionTime": "2013-12-26T21:35:31Z"
+		},
+		{
 			"checksumSHA1": "7HXb3cry6luicWeJM9Uxwzfo9Rs=",
 			"path": "github.com/Unknwon/com",
 			"revision": "0db4a625e949e956314d7d1adea9bf82384cc10c",
@@ -149,6 +155,10 @@
 			"path": "gopkg.in/yaml.v2",
 			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
 			"revisionTime": "2017-02-08T14:18:51Z"
+		},
+		{
+			"path": "https://code.google.com/p/mahonia",
+			"revision": ""
 		}
 	],
 	"rootPath": "github.com/ouqiang/gocron"

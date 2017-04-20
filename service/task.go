@@ -70,9 +70,26 @@ func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
         return "", errors.New("invalid command")
     }
 
-    args := []string{"-c", taskModel.Command}
+    if utils.IsWindows() {
+        return h.runOnWindows(taskModel)
+    }
 
-    return utils.ExecShellWithTimeout(taskModel.Timeout, "/bin/bash", args...)
+    return h.runOnUnix(taskModel)
+}
+
+func (h *LocalCommandHandler) runOnWindows(taskModel models.TaskHost) (string, error) {
+    outputGBK, err := utils.ExecShellWithTimeout(taskModel.Timeout, "cmd", "/C", taskModel.Command)
+    // windows平台编码为gbk，需转换为utf8才能入库
+    outputUTF8, ok := utils.GBK2UTF8(outputGBK)
+    if ok {
+        return outputUTF8, err
+    }
+
+    return "命令输出转换编码失败(gbk to utf8)", err
+}
+
+func (h *LocalCommandHandler) runOnUnix(taskModel models.TaskHost) (string, error)  {
+    return utils.ExecShellWithTimeout(taskModel.Timeout, "/bin/bash", "-c", taskModel.Command)
 }
 
 // HTTP任务
@@ -134,7 +151,9 @@ func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel.Protocol = taskModel.Protocol
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
-    taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
+    if taskModel.Protocol == models.TaskSSH {
+        taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
+    }
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = models.Running
     insertId, err := taskLogModel.Create()

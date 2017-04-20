@@ -11,6 +11,7 @@ import (
     "os/exec"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/modules/utils"
 )
 
 // 1号进程id
@@ -102,7 +103,7 @@ func catchSignal()  {
 // 作为守护进程运行
 func becomeDaemon(ctx *cli.Context) {
     // 不支持windows
-    if app.IsWindows {
+    if utils.IsWindows() {
         return
     }
     var daemond string = "false"
