@@ -6,6 +6,8 @@ import (
     "github.com/ouqiang/gocron/modules/utils"
     "github.com/ouqiang/gocron/modules/logger"
     "strconv"
+    "github.com/ouqiang/gocron/modules/ssh"
+    "github.com/ouqiang/gocron/service"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -36,24 +38,57 @@ func Edit(ctx *macaron.Context)  {
     ctx.HTML(200, "host/host_form")
 }
 
+func Ping(ctx *macaron.Context) string  {
+    id := ctx.ParamsInt(":id")
+    hostModel := new(models.Host)
+    err := hostModel.Find(id)
+    json := utils.JsonResponse{}
+    if err != nil || hostModel.Id <= 0{
+        return json.CommonFailure("主机不存在", err)
+    }
+
+    sshConfig := ssh.SSHConfig{
+        User: hostModel.Username,
+        Password: hostModel.Password,
+        Host: hostModel.Name,
+        Port: hostModel.Port,
+        ExecTimeout: 5,
+        AuthType: hostModel.AuthType,
+        PrivateKey: hostModel.PrivateKey,
+    }
+    _, err = ssh.Exec(sshConfig, "pwd")
+    if err != nil {
+        return json.CommonFailure("连接失败-" + err.Error(), err)
+    }
+
+    return json.Success("连接成功", nil)
+}
+
 type HostForm struct {
+    Id int16
     Name string `binding:"Required;MaxSize(100)"`
     Alias string `binding:"Required;MaxSize(32)"`
     Username string `binding:"Required;MaxSize(32)"`
-    Password string `binding:"Required;MaxSize(64)"`
+    Password string
     Port int `binding:"Required;Range(1-65535)"`
+    AuthType ssh.HostAuthType `binding:"Required:Range(1,2)"`
+    PrivateKey string
     Remark string
 }
 
 func Store(ctx *macaron.Context, form HostForm) string  {
     json := utils.JsonResponse{}
     hostModel := new(models.Host)
-    nameExist, err := hostModel.NameExists(form.Name)
+    id := form.Id
+    nameExist, err := hostModel.NameExists(form.Name, form.Id)
     if err != nil {
         return json.CommonFailure("操作失败", err)
     }
     if nameExist {
         return json.CommonFailure("主机名已存在")
+    }
+    if form.Id > 0 {
+        hostModel.Id = form.Id
     }
     hostModel.Name = form.Name
     hostModel.Alias = form.Alias
@@ -61,9 +96,27 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.Password = form.Password
     hostModel.Port = form.Port
     hostModel.Remark = form.Remark
-    _, err = hostModel.Create()
+    hostModel.PrivateKey = form.PrivateKey
+    hostModel.AuthType = form.AuthType
+    isCreate := false
+    if id > 0 {
+        _, err = hostModel.UpdateBean()
+    } else {
+        isCreate = true
+        id, err = hostModel.Create()
+    }
     if err != nil {
         return json.CommonFailure("保存失败", err)
+    }
+
+    taskModel := new(models.TaskHost)
+    tasks, err := taskModel.ActiveListByHostId(id)
+    if  err != nil {
+        return json.CommonFailure("刷新任务主机信息失败", err)
+    }
+    if !isCreate && len(tasks) > 0 {
+        serviceTask := new(service.Task)
+        serviceTask.BatchAdd(tasks)
     }
 
     return json.Success("保存成功", nil)

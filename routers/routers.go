@@ -72,7 +72,8 @@ func Register(m *macaron.Macaron) {
     // 主机
     m.Group("/host", func() {
         m.Get("/create", host.Create)
-        m.Get("/Edit", host.Edit)
+        m.Get("/edit/:id", host.Edit)
+        m.Get("/ping/:id", host.Ping)
         m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)

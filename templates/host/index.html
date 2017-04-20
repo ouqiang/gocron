@@ -20,8 +20,8 @@
                 <th>主机名</th>
                 <th>别名</th>
                 <th>用户名</th>
-                <th>密码</th>
                 <th>端口</th>
+                <th>任务数量</th>
                 <th>备注</th>
                 <th>操作</th>
             </tr>
@@ -32,14 +32,13 @@
                 <td>{{{.Name}}}</td>
                 <td>{{{.Alias}}}</td>
                 <td>{{{.Username}}}</td>
-                <td>{{{.Password}}}</td>
                 <td>{{{.Port}}}</td>
+                <td></td>
                 <td>{{{.Remark}}}</td>
-                <td>
-                    <button class="ui pink button" >编辑</button>
+                <td id="operation">
+                    <a class="ui purple button"  href="/host/edit/{{{.Id}}}">编辑</a>
                     <button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button>
-                    <button class="ui pink button" >连接测试</button>
-                    <button class="ui pink button" >查看任务</button>
+                    <button class="ui blue button" @click="ping({{{.Id}}})">连接测试</button>
                 </td>
             </tr>
             {{{end}}}
@@ -47,5 +46,24 @@
         </table>
     </div>
 </div>
+
+<script type="text/javascript">
+    var Vue = new Vue({
+       el: '#operation',
+       methods: {
+           ping: function(id) {
+               swal({
+                   title: '',
+                   text: "连接中.......",
+                   type: 'info',
+                   closeOnConfirm: true
+               });
+               util.get("/host/ping/" + id, function(code, message) {
+                   swal('操作成功', '连接成功', 'success');
+               })
+           }
+       }
+    });
+</script>
 
 {{{ template "common/footer" . }}}

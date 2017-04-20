@@ -4,36 +4,43 @@
 
 function Util() {
     var util = {};
-    util.post = function(url, params, callback) {
-        // 用户认证失败
-        var SUCCESS = 0;
-        var FAILURE = 1;
-        var NOT_FOUND = 2;
-        var AUTH_ERROR = 3;
+    var SUCCESS = 0;     // 操作成功
+    var FAILURE_MESSAGE = '操作失败';
+    util.ajaxSuccess = function(response, callback) {
+        if (response.code === undefined) {
+            swal(FAILURE_MESSAGE, '服务端返回值无法解析', 'error');
+            return;
+        }
+        if (response.code != SUCCESS) {
+            swal(FAILURE_MESSAGE, response.message ,'error');
+            return;
+        }
+        callback(response.code, response.message, response.data);
+    };
+    util.ajaxFailure = function() {
+        // todo 错误处理
+        swal(FAILURE_MESSAGE, '未知错误', 'error');
+    };
+    util.get = function(url, callback) {
+        var SUCCESS = 0;     // 操作成功
         var FAILURE_MESSAGE = '操作失败';
+        $.get(
+            url,
+            function(response) {
+                util.ajaxSuccess(response, callback);
+            },
+            'json'
+        ).error(util.ajaxFailure);
+    };
+    util.post = function(url, params, callback) {
         $.post(
             url,
             params,
             function(response) {
-                if (response.code === undefined) {
-                    swal(FAILURE_MESSAGE, '服务端返回值无法解析', 'error');
-                }
-                if (response.code == AUTH_ERROR) {
-                    swal(FAILURE_MESSAGE, response.message, 'error');
-                    return;
-                }
-                if (response.code == NOT_FOUND) {
-                    swal(FAILURE_MESSAGE, response.message, 'error');
-                    return;
-                }
-                if (response.code == FAILURE) {
-                    swal(FAILURE_MESSAGE, response.message ,'error');
-                    return;
-                }
-                callback(response.code, response.message, response.data);
+                util.ajaxSuccess(response, callback);
             },
             'json'
-        )
+        ).error(util.ajaxFailure);
     };
     util.confirm = function(message, callback) {
         swal({

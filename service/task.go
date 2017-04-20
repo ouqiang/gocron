@@ -9,7 +9,6 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/ssh"
     "github.com/jakecoffman/cron"
-    "strings"
     "github.com/ouqiang/gocron/modules/utils"
     "errors"
 )
@@ -32,7 +31,12 @@ func (task *Task) Initialize() {
         logger.Debug("任务列表为空")
         return
     }
-    for _, item := range taskList {
+    task.BatchAdd(taskList)
+}
+
+// 批量添加任务
+func (task *Task) BatchAdd(tasks []models.TaskHost)  {
+    for _, item := range tasks {
         task.Add(item)
     }
 }
@@ -65,14 +69,10 @@ func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
     if taskModel.Command == "" {
         return "", errors.New("invalid command")
     }
-    fields := strings.Split(taskModel.Command, " ")
-    var args []string
-    if len(fields) > 1 {
-        args = fields[1:]
-    } else {
-        args = []string{}
-    }
-    return utils.ExecShellWithTimeout(taskModel.Timeout, fields[0], args...)
+
+    args := []string{"-c", taskModel.Command}
+
+    return utils.ExecShellWithTimeout(taskModel.Timeout, "/bin/bash", args...)
 }
 
 // HTTP任务
@@ -83,7 +83,7 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
     if taskModel.Timeout > 0 {
         client.Timeout = time.Duration(taskModel.Timeout) * time.Second
     }
-    req, err := http.NewRequest("POST", taskModel.Command, nil)
+    req, err := http.NewRequest("GET", taskModel.Command, nil)
     if err != nil {
         logger.Error("任务处理#创建HTTP请求错误-", err.Error())
         return
@@ -119,6 +119,8 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
         Host: taskModel.Name,
         Port: taskModel.Port,
         ExecTimeout: taskModel.Timeout,
+        AuthType: taskModel.AuthType,
+        PrivateKey: taskModel.PrivateKey,
     }
     return ssh.Exec(sshConfig, taskModel.Command)
 }
@@ -132,7 +134,7 @@ func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel.Protocol = taskModel.Protocol
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
-    taskLogModel.Hostname = taskModel.Name
+    taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = models.Running
     insertId, err := taskLogModel.Create()

@@ -2,6 +2,7 @@ package models
 
 import (
     "time"
+    "github.com/ouqiang/gocron/modules/ssh"
 )
 
 type TaskProtocol int8
@@ -36,6 +37,8 @@ type TaskHost struct {
     Username string
     Password string
     Alias string
+    AuthType ssh.HostAuthType
+    PrivateKey string
 }
 
 func (TaskHost) TableName() string  {
@@ -52,7 +55,7 @@ func (task *Task) Create() (insertId int, err error) {
     return
 }
 
-func (task *Task) UpdateBean(id int) (int64, error)  {
+func (task *Task) UpdateBean() (int64, error)  {
     return Db.UseBool("status").Update(task)
 }
 
@@ -76,11 +79,22 @@ func (task *Task) Enable(id int) (int64, error) {
     return task.Update(id, CommonMap{"status": Enabled})
 }
 
+// 获取所有激活任务
 func (task *Task) ActiveList() ([]TaskHost, error) {
     task.parsePageAndPageSize()
     list := make([]TaskHost, 0)
-    fields := "t.*, host.name,host.username,host.password,host.port"
+    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
+
+    return list, err
+}
+
+// 获取某个主机下的所有激活任务
+func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error)  {
+    task.parsePageAndPageSize()
+    list := make([]TaskHost, 0)
+    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
+    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
 
     return list, err
 }
@@ -105,7 +119,7 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
 
 func(task *Task) Detail(id int) (TaskHost, error)  {
     taskHost := TaskHost{}
-    fields := "t.*, host.name,host.username,host.password,host.port"
+    fields := "t.*, host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     _, err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
 
     return taskHost, err

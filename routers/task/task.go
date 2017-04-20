@@ -45,7 +45,7 @@ func Edit(ctx *macaron.Context)  {
     }
     taskModel := new(models.Task)
     task, err := taskModel.Detail(id)
-    if err != nil || taskModel.Id != id {
+    if err != nil || task.Id != id {
         logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
         ctx.Redirect("/task")
     }
@@ -92,6 +92,9 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("请选择主机名")
     }
 
+    if form.Id > 0 {
+        taskModel.Id = form.Id
+    }
     taskModel.Name = form.Name
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
@@ -106,7 +109,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     if id == 0 {
         id, err = taskModel.Create()
     } else {
-        _, err = taskModel.UpdateBean(id)
+        _, err = taskModel.UpdateBean()
     }
     if err != nil {
         return json.CommonFailure("保存失败", err)

@@ -10,46 +10,72 @@
                 <h3 class="ui dividing header">
                     <i class="large add icon"></i>
                     <div class="content">
-                        添加主机
+                        {{{.Title}}}
                     </div>
                 </h3>
             </div>
         </div>
         <form class="ui form fluid vertical segment">
-            <div class="two fields">
+            <input type="hidden" name="id" value="{{{.Host.Id}}}">
+            <div class="four fields">
                 <div class="field">
                     <label>主机名 (域名或IP)</label>
                     <div class="ui small left icon input">
-                        <input type="text" placeholder="127.0.0.1" name="name">
+                        <input type="text"  name="name" value="{{{.Host.Name}}}">
                     </div>
                 </div>
                 <div class="field">
                     <label>主机别名 (方便记忆和引用)</label>
                     <div class="ui small left icon input">
-                        <input type="text" placeholder="db" name="alias">
+                        <input type="text" name="alias" value="{{{.Host.Alias}}}">
                     </div>
                 </div>
             </div>
-            <div class="two fields">
+            <div class="four fields">
                 <div class="field">
                     <label>SSH用户名</label>
                     <div class="ui small left icon input">
-                        <input type="text" placeholder="root" name="username">
+                        <input type="text"  name="username" value="{{{.Host.Username}}}">
                     </div>
                 </div>
-                <div class="field">
-                    <label>SSH密码</label>
-                    <div class="ui small left icon input">
-                        <input type="text" placeholder="123456" name="password">
-                    </div>
-                </div>
-
-            </div>
-            <div class="two fields">
                 <div class="field">
                     <label>SSH端口</label>
                     <div class="ui small left icon input">
-                        <input type="text" placeholder="22" name="port" value="22">
+                        <input type="text"  name="port" value="{{{.Host.Port}}}">
+                    </div>
+                </div>
+            </div>
+            <div class="four fields">
+                <div class="field">
+                    <label>认证方式</label>
+                    <div class="ui dropdown selection">
+                        {{{ if .Host }}}
+                             <input type="hidden" name="auth_type" value="{{{if  eq .Host.AuthType 1 }}}1{{{else}}}2{{{end}}}">
+                        {{{else}}}
+                            <input type="hidden" name="auth_type" value="2">
+                        {{{end}}}
+                        <div class="default text">公钥</div>
+                        <i class="dropdown icon"></i>
+                        <div class="menu">
+                            <div class="item" data-value="2">公钥</div>
+                            <div class="item" data-value="1">密码</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>私钥 (~/.ssh/id_rsa)</label>
+                    <div class="ui small left icon input">
+                        <textarea rows="7" name="private_key">{{{.Host.PrivateKey}}}</textarea>
+                    </div>
+                </div>
+            </div>
+            <div class="four fields">
+                <div class="field">
+                    <label>SSH密码</label>
+                    <div class="ui small left icon input">
+                        <input type="text" placeholder="" name="password" value="{{{.Host.Password}}}">
                     </div>
                 </div>
             </div>
@@ -57,7 +83,7 @@
                 <div class="field">
                     <label>备注</label>
                     <div class="ui small left icon input">
-                        <textarea rows="5" name="remark" placeholder="数据库服务器"></textarea>
+                        <textarea rows="7" name="remark" >{{{.Host.Remark}}}</textarea>
                     </div>
                 </div>
             </div>

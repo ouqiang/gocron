@@ -1,5 +1,9 @@
 package models
 
+import "github.com/ouqiang/gocron/modules/ssh"
+
+
+
 // 主机
 type Host struct {
     Id        int16     `xorm:"smallint pk autoincr"`
@@ -9,6 +13,8 @@ type Host struct {
     Password  string    `xorm:"varchar(64) notnull default ''"`   // ssh 密码
     Port      int       `xorm:"notnull default 22"`               // 主机端口
     Remark    string    `xorm:"varchar(512) notnull default '' "` // 备注
+    AuthType  ssh.HostAuthType      `xorm:"tinyint notnull default 1"` // 认证方式 1: 密码 2: 公钥
+    PrivateKey string   `xorm:"varchar(4096) notnull default '' "` // 私钥
     Page      int       `xorm:"-"`
     PageSize  int       `xorm:"-"`
 }
@@ -22,6 +28,11 @@ func (host *Host) Create() (insertId int16, err error) {
 
     return
 }
+
+func (host *Host) UpdateBean() (int64, error)  {
+    return Db.Cols("name,alias,username,password,port,remark,auth_type,private_key").Update(host)
+}
+
 
 // 更新
 func (host *Host) Update(id int, data CommonMap) (int64, error) {
@@ -39,9 +50,13 @@ func (host *Host) Find(id int) error {
     return err
 }
 
-func (host *Host) NameExists(name string) (bool, error)  {
-    count, err := Db.Where("name = ?", name).Count(host);
+func (host *Host) NameExists(name string, id int16) (bool, error)  {
+    if id == 0 {
+        count, err := Db.Where("name = ?", name).Count(host);
+        return count > 0, err
+    }
 
+    count, err := Db.Where("name = ? AND id != ?", name, id).Count(host);
     return count > 0, err
 }
 

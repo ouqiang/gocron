@@ -59,7 +59,7 @@
                                {{{if  eq $.Task.HostId .Id}}} checked {{{end}}}
                                 >
                         {{{else}}}
-                            <input type="radio" name="host_id" tabindex="0" class="hidden">
+                            <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}">
                         {{{end}}}
                         <label>{{{.Alias}}}-{{{.Name}}}</label>
                     </div>

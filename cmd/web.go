@@ -99,6 +99,7 @@ func catchSignal()  {
     }
 }
 
+// 作为守护进程运行
 func becomeDaemon(ctx *cli.Context) {
     // 不支持windows
     if app.IsWindows {
