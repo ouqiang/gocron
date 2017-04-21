@@ -88,6 +88,13 @@ func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
     }
     defer session.Close()
 
+    if sshConfig.ExecTimeout <= 0 {
+        outputByte, execErr := session.CombinedOutput(cmd)
+        output = string(outputByte)
+        err = execErr
+        return
+    }
+
     var resultChan chan Result = make(chan Result)
     var timeoutChan chan bool = make(chan bool)
     go func() {

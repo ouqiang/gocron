@@ -10,19 +10,21 @@ import (
     "github.com/Tang-RoseChild/mahonia"
 )
 
-// 执行shell命令
-func ExecShell(command string, args ...string) (string, error) {
-    result, err := exec.Command(command, args...).CombinedOutput()
-
-    return string(result), err
-}
 
 // 执行shell命令，可设置执行超时时间
 func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
     cmd := exec.Command(command, args...)
+
+    // 不限制超时时间
+    if timeout <= 0 {
+        output ,err := cmd.CombinedOutput()
+        return string(output), err
+    }
+
+
     d := time.Duration(timeout) * time.Second
     timer := time.AfterFunc(d, func() {
-        // 执行超时kill进程
+        // 超时kill进程
         cmd.Process.Kill()
     })
     output ,err := cmd.CombinedOutput()
