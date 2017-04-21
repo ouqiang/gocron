@@ -41,12 +41,15 @@
                     <td>
                         <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
                         {{{if eq .Status 1}}}
-                             <button class="ui primary button" onclick="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
+                             <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
                         {{{else}}}
-                             <button class="ui blue button" onclick="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                             <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
                         {{{end}}}
-                        <button class="ui positive button" onclick="util.removeConfirm('/task/remove/{{{.Id}}}')">删除</button>
-                        <button class="ui instagram button">查看日志</button>
+                        <button class="ui positive button" @click="remove({{{.Id}}})">删除</button> <br>
+                        <div style="margin-top:10px;">
+                            <button class="ui twitter button" @click="run({{{.Id}}})">手动运行</button>
+                            <button class="ui instagram button">查看日志</button>
+                        </div>
                     </td>
                 </tr>
                 {{{end}}}
@@ -59,18 +62,35 @@
 <script type="text/javascript">
     $('.ui.checkbox').checkbox();
 
-    function changeStatus(id ,status) {
-        var url = '';
-        if (status) {
-            url = '/task/disable';
-        } else {
-            url = '/task/enable';
-        }
-        url += '/' + id;
-        util.post(url,{}, function() {
-            location.reload();
-        });
-    }
+    var vue = new Vue(
+            {
+                el: '.ui.violet.table',
+                methods: {
+                    changeStatus: function (id ,status) {
+                        var url = '';
+                        if (status) {
+                            url = '/task/disable';
+                        } else {
+                            url = '/task/enable';
+                        }
+                        url += '/' + id;
+                        util.post(url,{}, function() {
+                            location.reload();
+                        });
+                    },
+                    remove: function(id) {
+                        util.removeConfirm('/task/remove/' + id);
+                    },
+                    run: function(id) {
+                        util.get("/task/run/" + id, function(code, message) {
+                            swal('操作成功', message, 'success');
+                        })
+                    }
+                }
+            }
+    );
+
+
 
 
 </script>

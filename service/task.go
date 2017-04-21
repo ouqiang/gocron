@@ -57,10 +57,14 @@ func (task *Task) Add(taskModel models.TaskHost) {
     }
 }
 
+// 直接运行任务
+func (task *Task) Run(taskModel models.TaskHost)  {
+    go createHandlerJob(taskModel)()
+}
+
 type Handler interface {
     Run(taskModel models.TaskHost) (string, error)
 }
-
 
 // 本地命令
 type LocalCommandHandler struct {}
@@ -141,7 +145,6 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
     }
     return ssh.Exec(sshConfig, taskModel.Command)
 }
-
 
 func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel := new(models.TaskLog)

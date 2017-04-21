@@ -19,7 +19,6 @@
                     <div class="content">
                         <button class="ui small teal button" onclick="clearLog()">清空日志</button>
                     </div>
-
                 </h3>
             </div>
         </div>
@@ -29,10 +28,9 @@
                 <th>任务名称</th>
                 <th>cron表达式</th>
                 <th>协议</th>
-                <th>超时时间(秒)</th>
+                <th>超时时间</th>
                 <th>主机</th>
-                <th>开始时间</th>
-                <th>结束时间</th>
+                <th>执行时长</th>
                 <th>状态</th>
                 <th>执行结果</th>
             </tr>
@@ -43,13 +41,14 @@
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else}}} 本地命令 {{{end}}}</td>
-                <td>{{{.Timeout}}}</td>
+                <td>{{{.Timeout}}}秒</td>
                 <td>{{{.Hostname}}}</td>
                 <td>
-                        {{{.StartTime.Format "2006-01-02 15:04:05" }}}
-                </td>
-                <td>
-                        {{{.EndTime.Format "2006-01-02 15:04:05" }}}
+                    {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>
+                    开始时间: {{{.StartTime.Format "2006-01-02 15:04:05" }}}<br>
+                    {{{if ne .Status 1}}}
+                        结束时间: {{{.EndTime.Format "2006-01-02 15:04:05" }}}
+                    {{{end}}}
                 </td>
                 <td>
                     {{{if eq .Status 2}}}
@@ -63,10 +62,12 @@
                     {{{end}}}
                 </td>
                 <td>
-                    <button class="ui small primary button"
-                            onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
-                            >查看结果
-                    </button>
+                    {{{if ne .Status 1}}}
+                        <button class="ui small primary button"
+                                onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
+                                >查看结果
+                        </button>
+                    {{{end}}}
                 </td>
             </tr>
             {{{end}}}
@@ -95,6 +96,10 @@
 </script>
 
 <script type="text/javascript">
+  function showTime(startTime, endTime, status) {
+
+  }
+
   function  showResult(name, command,result) {
       $('.message').html($('#task-result').html());
       new Vue(

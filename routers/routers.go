@@ -67,6 +67,7 @@ func Register(m *macaron.Macaron) {
         m.Post("/remove/:id", task.Remove)
         m.Post("/enable/:id", task.Enable)
         m.Post("/disable/:id", task.Disable)
+        m.Get("/run/:id", task.Run)
     })
 
     // 主机

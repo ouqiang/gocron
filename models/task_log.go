@@ -23,6 +23,7 @@ type TaskLog struct {
     Result    string    `xorm:"varchar(65535) notnull defalut '' "` // 执行结果
     Page      int       `xorm:"-"`
     PageSize  int       `xorm:"-"`
+    TotalTime int       `xorm:"-"` // 执行总时长
 }
 
 func (taskLog *TaskLog) Create() (insertId int64, err error) {
@@ -49,6 +50,16 @@ func (taskLog *TaskLog) List() ([]TaskLog, error) {
     taskLog.parsePageAndPageSize()
     list := make([]TaskLog, 0)
     err := Db.Desc("id").Limit(taskLog.PageSize, taskLog.pageLimitOffset()).Find(&list)
+    if len(list) > 0 {
+        for i, item := range list {
+            endTime := item.EndTime
+            if item.Status == Running {
+                endTime = time.Now()
+            }
+            execSeconds := endTime.Sub(item.StartTime).Seconds()
+            list[i].TotalTime = int(execSeconds)
+        }
+    }
 
     return list, err
 }

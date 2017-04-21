@@ -19,14 +19,14 @@
             <div class="field">
                 <label>任务名称</label>
                 <div class="ui small left icon input">
-                    <input type="text" placeholder="数据库备份" name="name" value="{{{.Task.Task.Name}}}">
+                    <input type="text" name="name" value="{{{.Task.Task.Name}}}">
                 </div>
             </div>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>crontab表达式 (每行一个表达式)</label>
-                <textarea rows="5" name="spec" placeholder="*/5 * * * * * *">{{{.Task.Spec}}}</textarea>
+                <textarea rows="5" name="spec">{{{.Task.Spec}}}</textarea>
             </div>
         </div>
         <div class="three fields">
@@ -56,7 +56,7 @@
                     <div class="ui radio checkbox">
                         {{{if $.Task}}}
                              <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}"
-                               {{{if  eq $.Task.HostId .Id}}} checked {{{end}}}
+                               {{{if and (eq $.Task.Protocol 2) (eq $.Task.HostId .Id) }}} checked {{{end}}}
                                 >
                         {{{else}}}
                             <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}">
@@ -67,14 +67,16 @@
                 {{{end}}}
             </div>
         </div>
-        <div class="field">
-            <label>命令(shell命令|URL地址, 多条shell命令";"分隔)</label>
-            <input type="text"  name="command" placeholder="tail -n 10 /var/log/nginx/error.log" value="{{{.Task.Command}}}">
+        <div class="two fields">
+            <div class="field">
+                <label>命令(shell命令|URL地址, 多条shell命令";"分隔)</label>
+                <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
+            </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>任务超时时间 (单位秒,0不限制,不能超过24小时)</label>
-                <input type="text"  name="timeout" placeholder="0" value="{{{.Task.Timeout}}}">
+                <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="three fields">
@@ -95,10 +97,10 @@
                 </div>
             </div>
         </div>
-        <div class="two field">
+        <div class="two fields">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark" placeholder="任务备注">{{{.Task.Remark}}}</textarea>
+                <textarea rows="5" name="remark">{{{.Task.Remark}}}</textarea>
             </div>
         </div>
         <div class="ui primary submit button">保存</div>

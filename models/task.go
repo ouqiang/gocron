@@ -119,7 +119,7 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
 
 func(task *Task) Detail(id int) (TaskHost, error)  {
     taskHost := TaskHost{}
-    fields := "t.*, host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
+    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     _, err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
 
     return taskHost, err

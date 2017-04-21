@@ -145,6 +145,23 @@ func Disable(ctx *macaron.Context) string {
     return changeStatus(ctx, models.Disabled)
 }
 
+// 手动运行任务
+func Run(ctx *macaron.Context) string {
+    id := ctx.ParamsInt(":id")
+    json := utils.JsonResponse{}
+    taskModel := new(models.Task)
+    task , err := taskModel.Detail(id)
+    if err != nil || task.Id <= 0 {
+        return json.CommonFailure("获取任务详情失败", err)
+    }
+
+    task.Spec = "手动运行"
+    serviceTask := new(service.Task)
+    serviceTask.Run(task)
+
+    return json.Success("任务已开始运行, 请到任务日志中查看结果", nil);
+}
+
 // 改变任务状态
 func changeStatus(ctx *macaron.Context, status models.Status) string {
     id  := ctx.ParamsInt(":id")

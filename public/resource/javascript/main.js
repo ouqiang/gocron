@@ -15,7 +15,9 @@ function Util() {
             swal(FAILURE_MESSAGE, response.message ,'error');
             return;
         }
-        callback(response.code, response.message, response.data);
+        if (callback !== undefined) {
+            callback(response.code, response.message, response.data);
+        }
     };
     util.ajaxFailure = function() {
         // todo 错误处理
