@@ -92,9 +92,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("请选择主机名")
     }
 
-    if form.Id > 0 {
-        taskModel.Id = form.Id
-    }
     taskModel.Name = form.Name
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
@@ -109,7 +106,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     if id == 0 {
         id, err = taskModel.Create()
     } else {
-        _, err = taskModel.UpdateBean()
+        _, err = taskModel.UpdateBean(id)
     }
     if err != nil {
         return json.CommonFailure("保存失败", err)

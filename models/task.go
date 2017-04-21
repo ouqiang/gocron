@@ -55,8 +55,8 @@ func (task *Task) Create() (insertId int, err error) {
     return
 }
 
-func (task *Task) UpdateBean() (int64, error)  {
-    return Db.UseBool("status").Update(task)
+func (task *Task) UpdateBean(id int) (int64, error)  {
+    return Db.ID(id).UseBool("status").Update(task)
 }
 
 // 更新

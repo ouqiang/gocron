@@ -35,7 +35,7 @@
                 <td>{{{.Port}}}</td>
                 <td></td>
                 <td>{{{.Remark}}}</td>
-                <td id="operation">
+                <td class="operation">
                     <a class="ui purple button"  href="/host/edit/{{{.Id}}}">编辑</a>
                     <button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button>
                     <button class="ui blue button" @click="ping({{{.Id}}})">连接测试</button>
@@ -49,14 +49,14 @@
 
 <script type="text/javascript">
     var Vue = new Vue({
-       el: '#operation',
+       el: '.ui.striped.table',
        methods: {
            ping: function(id) {
                swal({
                    title: '',
                    text: "连接中.......",
                    type: 'info',
-                   closeOnConfirm: true
+                   showConfirmButton: false
                });
                util.get("/host/ping/" + id, function(code, message) {
                    swal('操作成功', '连接成功', 'success');

@@ -87,9 +87,7 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     if nameExist {
         return json.CommonFailure("主机名已存在")
     }
-    if form.Id > 0 {
-        hostModel.Id = form.Id
-    }
+
     hostModel.Name = form.Name
     hostModel.Alias = form.Alias
     hostModel.Username = form.Username
@@ -100,7 +98,7 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.AuthType = form.AuthType
     isCreate := false
     if id > 0 {
-        _, err = hostModel.UpdateBean()
+        _, err = hostModel.UpdateBean(id)
     } else {
         isCreate = true
         id, err = hostModel.Create()

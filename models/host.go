@@ -29,8 +29,8 @@ func (host *Host) Create() (insertId int16, err error) {
     return
 }
 
-func (host *Host) UpdateBean() (int64, error)  {
-    return Db.Cols("name,alias,username,password,port,remark,auth_type,private_key").Update(host)
+func (host *Host) UpdateBean(id int16) (int64, error)  {
+    return Db.ID(id).Cols("name,alias,username,password,port,remark,auth_type,private_key").Update(host)
 }
 
 
