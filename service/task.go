@@ -138,7 +138,7 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
         return
     }
     if resp.StatusCode != 200 {
-        return string(body), errors.New(fmt.Sprintf("HTTP状态码非200-%d", resp.StatusCode))
+        return string(body), errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
     }
 
     return string(body), err
@@ -183,7 +183,7 @@ func createTaskLog(taskModel models.TaskHost) (int64, error) {
 func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     taskLogModel := new(models.TaskLog)
     var status models.Status
-    var result string
+    var result string = taskResult.Result
     if taskResult.Err != nil {
         result = taskResult.Err.Error() + " " + result
         status = models.Failure
@@ -191,6 +191,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
         status = models.Finish
     }
     return taskLogModel.Update(taskLogId, models.CommonMap{
+        "retry_times": taskResult.RetryTimes,
         "status": status,
         "result": result,
     })
@@ -248,7 +249,7 @@ func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
         }
         i++
         if i < execTimes {
-            logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误信息-%s", taskModel.Id, i, output, err)
+            logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
         }
     }
 

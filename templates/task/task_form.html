@@ -73,17 +73,17 @@
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="four fields">
+        <div class="two fields">
             <div class="field">
                 <label>任务超时时间 (单位秒, 默认0，不限制超时)</label>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
             <div class="field">
-                <label>任务执行失败重试次数(0-10次, 默认0，不重试)</label>
-                <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
+                <label>任务执行事变 (单位秒,0不限制,不能超过24小时)</label>
+                <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
-        <div class="four fields">
+        <div class="three fields">
             <div class="field">
                 <label>任务状态 (任务添加成功后，是否立即调度)</label>
                 <div class="ui dropdown selection">

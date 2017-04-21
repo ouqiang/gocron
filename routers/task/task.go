@@ -25,27 +25,21 @@ type TaskForm struct {
 
 func Index(ctx *macaron.Context)  {
     taskModel := new(models.Task)
-    tasks, err := taskModel.List()
+    queryParams := parseQueryParams(ctx)
+    tasks, err := taskModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
+    setHostsToTemplate(ctx)
+    ctx.Data["Params"] = queryParams
     ctx.Data["Title"] = "任务列表"
     ctx.Data["Tasks"] = tasks
     ctx.HTML(200, "task/index")
 }
 
 func Create(ctx *macaron.Context)  {
-    hostModel := new(models.Host)
-    hosts, err := hostModel.List()
-    if err != nil || len(hosts) == 0 {
-        logger.Error(err)
-    }
+    setHostsToTemplate(ctx)
     ctx.Data["Title"] = "添加任务"
-    ctx.Data["Hosts"] = hosts
-    if len(hosts) > 0 {
-        ctx.Data["FirstHostName"] = hosts[0].Name
-        ctx.Data["FirstHostId"] = hosts[0].Id
-    }
     ctx.HTML(200, "task/task_form")
 }
 
@@ -196,4 +190,32 @@ func addTaskToTimer(id int)  {
 
     taskService := service.Task{}
     taskService.Add(task)
+}
+
+// 解析查询参数
+func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
+    var params models.CommonMap = models.CommonMap{}
+    params["HostId"] = ctx.QueryInt("host_id")
+    params["Name"] = ctx.QueryTrim("name")
+    params["Protocol"] = ctx.QueryInt("protocol")
+    params["Status"] = ctx.QueryInt("status")
+    params["Page"] = ctx.QueryInt("page")
+    params["PageSize"] = ctx.QueryInt("page_size")
+
+    logger.Debug("%+v", params)
+
+    return params
+}
+
+func setHostsToTemplate(ctx *macaron.Context)  {
+    hostModel := new(models.Host)
+    hosts, err := hostModel.List()
+    if err != nil || len(hosts) == 0 {
+        logger.Error(err)
+    }
+    ctx.Data["Hosts"] = hosts
+    if len(hosts) > 0 {
+        ctx.Data["FirstHostName"] = hosts[0].Name
+        ctx.Data["FirstHostId"] = hosts[0].Id
+    }
 }

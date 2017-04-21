@@ -115,7 +115,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
     })
     // 设置模板共享变量
     m.Use(func(ctx *macaron.Context) {
-        ctx.Data["URI"] = ctx.Req.RequestURI
+        ctx.Data["URI"] = ctx.Req.URL.Path
     })
 }
 

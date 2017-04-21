@@ -3,6 +3,7 @@ package models
 import (
     "time"
     "github.com/ouqiang/gocron/modules/ssh"
+    "github.com/go-xorm/xorm"
 )
 
 type TaskProtocol int8
@@ -82,7 +83,6 @@ func (task *Task) Enable(id int) (int64, error) {
 
 // 获取所有激活任务
 func (task *Task) ActiveList() ([]TaskHost, error) {
-    task.parsePageAndPageSize()
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
@@ -92,7 +92,6 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 
 // 获取某个主机下的所有激活任务
 func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error)  {
-    task.parsePageAndPageSize()
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
@@ -126,11 +125,13 @@ func(task *Task) Detail(id int) (TaskHost, error)  {
     return taskHost, err
 }
 
-func (task *Task) List() ([]TaskHost, error) {
-    task.parsePageAndPageSize()
+func (task *Task) List(params CommonMap) ([]TaskHost, error) {
+    task.parsePageAndPageSize(params)
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias"
-    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+    session := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id")
+    parseWhere(session, params)
+    err := session.Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
     return list, err
 }
@@ -139,7 +140,38 @@ func (task *Task) Total() (int64, error) {
     return Db.Count(task)
 }
 
-func (task *Task) parsePageAndPageSize() {
+// 解析where
+func parseWhere(session *xorm.Session, params CommonMap)  {
+    if len(params) == 0 {
+        return
+    }
+    hostId, ok := params["HostId"]
+    if ok && hostId.(int) > 0 {
+        session.And("host_id = ? ", hostId)
+    }
+    name, ok := params["Name"]
+    if ok && name.(string) != "" {
+        session.And("name = ?", name)
+    }
+    protocol, ok := params["Protocol"]
+    if ok && protocol.(int) > 0 {
+        session.And("protocol = ?", protocol)
+    }
+    status, ok := params["Status"]
+    if ok && status.(int) > -1 {
+        session.And("status = ?", status)
+    }
+}
+
+func (task *Task) parsePageAndPageSize(params CommonMap) {
+    page, ok := params["Page"]
+    if ok {
+        task.Page = page.(int)
+    }
+    pageSize, ok := params["PageSize"]
+    if ok {
+        task.PageSize = pageSize.(int)
+    }
     if task.Page <= 0 {
         task.Page = Page
     }

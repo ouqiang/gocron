@@ -34,43 +34,43 @@ func Debug(v ...interface{}) {
 	write(DEBUG, v)
 }
 
-func Debugf(format string, v... interface{})  {
-    writef(DEBUG, format, v)
+func Debugf(format string, v ...interface{})  {
+    writef(DEBUG, format, v...)
 }
 
 func Info(v ...interface{}) {
 	write(INFO, v)
 }
 
-func Infof(format string, v... interface{})  {
-    writef(INFO, format, v)
+func Infof(format string, v ...interface{})  {
+    writef(INFO, format, v...)
 }
 
 func Warn(v ...interface{}) {
 	write(WARN, v)
 }
 
-func Warnf(format string, v... interface{})  {
-    writef(WARN, format, v)
+func Warnf(format string, v ...interface{})  {
+    writef(WARN, format, v...)
 }
 
 func Error(v ...interface{}) {
 	write(ERROR, v)
 }
 
-func Errorf(format string, v... interface{})  {
-    writef(ERROR, format, v)
+func Errorf(format string, v ...interface{})  {
+    writef(ERROR, format, v...)
 }
 
 func Fatal(v ...interface{}) {
 	write(FATAL, v)
 }
 
-func Fatalf(format string, v... interface{})  {
-    writef(FATAL, format, v)
+func Fatalf(format string, v ...interface{})  {
+    writef(FATAL, format, v...)
 }
 
-func write(level Level, v... interface{}) {
+func write(level Level, v ...interface{}) {
     defer logger.Flush()
 
     switch level {
@@ -88,21 +88,21 @@ func write(level Level, v... interface{}) {
 	}
 }
 
-func writef(level Level, format string, v... interface{})  {
+func writef(level Level, format string, v ...interface{})  {
     defer logger.Flush()
 
     switch level {
         case DEBUG:
-            logger.Debugf(format, v)
+            logger.Debugf(format, v...)
         case INFO:
-            logger.Infof(format, v)
+            logger.Infof(format, v...)
         case WARN:
-            logger.Warnf(format, v)
+            logger.Warnf(format, v...)
         case FATAL:
-            logger.Criticalf(format, v)
+            logger.Criticalf(format, v...)
             os.Exit(1)
         case ERROR:
-            logger.Errorf(format, v)
+            logger.Errorf(format, v...)
     }
 }
 
