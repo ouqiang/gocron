@@ -29,6 +29,7 @@
                 <th>cron表达式</th>
                 <th>协议</th>
                 <th>超时时间</th>
+                <th>重试次数</th>
                 <th>主机</th>
                 <th>执行时长</th>
                 <th>状态</th>
@@ -42,6 +43,7 @@
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else}}} 本地命令 {{{end}}}</td>
                 <td>{{{.Timeout}}}秒</td>
+                <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>
                     {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>

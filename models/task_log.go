@@ -16,6 +16,7 @@ type TaskLog struct {
     Protocol TaskProtocol  `xorm:"tinyint notnull"`               // 协议 1:http 2:ssh-command
     Command  string    `xorm:"varchar(512) notnull"`              // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`       // 任务执行超时时间(单位秒),0不限制
+    RetryTimes int8    `xorm:"tinyint notnull default 0"`           // 任务重试次数
     Hostname string       `xorm:"varchar(512) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间

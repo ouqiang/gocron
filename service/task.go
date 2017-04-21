@@ -11,11 +11,18 @@ import (
     "github.com/jakecoffman/cron"
     "github.com/ouqiang/gocron/modules/utils"
     "errors"
+    "fmt"
 )
 
 var Cron *cron.Cron
 
 type Task struct{}
+
+type TaskResult struct {
+    Result string
+    Err error
+    RetryTimes int8
+}
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task *Task) Initialize() {
@@ -43,7 +50,7 @@ func (task *Task) BatchAdd(tasks []models.TaskHost)  {
 
 // 添加任务
 func (task *Task) Add(taskModel models.TaskHost) {
-    taskFunc := createHandlerJob(taskModel)
+    taskFunc := createJob(taskModel)
     if taskFunc == nil {
         logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
         return
@@ -59,7 +66,7 @@ func (task *Task) Add(taskModel models.TaskHost) {
 
 // 直接运行任务
 func (task *Task) Run(taskModel models.TaskHost)  {
-    go createHandlerJob(taskModel)()
+    go createJob(taskModel)()
 }
 
 type Handler interface {
@@ -69,6 +76,7 @@ type Handler interface {
 // 本地命令
 type LocalCommandHandler struct {}
 
+// 运行本地命令
 func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
     if taskModel.Command == "" {
         return "", errors.New("invalid command")
@@ -81,6 +89,7 @@ func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
     return h.runOnUnix(taskModel)
 }
 
+// 执行Windows命令
 func (h *LocalCommandHandler) runOnWindows(taskModel models.TaskHost) (string, error) {
     outputGBK, err := utils.ExecShellWithTimeout(taskModel.Timeout, "cmd", "/C", taskModel.Command)
     // windows平台编码为gbk，需转换为utf8才能入库
@@ -92,6 +101,7 @@ func (h *LocalCommandHandler) runOnWindows(taskModel models.TaskHost) (string, e
     return "命令输出转换编码失败(gbk to utf8)", err
 }
 
+// 执行Unix命令
 func (h *LocalCommandHandler) runOnUnix(taskModel models.TaskHost) (string, error)  {
     return utils.ExecShellWithTimeout(taskModel.Timeout, "/bin/bash", "-c", taskModel.Command)
 }
@@ -125,6 +135,10 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
         logger.Error("任务处理#读取HTTP请求返回值失败-", err.Error())
+        return
+    }
+    if resp.StatusCode != 200 {
+        return string(body), errors.New(fmt.Sprintf("HTTP状态码非200-%d", resp.StatusCode))
     }
 
     return string(body), err
@@ -146,6 +160,7 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
     return ssh.Exec(sshConfig, taskModel.Command)
 }
 
+// 创建任务日志
 func createTaskLog(taskModel models.TaskHost) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
@@ -164,11 +179,13 @@ func createTaskLog(taskModel models.TaskHost) (int64, error) {
     return insertId, err
 }
 
-func updateTaskLog(taskLogId int64, result string, err error) (int64, error) {
+// 更新任务日志
+func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     taskLogModel := new(models.TaskLog)
     var status models.Status
-    if err != nil {
-        result = err.Error() + " " + result
+    var result string
+    if taskResult.Err != nil {
+        result = taskResult.Err.Error() + " " + result
         status = models.Failure
     } else {
         status = models.Finish
@@ -180,16 +197,8 @@ func updateTaskLog(taskLogId int64, result string, err error) (int64, error) {
 
 }
 
-func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
-    var handler Handler = nil
-    switch taskModel.Protocol {
-        case models.TaskHTTP:
-            handler = new(HTTPHandler)
-        case models.TaskSSH:
-            handler = new(SSHCommandHandler)
-        case models.TaskLocalCommand:
-            handler = new(LocalCommandHandler)
-    }
+func createJob(taskModel models.TaskHost) cron.FuncJob {
+    var handler Handler = createHandler(taskModel)
     if handler == nil {
         return nil
     }
@@ -199,12 +208,49 @@ func createHandlerJob(taskModel models.TaskHost) cron.FuncJob {
             logger.Error("任务开始执行#写入任务日志失败-", err)
             return
         }
-        result, err := handler.Run(taskModel)
-        _, err = updateTaskLog(taskLogId, result, err)
+        taskResult := execJob(handler, taskModel)
+        _, err = updateTaskLog(taskLogId, taskResult)
         if err != nil {
             logger.Error("任务结束#更新任务日志失败-", err)
         }
     }
 
     return taskFunc
+}
+
+func createHandler(taskModel models.TaskHost) Handler  {
+    var handler Handler = nil
+    switch taskModel.Protocol {
+        case models.TaskHTTP:
+            handler = new(HTTPHandler)
+        case models.TaskSSH:
+            handler = new(SSHCommandHandler)
+        case models.TaskLocalCommand:
+            handler = new(LocalCommandHandler)
+    }
+
+    return handler;
+}
+
+func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
+    // 默认只运行任务一次
+    var execTimes int8 = 1
+    if (taskModel.RetryTimes > 0) {
+        execTimes += taskModel.RetryTimes
+    }
+    var i int8 = 0
+    var output string
+    var err error
+    for i < execTimes {
+        output, err = handler.Run(taskModel)
+        if err == nil {
+            return TaskResult{Result: output, Err: err, RetryTimes: i}
+        }
+        i++
+        if i < execTimes {
+            logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误信息-%s", taskModel.Id, i, output, err)
+        }
+    }
+
+    return TaskResult{Result: output, Err: err, RetryTimes: taskModel.RetryTimes}
 }

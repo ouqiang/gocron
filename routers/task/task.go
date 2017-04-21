@@ -10,6 +10,19 @@ import (
     "github.com/jakecoffman/cron"
 )
 
+type TaskForm struct {
+    Id int
+    Name string `binding:"Required;"`
+    Spec string `binding:"Required;MaxSize(64)"`
+    Protocol models.TaskProtocol `binding:"In(1,2,3)"`
+    Command string `binding:"Required;MaxSize(512)"`
+    Timeout int `binding:"Range(0,86400)"`
+    RetryTimes int8
+    HostId int16
+    Remark string
+    Status models.Status `binding:"In(1,2)"`
+}
+
 func Index(ctx *macaron.Context)  {
     taskModel := new(models.Task)
     tasks, err := taskModel.List()
@@ -59,18 +72,6 @@ func Edit(ctx *macaron.Context)  {
     ctx.HTML(200, "task/task_form")
 }
 
-type TaskForm struct {
-    Id int
-    Name string `binding:"Required;"`
-    Spec string `binding:"Required;MaxSize(64)"`
-    Protocol models.TaskProtocol `binding:"In(1,2,3)"`
-    Command string `binding:"Required;MaxSize(512)"`
-    Timeout int `binding:"Range(0,86400)"`
-    HostId int16
-    Remark string
-    Status models.Status `binding:"In(1,2)"`
-}
-
 // 保存任务
 func Store(ctx *macaron.Context, form TaskForm) string  {
     json := utils.JsonResponse{}
@@ -99,6 +100,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.HostId = form.HostId
     taskModel.Remark = form.Remark
     taskModel.Status = form.Status
+    taskModel.RetryTimes = form.RetryTimes
     if taskModel.Status != models.Enabled {
         taskModel.Status = models.Disabled
     }

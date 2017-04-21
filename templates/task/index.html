@@ -21,6 +21,7 @@
                 <th>协议</th>
                 <th width="5%">命令</th>
                 <th>超时时间(秒)</th>
+                <th>重试次数</th>
                 <th>主机</th>
                 <th>备注</th>
                 <th>状态</th>
@@ -35,6 +36,7 @@
                     <td>{{{if eq .Protocol 1}}} HTTP {{{else}}} SSH {{{end}}}</td>
                     <td>{{{.Command}}}</td>
                     <td>{{{.Timeout}}}</td>
+                    <td>{{{.RetryTimes}}}</td>
                     <td>{{{.Alias}}}</td>
                     <td>{{{.Remark}}}</td>
                     <td>{{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}</td>

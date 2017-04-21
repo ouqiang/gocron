@@ -8,7 +8,6 @@ import (
     "errors"
 )
 
-
 type HostAuthType int8  // 认证方式
 
 const (
@@ -101,6 +100,7 @@ func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
         output, err := session.CombinedOutput(cmd)
         resultChan <- Result{string(output), err}
     }()
+    // todo 等待超时后，如何停止远程正在执行的任务, 使用timeout命令，但不具有通用性
     go triggerTimeout(timeoutChan, sshConfig.ExecTimeout)
     select {
         case result := <- resultChan:
