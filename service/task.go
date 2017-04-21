@@ -248,6 +248,8 @@ func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
             return TaskResult{Result: output, Err: err, RetryTimes: i}
         }
         i++
+        // 重试规则，每次递增1分钟
+        time.Sleep( time.Duration(i) * 60 * time.Second)
         if i < execTimes {
             logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
         }
