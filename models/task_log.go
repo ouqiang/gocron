@@ -2,6 +2,7 @@ package models
 
 import (
     "time"
+    "github.com/go-xorm/xorm"
 )
 
 type TaskType int8
@@ -20,7 +21,7 @@ type TaskLog struct {
     Hostname string       `xorm:"varchar(512) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
-    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 1:执行中  2:执行完毕 0:执行失败
+    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕
     Result    string    `xorm:"varchar(65535) notnull defalut '' "` // 执行结果
     Page      int       `xorm:"-"`
     PageSize  int       `xorm:"-"`
@@ -47,10 +48,12 @@ func (taskLog *TaskLog) setStatus(id int64, status Status) (int64, error) {
     return taskLog.Update(id, CommonMap{"status": status})
 }
 
-func (taskLog *TaskLog) List() ([]TaskLog, error) {
+func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
     taskLog.parsePageAndPageSize()
     list := make([]TaskLog, 0)
-    err := Db.Desc("id").Limit(taskLog.PageSize, taskLog.pageLimitOffset()).Find(&list)
+    session := Db.Desc("id")
+    taskLog.parseWhere(session, params)
+    err := session.Limit(taskLog.PageSize, taskLog.pageLimitOffset()).Find(&list)
     if len(list) > 0 {
         for i, item := range list {
             endTime := item.EndTime
@@ -85,4 +88,23 @@ func (taskLog *TaskLog) parsePageAndPageSize() {
 
 func (taskLog *TaskLog) pageLimitOffset() int {
     return (taskLog.Page - 1) * taskLog.PageSize
+}
+
+// 解析where
+func (taskLog *TaskLog) parseWhere(session *xorm.Session, params CommonMap)  {
+    if len(params) == 0 {
+        return
+    }
+    taskId, ok := params["TaskId"]
+    if ok && taskId.(int) > 0 {
+        session.And("task_id = ?", taskId)
+    }
+    protocol, ok := params["Protocol"]
+    if ok && protocol.(int) > 0 {
+        session.And("protocol = ?", protocol)
+    }
+    status, ok := params["Status"]
+    if ok && status.(int) > -1 {
+        session.And("status = ?", status)
+    }
 }

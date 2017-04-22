@@ -46,7 +46,7 @@ func Create(ctx *macaron.Context)  {
 func Edit(ctx *macaron.Context)  {
     id := ctx.ParamsInt(":id")
     hostModel := new(models.Host)
-    hosts, err := hostModel.List()
+    hosts, err := hostModel.List(models.CommonMap{})
     if err != nil || len(hosts) == 0 {
         logger.Error(err)
     }
@@ -87,11 +87,16 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("请选择主机名")
     }
 
+    if form.Protocol != models.TaskHTTP {
+        taskModel.HostId = form.HostId
+    } else {
+        taskModel.HostId = 0
+    }
+
     taskModel.Name = form.Name
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
     taskModel.Timeout = form.Timeout
-    taskModel.HostId = form.HostId
     taskModel.Remark = form.Remark
     taskModel.Status = form.Status
     taskModel.RetryTimes = form.RetryTimes
@@ -195,21 +200,20 @@ func addTaskToTimer(id int)  {
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     var params models.CommonMap = models.CommonMap{}
+    params["Id"] = ctx.QueryInt("id")
     params["HostId"] = ctx.QueryInt("host_id")
     params["Name"] = ctx.QueryTrim("name")
     params["Protocol"] = ctx.QueryInt("protocol")
-    params["Status"] = ctx.QueryInt("status")
+    params["Status"] = ctx.QueryInt("status") - 1
     params["Page"] = ctx.QueryInt("page")
     params["PageSize"] = ctx.QueryInt("page_size")
-
-    logger.Debug("%+v", params)
 
     return params
 }
 
 func setHostsToTemplate(ctx *macaron.Context)  {
     hostModel := new(models.Host)
-    hosts, err := hostModel.List()
+    hosts, err := hostModel.List(models.CommonMap{})
     if err != nil || len(hosts) == 0 {
         logger.Error(err)
     }

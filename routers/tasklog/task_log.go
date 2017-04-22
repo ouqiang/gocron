@@ -12,12 +12,14 @@ import (
 
 func Index(ctx *macaron.Context)  {
     logModel := new(models.TaskLog)
-    logs, err := logModel.List()
+    queryParams := parseQueryParams(ctx)
+    logs, err := logModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
     ctx.Data["Title"] = "任务日志"
     ctx.Data["Logs"] = logs
+    ctx.Data["Params"] = queryParams
     ctx.HTML(200, "task/log")
 }
 
@@ -31,4 +33,16 @@ func Clear(ctx *macaron.Context) string  {
     }
 
     return json.Success(utils.SuccessContent, nil)
+}
+
+// 解析查询参数
+func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
+    var params models.CommonMap = models.CommonMap{}
+    params["TaskId"] = ctx.QueryInt("task_id")
+    params["Protocol"] = ctx.QueryInt("protocol")
+    params["Status"] = ctx.QueryInt("status") - 1
+    params["Page"] = ctx.QueryInt("page")
+    params["PageSize"] = ctx.QueryInt("page_size")
+
+    return params
 }

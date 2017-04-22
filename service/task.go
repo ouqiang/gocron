@@ -57,6 +57,7 @@ func (task *Task) Add(taskModel models.TaskHost) {
     }
 
     cronName := strconv.Itoa(taskModel.Id)
+    // Cron任务采用数组存储, 删除任务需遍历数组, 并对数组重新赋值, 任务较多时，有性能问题
     Cron.RemoveJob(cronName)
     err := Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
     if err != nil {
@@ -123,20 +124,17 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
     req.Header.Set("User-Agent", "golang/gocron")
 
     resp, err := client.Do(req)
-    defer func() {
-        if resp != nil {
-            resp.Body.Close()
-        }
-    }()
     if err != nil {
         logger.Error("任务处理HTTP请求错误-", err.Error())
         return
     }
+    defer resp.Body.Close()
     body, err := ioutil.ReadAll(resp.Body)
     if err != nil {
         logger.Error("任务处理#读取HTTP请求返回值失败-", err.Error())
         return
     }
+    // 返回状态码非200，均为失败
     if resp.StatusCode != 200 {
         return string(body), errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
     }
@@ -248,10 +246,10 @@ func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
             return TaskResult{Result: output, Err: err, RetryTimes: i}
         }
         i++
-        // 重试规则，每次递增1分钟
-        time.Sleep( time.Duration(i) * 60 * time.Second)
         if i < execTimes {
             logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
+            // 重试间隔时间，每次递增1分钟
+            time.Sleep( time.Duration(i) * time.Minute)
         }
     }
 

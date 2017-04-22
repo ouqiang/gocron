@@ -11,7 +11,6 @@ import (
     "github.com/go-macaron/session"
     "github.com/go-macaron/csrf"
     "github.com/go-macaron/toolbox"
-    "github.com/go-macaron/gzip"
     "strings"
     "github.com/ouqiang/gocron/modules/app"
 )
@@ -35,6 +34,7 @@ func Register(m *macaron.Macaron) {
     })
     // 50x错误
     m.InternalServerError(func(ctx *macaron.Context) {
+        logger.Debug("500错误")
         if isGetRequest(ctx) && !isAjaxRequest(ctx) {
             ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
             ctx.HTML(500, "error/500")
@@ -85,7 +85,6 @@ func Register(m *macaron.Macaron) {
 func RegisterMiddleware(m *macaron.Macaron) {
     m.Use(macaron.Logger())
     m.Use(macaron.Recovery())
-    m.Use(gzip.Gziper())
     m.Use(macaron.Static(StaticDir))
     m.Use(macaron.Renderer(macaron.RenderOptions{
         Directory:  "templates",
@@ -106,7 +105,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
     // 系统未安装，重定向到安装页面
     m.Use(func(ctx *macaron.Context) {
         installUrl := "/install"
-        if strings.HasPrefix(ctx.Req.RequestURI, installUrl) {
+        if strings.HasPrefix(ctx.Req.URL.Path, installUrl) {
             return
         }
         if !app.Installed {
@@ -116,6 +115,16 @@ func RegisterMiddleware(m *macaron.Macaron) {
     // 设置模板共享变量
     m.Use(func(ctx *macaron.Context) {
         ctx.Data["URI"] = ctx.Req.URL.Path
+        urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")
+        paths := strings.Split(urlPath, "/")
+        ctx.Data["Controller"] = ""
+        ctx.Data["Action"] = ""
+        if len(paths) > 0 {
+            ctx.Data["Controller"] = paths[0]
+        }
+        if len(paths) > 1 {
+            ctx.Data["Action"] = paths[1]
+        }
     })
 }
 

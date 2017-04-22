@@ -14,9 +14,23 @@
                 </h3>
             </div>
         </div>
+        <form class="ui form">
+            <div class="three fields">
+                <div class="field">
+                    <input type="text" placeholder="ID" name="id" value="{{{if gt .Params.Id 0}}}{{{.Params.Id}}}{{{end}}}">
+                </div>
+                <div class="field">
+                    <input type="text" placeholder="主机名" name="name" value="{{{.Params.Name}}}">
+                </div>
+                <div class="field">
+                    <button class="ui linkedin submit button">搜索</button>
+                </div>
+            </div>
+        </form>
         <table class="ui striped table">
             <thead>
             <tr>
+                <th>ID</th>
                 <th>主机名</th>
                 <th>别名</th>
                 <th>用户名</th>
@@ -28,6 +42,7 @@
             <tbody>
             {{{range $i, $v := .Hosts}}}
             <tr>
+                <td>{{{.Id}}}</td>
                 <td>{{{.Name}}}</td>
                 <td>{{{.Alias}}}</td>
                 <td>{{{.Username}}}</td>

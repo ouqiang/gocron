@@ -1,6 +1,9 @@
 package models
 
-import "github.com/ouqiang/gocron/modules/ssh"
+import (
+    "github.com/ouqiang/gocron/modules/ssh"
+    "github.com/go-xorm/xorm"
+)
 
 
 
@@ -60,10 +63,12 @@ func (host *Host) NameExists(name string, id int16) (bool, error)  {
     return count > 0, err
 }
 
-func (host *Host) List() ([]Host, error) {
+func (host *Host) List(params CommonMap) ([]Host, error) {
     host.parsePageAndPageSize()
     list := make([]Host, 0)
-    err := Db.Desc("id").Limit(host.PageSize, host.pageLimitOffset()).Find(&list)
+    session := Db.Desc("id")
+    host.parseWhere(session, params)
+    err := session.Limit(host.PageSize, host.pageLimitOffset()).Find(&list)
 
     return list, err
 }
@@ -78,6 +83,21 @@ func (host *Host) AllList() ([]Host, error) {
 
 func (host *Host) Total() (int64, error) {
     return Db.Count(host)
+}
+
+// 解析where
+func (host *Host) parseWhere(session *xorm.Session, params CommonMap)  {
+    if len(params) == 0 {
+        return
+    }
+    id, ok := params["Id"]
+    if ok && id.(int) > 0 {
+        session.And("id = ?", id)
+    }
+    name, ok := params["Name"]
+    if ok && name.(string) != "" {
+        session.And("name = ?", name)
+    }
 }
 
 func (host *Host) parsePageAndPageSize() {

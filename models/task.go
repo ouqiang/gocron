@@ -130,7 +130,7 @@ func (task *Task) List(params CommonMap) ([]TaskHost, error) {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias"
     session := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id")
-    parseWhere(session, params)
+    task.parseWhere(session, params)
     err := session.Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
     return list, err
@@ -141,17 +141,21 @@ func (task *Task) Total() (int64, error) {
 }
 
 // 解析where
-func parseWhere(session *xorm.Session, params CommonMap)  {
+func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     if len(params) == 0 {
         return
     }
+    id, ok := params["Id"]
+    if ok && id.(int) > 0 {
+        session.And("t.id = ?", id)
+    }
     hostId, ok := params["HostId"]
     if ok && hostId.(int) > 0 {
-        session.And("host_id = ? ", hostId)
+        session.And("host_id = ?", hostId)
     }
     name, ok := params["Name"]
     if ok && name.(string) != "" {
-        session.And("name = ?", name)
+        session.And("t.name LIKE ?", "%" + name.(string) + "%")
     }
     protocol, ok := params["Protocol"]
     if ok && protocol.(int) > 0 {

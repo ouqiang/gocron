@@ -22,9 +22,36 @@
                 </h3>
             </div>
         </div>
+        <form class="ui form">
+            <div class="six fields search">
+                <div class="field">
+                    <input type="text" placeholder="任务ID" name="task_id" value="{{{if gt .Params.TaskId 0}}}{{{.Params.TaskId}}}{{{end}}}">
+                </div>
+                <div class="field">
+                    <select name="protocol" id="protocol">
+                        <option value="0">协议</option>
+                        <option value="3" {{{if eq .Params.Protocol 3}}}selected{{{end}}}>本地命令</option>
+                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
+                        <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <select name="status">
+                        <option value="0">状态</option>
+                        <option value="1" {{{if eq .Params.Status 0}}}selected{{{end}}} >失败</option>
+                        <option value="2" {{{if eq .Params.Status 1}}}selected{{{end}}}>执行中</option>
+                        <option value="3" {{{if eq .Params.Status 2}}}selected{{{end}}}>成功</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <button class="ui linkedin submit button">搜索</button>
+                </div>
+            </div>
+        </form>
         <table class="ui pink table">
             <thead>
             <tr>
+                <th>任务ID</th>
                 <th>任务名称</th>
                 <th>cron表达式</th>
                 <th>协议</th>
@@ -39,6 +66,7 @@
             <tbody>
             {{{range $i, $v := .Logs}}}
             <tr>
+                <td><a href="/task?id={{{.TaskId}}}">{{{.TaskId}}}</a></td>
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else}}} 本地命令 {{{end}}}</td>
@@ -128,55 +156,5 @@
           });
       });
   }
-
-    $('.ui.form').form(
-            {
-                onSuccess: function(event, fields) {
-                    util.post('/host/store', fields, function(code, message) {
-                        location.reload();
-                    });
-
-                    return false;
-                },
-                fields: {
-                    name: {
-                        identifier  : 'name',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入主机名'
-                            }
-                        ]
-                    },
-                    alias: {
-                        identifier  : 'alias',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入主机别名'
-                            }
-                        ]
-                    },
-                    username: {
-                        identifier  : 'username',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入SSH用户名'
-                            }
-                        ]
-                    },
-                    port: {
-                        identifier  : 'port',
-                        rules: [
-                            {
-                                type   : 'integer',
-                                prompt : '请输入SSH端口'
-                            }
-                        ]
-                    }
-                },
-                inline : true
-            });
 </script>
 {{{ template "common/footer" . }}}

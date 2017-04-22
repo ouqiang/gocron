@@ -1,7 +1,6 @@
 {{{ template "common/header" . }}}
 
 <div class="ui grid">
-    <!--the vertical menu-->
    {{{ template "host/menu" . }}}
 
     <div class="twelve wide column">
@@ -48,19 +47,10 @@
             <div class="four fields">
                 <div class="field">
                     <label>认证方式</label>
-                    <div class="ui dropdown selection">
-                        {{{ if .Host }}}
-                             <input type="hidden" name="auth_type" value="{{{if  eq .Host.AuthType 1 }}}1{{{else}}}2{{{end}}}">
-                        {{{else}}}
-                            <input type="hidden" name="auth_type" value="2">
-                        {{{end}}}
-                        <div class="default text">公钥</div>
-                        <i class="dropdown icon"></i>
-                        <div class="menu">
-                            <div class="item" data-value="2">公钥</div>
-                            <div class="item" data-value="1">密码</div>
-                        </div>
-                    </div>
+                    <select name="auth_type" id="authType">
+                            <option value="2" {{{if .Host}}} {{{if eq .Host.AuthType 2}}}selected {{{end}}} {{{end}}} data-validate-type="selectPrivateKey" data-match="private_key">公钥</option>
+                            <option value="1" {{{if .Host}}} {{{if eq .Host.AuthType 1}}}selected {{{end}}} {{{end}}} data-validate-type="selectPassword" data-match="password">密码</option>
+                    </select>
                 </div>
             </div>
             <div class="two fields">
@@ -91,12 +81,14 @@
             <div class="ui primary submit button">保存</div>
         </form>
     </div>
-    <!--the newDevice form-->
 </div>
 
 
 <script type="text/javascript">
-    $('.ui.form').form(
+    var $uiForm = $('.ui.form');
+    registerSelectFormValidation("selectPrivateKey", $uiForm, $('#authType'), 'auth_type');
+    registerSelectFormValidation("selectPassword", $uiForm, $('#authType'), 'auth_type');
+    $($uiForm).form(
             {
                 onSuccess: function(event, fields) {
                     util.post('/host/store', fields, function(code, message) {
@@ -137,8 +129,26 @@
                         identifier  : 'port',
                         rules: [
                             {
-                                type   : 'integer',
-                                prompt : '请输入SSH端口'
+                                type   : 'integer[1..65535]',
+                                prompt : '请输入有效的端口号'
+                            }
+                        ]
+                    },
+                    PrivateKey: {
+                        identifier  : 'private_key',
+                        rules: [
+                            {
+                                type   : 'selectPrivateKey',
+                                prompt : '请输入私钥'
+                            }
+                        ]
+                    },
+                    Password: {
+                        identifier  : 'password',
+                        rules: [
+                            {
+                                type   : 'selectPassword',
+                                prompt : '请输入密码'
                             }
                         ]
                     }

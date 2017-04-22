@@ -12,12 +12,14 @@ import (
 
 func Index(ctx *macaron.Context)  {
     hostModel := new(models.Host)
-    hosts, err := hostModel.List()
+    queryParams := parseQueryParams(ctx)
+    hosts, err := hostModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
     ctx.Data["Title"] = "主机列表"
     ctx.Data["Hosts"] = hosts
+    ctx.Data["Params"] = queryParams
     ctx.HTML(200, "host/index")
 }
 
@@ -142,4 +144,15 @@ func Remove(ctx *macaron.Context) string  {
     }
 
     return json.Success("操作成功", nil)
+}
+
+// 解析查询参数
+func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
+    var params models.CommonMap = models.CommonMap{}
+    params["Id"] = ctx.QueryInt("id")
+    params["Name"] = ctx.QueryTrim("name")
+    params["Page"] = ctx.QueryInt("page")
+    params["PageSize"] = ctx.QueryInt("page_size")
+
+    return params
 }

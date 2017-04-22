@@ -1,5 +1,4 @@
 {{{ template "common/header" . }}}
-
 <div class="ui grid">
     {{{template "task/menu" .}}}
     <div class="twelve wide column">
@@ -25,47 +24,31 @@
         </div>
         <div class="two fields">
             <div class="field">
-                <label>crontab表达式 (每行一个表达式)</label>
-                <textarea rows="5" name="spec">{{{.Task.Spec}}}</textarea>
+                <label>crontab表达式</label>
+                <div class="ui small left icon input">
+                    <textarea rows="5" name="spec">{{{.Task.Spec}}}</textarea>
+                </div>
             </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>协议</label>
-                <div class="ui dropdown selection">
-                    {{{if .Task}}}
-                         <input type="hidden" name="protocol" value="{{{if  (gt .Task.Protocol 0)}}}{{{.Task.Protocol}}}{{{else}}}3{{{end}}}">
-                    {{{else}}}
-                         <input type="hidden" name="protocol" value="3">
-                    {{{end}}}
-                    <div class="default text">本地命令</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        <div class="item" data-value="3">本地命令</div>
-                        <div class="item" data-value="2">SSH</div>
-                        <div class="item" data-value="1">HTTP</div>
-                    </div>
-                </div>
+                <select name="protocol" id="protocol">
+                    <option value="3" {{{if .Task}}} {{{if eq .Task.Protocol 3}}}selected{{{end}}} {{{end}}}>本地命令</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
+                    <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
+                </select>
             </div>
         </div>
         <div class="field">
             <label>主机</label>
-            <div class="inline fields">
+            <select name="host_id" id="hostId">
+                <option value="">选择主机</option>
                 {{{range $i, $v := .Hosts}}}
-                <div class="field">
-                    <div class="ui radio checkbox">
-                        {{{if $.Task}}}
-                             <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}"
-                               {{{if and (eq $.Task.Protocol 2) (eq $.Task.HostId .Id) }}} checked {{{end}}}
-                                >
-                        {{{else}}}
-                            <input type="radio" name="host_id" tabindex="0" class="hidden" value="{{{.Id}}}">
-                        {{{end}}}
-                        <label>{{{.Alias}}}-{{{.Name}}}</label>
-                    </div>
+                <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
                 </div>
                 {{{end}}}
-            </div>
+            </select>
         </div>
         <div class="two fields">
             <div class="field">
@@ -73,32 +56,23 @@
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="two fields">
+        <div class="three fields">
             <div class="field">
                 <label>任务超时时间 (单位秒, 默认0，不限制超时)</label>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
             <div class="field">
-                <label>任务执行事变 (单位秒,0不限制,不能超过24小时)</label>
+                <label>任务重试次数 (默认0, 取值范围1-10)</label>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>任务状态 (任务添加成功后，是否立即调度)</label>
-                <div class="ui dropdown selection">
-                    {{{if .Task}}}
-                            <input type="hidden" name="status" value="{{{if and .Task.Status  (eq .Task.Status 1)}}}1{{{else}}}2{{{end}}}">
-                    {{{else}}}
-                         <input type="hidden" name="status" value="2">
-                    {{{end}}}
-                    <div class="default text">暂停</div>
-                    <i class="dropdown icon"></i>
-                    <div class="menu">
-                        <div class="item" data-value="2">暂停</div>
-                        <div class="item" data-value="1">激活</div>
-                    </div>
-                </div>
+                <select name="status">
+                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 2}}}selected{{{end}}} {{{end}}}>暂停</option>
+                    <option value="1" {{{if .Task}}} {{{if eq .Task.Status 1}}}selected{{{end}}} {{{end}}}>激活</option>
+                </select>
             </div>
         </div>
         <div class="two fields">
@@ -117,7 +91,9 @@
     $('.ui.checkbox')
             .checkbox()
     ;
-    $('.ui.form').form(
+    var $uiForm = $('.ui.form');
+    registerSelectFormValidation("selectProtocol", $uiForm, $('#protocol'), 'protocol');
+    $($uiForm).form(
             {
                 onSuccess: function(event, fields) {
                     util.post('/task/store', fields, function(code, message) {
@@ -153,11 +129,12 @@
                                 prompt : '请输入任务命令'
                             }
                         ]
-                    }, hosts: {
-                        identifier  : 'hosts',
+                    },
+                    hosts: {
+                        identifier  : 'host_id',
                         rules: [
                             {
-                                type   : 'checked',
+                                type   : 'selectProtocol',
                                 prompt : '请选择主机'
                             }
                         ]

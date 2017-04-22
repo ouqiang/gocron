@@ -24,8 +24,6 @@ function Util() {
         swal(FAILURE_MESSAGE, '未知错误', 'error');
     };
     util.get = function(url, callback) {
-        var SUCCESS = 0;     // 操作成功
-        var FAILURE_MESSAGE = '操作失败';
         $.get(
             url,
             function(response) {
@@ -74,6 +72,27 @@ function Util() {
     };
 
     return util;
+}
+
+function registerSelectFormValidation(type, $form, $select, selectName) {
+    $.fn.form.settings.rules[type] = function(value) {
+        var success = true;
+        var selectedIndex = $($form).form("get value", selectName);
+        $($select).find("option").each(function() {
+            var value = $(this).val();
+            var match = $(this).data("match");
+            var validateType = $(this).data("validate-type");
+            if (selectedIndex == value && validateType == type && match) {
+                var matchValue = $($form).form("get value", match);
+                if (!$.trim(matchValue)) {
+                    success = false;
+                    return false;
+                }
+            }
+        });
+
+        return success;
+    };
 }
 
 var util = new Util();
