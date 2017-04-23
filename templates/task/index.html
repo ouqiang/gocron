@@ -50,40 +50,42 @@
                 </div>
             </div>
         </form>
+    <div class="task-list">
         {{{range $i, $v := .Tasks}}}
-            <div class="ui device two column middle aligned vertical grid list segment">
-            <div class="column verborder">
-                <div class="ui info segment">
-                    <h5 class="ui header">{{{.Task.Name}}} {{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}
-                    </h5>
-                    <p>任务ID： <span class="stress">{{{.Id}}}</span></p>
-                    <p>cron表达式： {{{.Spec}}}</p>
-                    <p>协议: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
-                    <p class="sensorStatus">命令：{{{.Command}}}</p>
-                    <p class="sensorStatus">超时时间：{{{if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
-                    <p>重试次数: {{{.RetryTimes}}}</p>
-                    {{{if eq .Protocol 2}}}
-                         <p>主机: {{{.Alias}}}</p>
-                    {{{end}}}
-                    <p>备注: {{{.Remark}}}</p>
-                </div>
-            </div>
-            <div class="center aligned column">
-                    <div class="ui buttons">
-                    <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
-                    {{{if eq .Status 1}}}
-                    <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
-                    {{{else}}}
-                    <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
-                    {{{end}}}
-                    <button class="ui positive button" @click="remove({{{.Id}}})">删除</button> <br>
-                        <button class="ui twitter button" @click="run({{{.Id}}})">手动运行</button>
-                        <a class="ui instagram button" href="/task/log?task_id={{{.Id}}}">查看日志</a>
-                    </div>
-            </div>
-        </div>
+                   <div class="ui device two column middle aligned vertical grid segment">
+                       <div class="column verborder">
+                           <div class="ui info segment">
+                               <h5 class="ui header">{{{.Task.Name}}} {{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}
+                               </h5>
+                               <p>任务ID： <span class="stress">{{{.Id}}}</span></p>
+                               <p>cron表达式： {{{.Spec}}}</p>
+                               <p>协议: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
+                               <p class="sensorStatus">命令：{{{.Command}}}</p>
+                               <p class="sensorStatus">超时时间：{{{if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
+                               <p>重试次数: {{{.RetryTimes}}}</p>
+                               {{{if eq .Protocol 2}}}
+                               <p>主机: {{{.Alias}}}</p>
+                               {{{end}}}
+                               <p>备注: {{{.Remark}}}</p>
+                           </div>
+                       </div>
+                       <div class="center aligned column">
+                           <div class="ui buttons operation">
+                               <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
+                               {{{if eq .Status 1}}}
+                               <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
+                               {{{else}}}
+                               <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                               {{{end}}}
+                               <button class="ui positive button" @click="remove({{{.Id}}})">删除</button> <br>
+                               <button class="ui twitter button" @click="run({{{.Id}}})">手动运行</button>
+                               <a class="ui instagram button" href="/task/log?task_id={{{.Id}}}">查看日志</a>
+                           </div>
+                       </div>
+                   </div>
         {{{end}}}
-        {{{ template "common/pagination" .}}}
+    </div>
+    {{{ template "common/pagination" .}}}
     </div>
 </div>
 
@@ -93,7 +95,7 @@
 
     var vue = new Vue(
             {
-                el: '.ui.list',
+                el: '.task-list',
                 methods: {
                     changeStatus: function (id ,status) {
                         var url = '';

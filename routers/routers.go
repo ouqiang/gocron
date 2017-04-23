@@ -14,6 +14,8 @@ import (
     "strings"
     "github.com/ouqiang/gocron/modules/app"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/routers/user"
+    "github.com/go-macaron/gzip"
 )
 
 // 静态文件目录
@@ -23,28 +25,6 @@ const StaticDir = "public"
 func Register(m *macaron.Macaron) {
     // 所有GET方法，自动注册HEAD方法
     m.SetAutoHead(true)
-    // 404错误
-    m.NotFound(func(ctx *macaron.Context) {
-        if isGetRequest(ctx) && !isAjaxRequest(ctx) {
-            ctx.Data["Title"] = "404 - NOT FOUND"
-            ctx.HTML(404, "error/404")
-        } else {
-            json := utils.JsonResponse{}
-            ctx.Resp.Write([]byte(json.Failure(utils.NotFound, "您访问的地址不存在")))
-        }
-    })
-    // 50x错误
-    m.InternalServerError(func(ctx *macaron.Context) {
-        logger.Debug("500错误")
-        if isGetRequest(ctx) && !isAjaxRequest(ctx) {
-            ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
-            ctx.HTML(500, "error/500")
-        } else {
-            json := utils.JsonResponse{}
-            ctx.Resp.Write([]byte(json.Failure(utils.ServerError, "网站暂时无法访问,请稍后再试")))
-        }
-    })
-
     // 首页
     m.Get("/", Home)
     // 系统安装
@@ -55,7 +35,9 @@ func Register(m *macaron.Macaron) {
 
     // 用户
     m.Group("/user", func() {
-
+        m.Get("/login", user.Login)
+        m.Post("/login", user.ValidateLogin)
+        m.Get("/logout", user.Logout)
     })
 
     // 任务
@@ -81,12 +63,35 @@ func Register(m *macaron.Macaron) {
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)
     })
+
+    // 404错误
+    m.NotFound(func(ctx *macaron.Context) {
+        if isGetRequest(ctx) && !isAjaxRequest(ctx) {
+            ctx.Data["Title"] = "404 - NOT FOUND"
+            ctx.HTML(404, "error/404")
+        } else {
+            json := utils.JsonResponse{}
+            ctx.Resp.Write([]byte(json.Failure(utils.NotFound, "您访问的地址不存在")))
+        }
+    })
+    // 50x错误
+    m.InternalServerError(func(ctx *macaron.Context) {
+        logger.Debug("500错误")
+        if isGetRequest(ctx) && !isAjaxRequest(ctx) {
+            ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
+            ctx.HTML(500, "error/500")
+        } else {
+            json := utils.JsonResponse{}
+            ctx.Resp.Write([]byte(json.Failure(utils.ServerError, "网站暂时无法访问,请稍后再试")))
+        }
+    })
 }
 
 // 中间件注册
 func RegisterMiddleware(m *macaron.Macaron) {
     m.Use(macaron.Logger())
     m.Use(macaron.Recovery())
+    m.Use(gzip.Gziper())
     m.Use(macaron.Static(StaticDir))
     m.Use(macaron.Renderer(macaron.RenderOptions{
         Directory:  "templates",
@@ -103,8 +108,14 @@ func RegisterMiddleware(m *macaron.Macaron) {
     m.Use(session.Sessioner())
     m.Use(csrf.Csrfer())
     m.Use(toolbox.Toolboxer(m))
+    checkAppInstall(m)
+    userAuth(m)
+    setShareData(m)
+}
 
-    // 系统未安装，重定向到安装页面
+
+// 系统未安装，重定向到安装页面
+func checkAppInstall(m *macaron.Macaron)  {
     m.Use(func(ctx *macaron.Context) {
         installUrl := "/install"
         if strings.HasPrefix(ctx.Req.URL.Path, installUrl) {
@@ -114,8 +125,32 @@ func RegisterMiddleware(m *macaron.Macaron) {
             ctx.Redirect(installUrl)
         }
     })
-    // 设置模板共享变量
-    m.Use(func(ctx *macaron.Context) {
+}
+
+// 用户认证
+func userAuth(m *macaron.Macaron)  {
+    m.Use(func(ctx *macaron.Context, sess session.Store) {
+        if user.IsLogin(sess) {
+            return
+        }
+        uri := ctx.Req.URL.Path
+        found := false
+        excludePaths := []string{"/install", "/user/login"}
+        for _, path := range excludePaths {
+            if strings.HasPrefix(uri, path) {
+                found = true
+                break
+            }
+        }
+        if !found {
+            ctx.Redirect("/user/login")
+        }
+    })
+}
+
+// 设置共享数据
+func setShareData(m *macaron.Macaron)  {
+    m.Use(func(ctx *macaron.Context, sess session.Store) {
         ctx.Data["URI"] = ctx.Req.URL.Path
         urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")
         paths := strings.Split(urlPath, "/")
@@ -127,6 +162,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
         if len(paths) > 1 {
             ctx.Data["Action"] = paths[1]
         }
+        ctx.Data["LoginUsername"] = user.Username(sess)
     })
 }
 

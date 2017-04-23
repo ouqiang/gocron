@@ -32,7 +32,7 @@ var CmdWeb = cli.Command{
         },
         cli.StringFlag{
             Name: "env,e",
-            Value: "dev",
+            Value: "prod",
             Usage: "runtime environment, dev|test|prod",
         },
         cli.StringFlag{
@@ -75,13 +75,18 @@ func parsePort(ctx *cli.Context) int {
 }
 
 func setEnvironment(ctx *cli.Context)  {
-    var env string = ""
+    var env string = "prod"
     if ctx.IsSet("env") {
         env = ctx.String("env")
     }
 
-    if env == "prod" {
-        macaron.Env = macaron.PROD
+    switch env {
+        case "prod":
+            macaron.Env = macaron.PROD
+        case "test":
+            macaron.Env = macaron.TEST
+        case "dev":
+            macaron.Env = macaron.DEV
     }
 }
 

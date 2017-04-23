@@ -3,7 +3,6 @@ package models
 import (
     "time"
     "github.com/go-xorm/xorm"
-    "github.com/ouqiang/gocron/modules/logger"
 )
 
 type TaskType int8
