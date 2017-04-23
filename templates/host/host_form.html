@@ -7,10 +7,9 @@
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="large add icon"></i>
-                    <div class="content">
-                        {{{.Title}}}
-                    </div>
+                        <div class="content">
+                            添加主机
+                        </div>
                 </h3>
             </div>
         </div>
@@ -19,13 +18,13 @@
             <div class="four fields">
                 <div class="field">
                     <label>主机名 (域名或IP)</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small input">
                         <input type="text"  name="name" value="{{{.Host.Name}}}">
                     </div>
                 </div>
                 <div class="field">
                     <label>主机别名 (方便记忆和引用)</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <input type="text" name="alias" value="{{{.Host.Alias}}}">
                     </div>
                 </div>
@@ -33,13 +32,13 @@
             <div class="four fields">
                 <div class="field">
                     <label>SSH用户名</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <input type="text"  name="username" value="{{{.Host.Username}}}">
                     </div>
                 </div>
                 <div class="field">
                     <label>SSH端口</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <input type="text"  name="port" value="{{{.Host.Port}}}">
                     </div>
                 </div>
@@ -56,7 +55,7 @@
             <div class="two fields">
                 <div class="field">
                     <label>私钥 (~/.ssh/id_rsa)</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <textarea rows="7" name="private_key">{{{.Host.PrivateKey}}}</textarea>
                     </div>
                 </div>
@@ -64,7 +63,7 @@
             <div class="four fields">
                 <div class="field">
                     <label>SSH密码</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <input type="text" placeholder="" name="password" value="{{{.Host.Password}}}">
                     </div>
                 </div>
@@ -72,7 +71,7 @@
             <div class="two fields">
                 <div class="field">
                     <label>备注</label>
-                    <div class="ui small left icon input">
+                    <div class="ui small  input">
                         <textarea rows="7" name="remark" >{{{.Host.Remark}}}</textarea>
                     </div>
                 </div>

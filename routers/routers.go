@@ -13,6 +13,7 @@ import (
     "github.com/go-macaron/toolbox"
     "strings"
     "github.com/ouqiang/gocron/modules/app"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 // 静态文件目录
@@ -43,6 +44,7 @@ func Register(m *macaron.Macaron) {
             ctx.Resp.Write([]byte(json.Failure(utils.ServerError, "网站暂时无法访问,请稍后再试")))
         }
     })
+
     // 首页
     m.Get("/", Home)
     // 系统安装

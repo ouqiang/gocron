@@ -7,10 +7,12 @@
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="linux icon"></i>
-                    <div class="content">
-                        主机列表
-                    </div>
+                    <a href="/host/create">
+                        <i class="large add icon"></i>
+                        <div class="content">
+                            添加主机
+                        </div>
+                    </a>
                 </h3>
             </div>
         </div>
@@ -60,6 +62,7 @@
             {{{end}}}
             </tbody>
         </table>
+        {{{ template "common/pagination" .}}}
     </div>
 </div>
 

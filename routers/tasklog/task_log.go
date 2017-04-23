@@ -5,6 +5,9 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/utils"
+    "github.com/Unknwon/paginater"
+    "fmt"
+    "html/template"
 )
 
 // @author qiang.ou<qingqianludao@gmail.com>
@@ -13,10 +16,20 @@ import (
 func Index(ctx *macaron.Context)  {
     logModel := new(models.TaskLog)
     queryParams := parseQueryParams(ctx)
+    total, err := logModel.Total(queryParams)
+    if err != nil {
+        logger.Error(err)
+    }
     logs, err := logModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
+    PageParams := fmt.Sprintf("task_id=%d&protocol=%d&status=%d&page_size=%d",
+        queryParams["TaskId"], queryParams["Protocol"], queryParams["Status"],
+        queryParams["PageSize"]);
+    queryParams["PageParams"] = template.URL(PageParams)
+    p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
+    ctx.Data["Pagination"] = p
     ctx.Data["Title"] = "任务日志"
     ctx.Data["Logs"] = logs
     ctx.Data["Params"] = queryParams
@@ -40,9 +53,22 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     var params models.CommonMap = models.CommonMap{}
     params["TaskId"] = ctx.QueryInt("task_id")
     params["Protocol"] = ctx.QueryInt("protocol")
-    params["Status"] = ctx.QueryInt("status") - 1
-    params["Page"] = ctx.QueryInt("page")
-    params["PageSize"] = ctx.QueryInt("page_size")
+    status := ctx.QueryInt("status")
+    if status >=0 {
+        status -= 1
+    }
+    params["Status"] = status
+    page := ctx.QueryInt("page")
+    pageSize := ctx.QueryInt("page_size")
+    if page <= 0 {
+        page = 1
+    }
+    if pageSize <= 0 {
+        pageSize = models.PageSize
+    }
+
+    params["Page"] = page
+    params["PageSize"] = pageSize
 
     return params
 }

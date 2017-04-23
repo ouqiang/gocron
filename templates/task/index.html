@@ -5,10 +5,12 @@
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="tasks icon"></i>
-                    <div class="content">
-                        任务列表
-                    </div>
+                    <a href="/task/create">
+                        <i class="large add icon"></i>
+                        <div class="content">
+                           添加任务</a>
+                        </div>
+                    </a>
                 </h3>
             </div>
         </div>
@@ -81,6 +83,7 @@
             </div>
         </div>
         {{{end}}}
+        {{{ template "common/pagination" .}}}
     </div>
 </div>
 

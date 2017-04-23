@@ -18,8 +18,7 @@ type Host struct {
     Remark    string    `xorm:"varchar(512) notnull default '' "` // 备注
     AuthType  ssh.HostAuthType      `xorm:"tinyint notnull default 1"` // 认证方式 1: 密码 2: 公钥
     PrivateKey string   `xorm:"varchar(4096) notnull default '' "` // 私钥
-    Page      int       `xorm:"-"`
-    PageSize  int       `xorm:"-"`
+    BaseModel       `xorm:"-"`
 }
 
 // 新增
@@ -64,7 +63,7 @@ func (host *Host) NameExists(name string, id int16) (bool, error)  {
 }
 
 func (host *Host) List(params CommonMap) ([]Host, error) {
-    host.parsePageAndPageSize()
+    host.parsePageAndPageSize(params)
     list := make([]Host, 0)
     session := Db.Desc("id")
     host.parseWhere(session, params)
@@ -74,15 +73,16 @@ func (host *Host) List(params CommonMap) ([]Host, error) {
 }
 
 func (host *Host) AllList() ([]Host, error) {
-    host.parsePageAndPageSize()
     list := make([]Host, 0)
     err := Db.Desc("id").Find(&list)
 
     return list, err
 }
 
-func (host *Host) Total() (int64, error) {
-    return Db.Count(host)
+func (host *Host) Total(params CommonMap) (int64, error) {
+    session := Db.NewSession()
+    host.parseWhere(session, params)
+    return session.Count(host)
 }
 
 // 解析where
@@ -98,17 +98,4 @@ func (host *Host) parseWhere(session *xorm.Session, params CommonMap)  {
     if ok && name.(string) != "" {
         session.And("name = ?", name)
     }
-}
-
-func (host *Host) parsePageAndPageSize() {
-    if host.Page <= 0 {
-        host.Page = Page
-    }
-    if host.PageSize >= 0 || host.PageSize > MaxPageSize {
-        host.PageSize = PageSize
-    }
-}
-
-func (host *Host) pageLimitOffset() int {
-    return (host.Page - 1) * host.PageSize
 }

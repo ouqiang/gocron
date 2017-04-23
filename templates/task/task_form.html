@@ -5,7 +5,6 @@
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
-                    <i class="large add icon"></i>
                     <div class="content">
                         {{{.Title}}}
                     </div>
@@ -16,8 +15,8 @@
         <input type="hidden" name="id" value="{{{.Task.Id}}}">
         <div class="two fields">
             <div class="field">
-                <label>任务名称</label>
-                <div class="ui small left icon input">
+                <div class="content">任务名称</div>
+                <div class="ui small input">
                     <input type="text" name="name" value="{{{.Task.Task.Name}}}">
                 </div>
             </div>
@@ -30,7 +29,7 @@
                 </div>
             </div>
         </div>
-        <div class="three fields">
+        <div class="four fields">
             <div class="field">
                 <label>协议</label>
                 <select name="protocol" id="protocol">
@@ -39,16 +38,16 @@
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
                 </select>
             </div>
-        </div>
-        <div class="field">
-            <label>主机</label>
-            <select name="host_id" id="hostId">
-                <option value="">选择主机</option>
-                {{{range $i, $v := .Hosts}}}
-                <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
-                </div>
-                {{{end}}}
+            <div class="field">
+                <label>主机</label>
+                <select name="host_id" id="hostId">
+                    <option value="">选择主机</option>
+                    {{{range $i, $v := .Hosts}}}
+                    <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
+            </div>
+            {{{end}}}
             </select>
+        </div>
         </div>
         <div class="two fields">
             <div class="field">
@@ -56,7 +55,7 @@
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="three fields">
+        <div class="four fields">
             <div class="field">
                 <label>任务超时时间 (单位秒, 默认0，不限制超时)</label>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">

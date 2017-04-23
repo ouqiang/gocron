@@ -8,6 +8,9 @@ import (
     "github.com/ouqiang/gocron/service"
     "strconv"
     "github.com/jakecoffman/cron"
+    "github.com/Unknwon/paginater"
+    "fmt"
+    "html/template"
 )
 
 type TaskForm struct {
@@ -23,13 +26,28 @@ type TaskForm struct {
     Status models.Status `binding:"In(1,2)"`
 }
 
+// 首页
 func Index(ctx *macaron.Context)  {
     taskModel := new(models.Task)
     queryParams := parseQueryParams(ctx)
+    total, err := taskModel.Total(queryParams)
+    if err != nil {
+        logger.Error(err)
+    }
     tasks, err := taskModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
+    name, ok := queryParams["name"].(string)
+    var safeNameHTML = ""
+    if ok {
+        safeNameHTML = template.HTMLEscapeString(name)
+    }
+    PageParams := fmt.Sprintf("id=%d&host_id=%d&name=%s&protocol=%d&status=%d&page_size=%d",
+        queryParams["Id"], queryParams["HostId"], safeNameHTML, queryParams["Protocol"], queryParams["Status"], queryParams["PageSize"]);
+    queryParams["PageParams"] = template.URL(PageParams)
+    p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
+    ctx.Data["Pagination"] = p
     setHostsToTemplate(ctx)
     ctx.Data["Params"] = queryParams
     ctx.Data["Title"] = "任务列表"
@@ -37,12 +55,14 @@ func Index(ctx *macaron.Context)  {
     ctx.HTML(200, "task/index")
 }
 
+// 新增页面
 func Create(ctx *macaron.Context)  {
     setHostsToTemplate(ctx)
     ctx.Data["Title"] = "添加任务"
     ctx.HTML(200, "task/task_form")
 }
 
+// 编辑页面
 func Edit(ctx *macaron.Context)  {
     id := ctx.ParamsInt(":id")
     hostModel := new(models.Host)
@@ -204,9 +224,22 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     params["HostId"] = ctx.QueryInt("host_id")
     params["Name"] = ctx.QueryTrim("name")
     params["Protocol"] = ctx.QueryInt("protocol")
-    params["Status"] = ctx.QueryInt("status") - 1
-    params["Page"] = ctx.QueryInt("page")
-    params["PageSize"] = ctx.QueryInt("page_size")
+    status := ctx.QueryInt("status")
+    if status >=0 {
+        status -= 1
+    }
+    params["Status"] = status
+    page := ctx.QueryInt("page")
+    pageSize := ctx.QueryInt("page_size")
+    if page <= 0 {
+        page = 1
+    }
+    if pageSize <= 0 {
+        pageSize = models.PageSize
+    }
+
+    params["Page"] = page
+    params["PageSize"] = pageSize
 
     return params
 }

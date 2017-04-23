@@ -3,6 +3,7 @@ package models
 import (
     "time"
     "github.com/go-xorm/xorm"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 type TaskType int8
@@ -23,9 +24,8 @@ type TaskLog struct {
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
     Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕
     Result    string    `xorm:"varchar(65535) notnull defalut '' "` // 执行结果
-    Page      int       `xorm:"-"`
-    PageSize  int       `xorm:"-"`
     TotalTime int       `xorm:"-"` // 执行总时长
+    BaseModel   `xorm:"-"`
 }
 
 func (taskLog *TaskLog) Create() (insertId int64, err error) {
@@ -49,7 +49,7 @@ func (taskLog *TaskLog) setStatus(id int64, status Status) (int64, error) {
 }
 
 func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
-    taskLog.parsePageAndPageSize()
+    taskLog.parsePageAndPageSize(params)
     list := make([]TaskLog, 0)
     session := Db.Desc("id")
     taskLog.parseWhere(session, params)
@@ -73,21 +73,10 @@ func (TaskLog *TaskLog) Clear() (int64, error)  {
     return Db.Where("1=1").Delete(TaskLog);
 }
 
-func (taskLog *TaskLog) Total() (int64, error) {
-    return Db.Count(taskLog)
-}
-
-func (taskLog *TaskLog) parsePageAndPageSize() {
-    if taskLog.Page <= 0 {
-        taskLog.Page = Page
-    }
-    if taskLog.PageSize >= 0 || taskLog.PageSize > MaxPageSize {
-        taskLog.PageSize = PageSize
-    }
-}
-
-func (taskLog *TaskLog) pageLimitOffset() int {
-    return (taskLog.Page - 1) * taskLog.PageSize
+func (taskLog *TaskLog) Total(params CommonMap) (int64, error) {
+    session := Db.NewSession()
+    taskLog.parseWhere(session, params)
+    return session.Count(taskLog)
 }
 
 // 解析where

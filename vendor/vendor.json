@@ -15,6 +15,12 @@
 			"revisionTime": "2017-02-13T07:20:14Z"
 		},
 		{
+			"checksumSHA1": "TZJb+QbOuWcbYb30BriioMAjg/o=",
+			"path": "github.com/Unknwon/paginater",
+			"revision": "45e5d631308ea359946e761484147982c978d0df",
+			"revisionTime": "2017-04-05T23:39:47Z"
+		},
+		{
 			"checksumSHA1": "1bK29RcAjCAMCYS2HS3O18w4m8k=",
 			"path": "github.com/cihub/seelog",
 			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",

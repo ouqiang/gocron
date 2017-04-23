@@ -31,6 +31,32 @@ const (
 
 const DefaultTimeFormat = "2006-01-02 15:04:05"
 
+type BaseModel struct  {
+    Page      int       `xorm:"-"`
+    PageSize  int       `xorm:"-"`
+}
+
+func (model *BaseModel) parsePageAndPageSize(params CommonMap) {
+    page, ok := params["Page"]
+    if ok {
+        model.Page = page.(int)
+    }
+    pageSize, ok := params["PageSize"]
+    if ok {
+        model.PageSize = pageSize.(int)
+    }
+    if model.Page <= 0 {
+        model.Page = Page
+    }
+    if model.PageSize <= 0 || model.PageSize > MaxPageSize {
+        model.PageSize = PageSize
+    }
+}
+
+func (model *BaseModel) pageLimitOffset() int {
+    return (model.Page - 1) * model.PageSize
+}
+
 // 创建Db
 func CreateDb(config map[string]string) *xorm.Engine {
     dsn := getDbEngineDSN(config["engine"], config)
@@ -79,7 +105,7 @@ func getDbEngineDSN(engine string, config map[string]string) string {
     return dsn
 }
 
-// 定时ping, 防止因数据库超时设置被断开
+// 定时ping, 防止因数据库超时设置连接被断开
 func keepDbAlived(engine *xorm.Engine)  {
     t := time.Tick(180 * time.Second)
     for {

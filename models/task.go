@@ -28,8 +28,7 @@ type Task struct {
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
     Status   Status    `xorm:"tinyint notnull default 1"`        // 状态 1:正常 0:停止
-    Page     int       `xorm:"-"`
-    PageSize int       `xorm:"-"`
+    BaseModel `xorm:"-"`
 }
 
 type TaskHost struct {
@@ -136,8 +135,10 @@ func (task *Task) List(params CommonMap) ([]TaskHost, error) {
     return list, err
 }
 
-func (task *Task) Total() (int64, error) {
-    return Db.Count(task)
+func (task *Task) Total(params CommonMap) (int64, error) {
+    session := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id")
+    task.parseWhere(session, params)
+    return session.Count(task)
 }
 
 // 解析where
@@ -165,25 +166,4 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     if ok && status.(int) > -1 {
         session.And("status = ?", status)
     }
-}
-
-func (task *Task) parsePageAndPageSize(params CommonMap) {
-    page, ok := params["Page"]
-    if ok {
-        task.Page = page.(int)
-    }
-    pageSize, ok := params["PageSize"]
-    if ok {
-        task.PageSize = pageSize.(int)
-    }
-    if task.Page <= 0 {
-        task.Page = Page
-    }
-    if task.PageSize >= 0 || task.PageSize > MaxPageSize {
-        task.PageSize = PageSize
-    }
-}
-
-func (task *Task) pageLimitOffset() int {
-    return (task.Page - 1) * task.PageSize
 }

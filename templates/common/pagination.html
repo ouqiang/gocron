@@ -1,0 +1,37 @@
+<div class="ui pagination menu">
+    {{{if not .Pagination.IsFirst}}}
+        <a class="item" href="{{{.URI}}}?{{{ .Params.PageParams}}}&page=1">
+            首页
+        </a>
+    {{{end}}}
+
+    {{{if .Pagination.HasPrevious}}}
+        <a class="icon item" href="{{{.URI}}}?{{{ .Params.PageParams}}}&page={{{.Pagination.Previous}}}">
+            <i class="icon left arrow"></i>
+        </a>
+    {{{end}}}
+
+    {{{range .Pagination.Pages}}}
+        {{{if eq .Num -1}}}
+            <div class="disabled item">
+                ...
+            </div>
+        {{{else}}}
+    <a class="icon {{{if .IsCurrent}}}active{{{end}}} item" href="{{{$.URI}}}?{{{ $.Params.PageParams}}}&page={{{.Num}}}">
+        {{{.Num}}}
+    </a>
+        {{{end}}}
+    {{{end}}}
+
+    {{{if .Pagination.HasNext}}}
+        <a class="icon item" href="{{{.URI}}}?{{{ .Params.PageParams}}}&page={{{.Pagination.Next}}}">
+            <i class="icon right arrow"></i>
+        </a>
+    {{{end}}}
+    {{{if not .Pagination.IsLast}}}
+    <a class="icon item" href="{{{.URI}}}?{{{ .Params.PageParams}}}&page={{{.Pagination.TotalPages}}}">
+        尾页
+    </a>
+    {{{end}}}
+    <div class="item">{{{.Pagination.Total}}}条/{{{.Pagination.TotalPages}}}页</div>
+</div>

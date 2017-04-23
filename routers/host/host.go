@@ -8,15 +8,29 @@ import (
     "strconv"
     "github.com/ouqiang/gocron/modules/ssh"
     "github.com/ouqiang/gocron/service"
+    "github.com/Unknwon/paginater"
+    "fmt"
+    "html/template"
 )
 
 func Index(ctx *macaron.Context)  {
     hostModel := new(models.Host)
     queryParams := parseQueryParams(ctx)
+    total, err := hostModel.Total(queryParams)
     hosts, err := hostModel.List(queryParams)
     if err != nil {
         logger.Error(err)
     }
+    name, ok := queryParams["name"].(string)
+    var safeNameHTML = ""
+    if ok {
+        safeNameHTML = template.HTMLEscapeString(name)
+    }
+    PageParams := fmt.Sprintf("id=%d&name=%s&page_size=%d",
+        queryParams["Id"],  safeNameHTML, queryParams["PageSize"]);
+    queryParams["PageParams"] = template.URL(PageParams)
+    p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
+    ctx.Data["Pagination"] = p
     ctx.Data["Title"] = "主机列表"
     ctx.Data["Hosts"] = hosts
     ctx.Data["Params"] = queryParams
@@ -151,8 +165,17 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     var params models.CommonMap = models.CommonMap{}
     params["Id"] = ctx.QueryInt("id")
     params["Name"] = ctx.QueryTrim("name")
-    params["Page"] = ctx.QueryInt("page")
-    params["PageSize"] = ctx.QueryInt("page_size")
+    page := ctx.QueryInt("page")
+    pageSize := ctx.QueryInt("page_size")
+    if page <= 0 {
+        page = 1
+    }
+    if pageSize <= 0 {
+        pageSize = models.PageSize
+    }
+
+    params["Page"] = page
+    params["PageSize"] = pageSize
 
     return params
 }
