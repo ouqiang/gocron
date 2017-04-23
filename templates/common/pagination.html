@@ -1,3 +1,5 @@
+{{{if gt .Pagination.Total 0}}}
+
 <div class="ui pagination menu">
     {{{if not .Pagination.IsFirst}}}
         <a class="item" href="{{{.URI}}}?{{{ .Params.PageParams}}}&page=1">
@@ -33,5 +35,7 @@
         尾页
     </a>
     {{{end}}}
-    <div class="item">{{{.Pagination.Total}}}条/{{{.Pagination.TotalPages}}}页</div>
+        <div class="item">{{{.Pagination.Total}}}条/{{{.Pagination.TotalPages}}}页</div>
 </div>
+
+{{{end}}}

@@ -45,8 +45,8 @@
                     {{{range $i, $v := .Hosts}}}
                     <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
             </div>
-            {{{end}}}
-            </select>
+                    {{{end}}}
+                </select>
         </div>
         </div>
         <div class="two fields">
