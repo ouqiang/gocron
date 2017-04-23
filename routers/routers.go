@@ -163,6 +163,7 @@ func setShareData(m *macaron.Macaron)  {
             ctx.Data["Action"] = paths[1]
         }
         ctx.Data["LoginUsername"] = user.Username(sess)
+        ctx.Data["LoginUid"] = user.Uid(sess)
     })
 }
 

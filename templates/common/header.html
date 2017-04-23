@@ -59,8 +59,10 @@
             <div class="right menu">
                 <a class="item {{{if eq .Controller "task"}}}active{{{end}}}" href="/task"><i class="tasks icon"></i>任务</a>
                 <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>主机</a>
-                <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a>
+                <!-- <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a> -->
+                {{{if gt .LoginUid 0}}}
                 <a class="item {{{if eq .Controller "admin"}}}active{{{end}}}" href="/admin"><i class="settings icon"></i>管理</a>
+                {{{end}}}
             </div>
         </div>
     </div>

@@ -35,10 +35,9 @@ var CmdWeb = cli.Command{
             Value: "prod",
             Usage: "runtime environment, dev|test|prod",
         },
-        cli.StringFlag{
+        cli.BoolFlag{
             Name: "d",
-            Value: "false",
-            Usage: "-d=true, run app as daemon, not support windows",
+            Usage: "-d, run app as daemon, not support windows",
         },
     },
 }
@@ -111,11 +110,7 @@ func becomeDaemon(ctx *cli.Context) {
     if utils.IsWindows() {
         return
     }
-    var daemond string = "false"
-    if ctx.IsSet("d") {
-        daemond = ctx.String("d")
-    }
-    if (daemond != "true") {
+    if !ctx.IsSet("d") {
         return
     }
 

@@ -19,8 +19,7 @@ type User struct {
     Deleted  time.Time `xorm:"datetime deleted"`
     IsAdmin  int8      `xorm:"tinyint notnull default 0"` // 是否是管理员 1:管理员 0:普通用户
     Status   Status    `xorm:"tinyint notnull default 1"` // 1: 正常 0:禁用
-    Page     int       `xorm:"-"`
-    PageSize int       `xorm:"-"`
+    BaseModel      `xorm:"-"`
 }
 
 // 新增
