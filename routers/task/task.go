@@ -247,7 +247,7 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
 func setHostsToTemplate(ctx *macaron.Context)  {
     hostModel := new(models.Host)
     hosts, err := hostModel.List(models.CommonMap{})
-    if err != nil || len(hosts) == 0 {
+    if err != nil {
         logger.Error(err)
     }
     ctx.Data["Hosts"] = hosts

@@ -15,7 +15,9 @@
         <input type="hidden" name="id" value="{{{.Task.Id}}}">
         <div class="two fields">
             <div class="field">
-                <div class="content">任务名称</div>
+                <label>
+                    <div class="content">任务名称</div>
+                </label>
                 <div class="ui small input">
                     <input type="text" name="name" value="{{{.Task.Task.Name}}}">
                 </div>
@@ -23,51 +25,97 @@
         </div>
         <div class="two fields">
             <div class="field">
-                <label>crontab表达式</label>
+                <label>
+                    <div class="content">
+                        crontab表达式
+                        <div class="ui blue message">
+                                    Linux-crontab表达式语法, 精确到秒 <br>
+                                    格式:  秒 分 时 天 月 周 <br>
+                                    快捷语法: <br>
+                                    @yearly 每年运行一次 <br>
+                                    @monthly 每月运行一次 <br>
+                                    @weekly 每周运行一次 <br>
+                                    @daily 每天运行一次 <br>
+                                    @midnight 每天午夜运行一次<br>
+                                    @hourly 每小时运行一次 <br>
+                                    @every 30s 每隔30秒运行一次 <br>
+                                    @every 1m20s 每隔1分钟20秒运行一次 <br>
+                                    @every 3h5m10s 每隔3小时5分钟10秒运行一次 <br>
+                        </div>
+                    </div>
+                </label>
                 <div class="ui small left icon input">
-                    <textarea rows="5" name="spec">{{{.Task.Spec}}}</textarea>
+                    <input type="text" name="spec" value="{{{.Task.Spec}}}" />
                 </div>
             </div>
         </div>
-        <div class="four fields">
+        <div class="three fields">
             <div class="field">
                 <label>协议</label>
+                <div class="ui blue message">
+                    系统命令: 调用本机系统命令 <br>
+                    SSH:  通过SSH执行远程命令 <br>
+                    HTTP: 执行HTTP-GET请求 <br>
+                </div>
                 <select name="protocol" id="protocol">
-                    <option value="3" {{{if .Task}}} {{{if eq .Task.Protocol 3}}}selected{{{end}}} {{{end}}}>本地命令</option>
+                    <option value="3" {{{if .Task}}} {{{if eq .Task.Protocol 3}}}selected{{{end}}} {{{end}}}>系统命令</option>
                     <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
                 </select>
             </div>
+        </div>
+        <div class="four fields">
             <div class="field">
                 <label>主机</label>
+                <div class="ui blue message">
+                    <pre>选择SSH协议时，需选择执行主机</pre>
+                </div>
                 <select name="host_id" id="hostId">
                     <option value="">选择主机</option>
                     {{{range $i, $v := .Hosts}}}
-                    <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
-            </div>
+                     <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
                     {{{end}}}
-                </select>
+                 </select> &nbsp; <a class="ui blue button" href="/host/create">添加主机</a>
         </div>
         </div>
         <div class="two fields">
             <div class="field">
-                <label>命令(shell命令|URL地址, 多条shell命令";"分隔)</label>
+                <label>命令</label>
+                <div class="ui blue message">
+                        根据选择的协议输入相应的命令 <br>
+                        系统命令 -  windows: ipconfig /all     linux: ifconfig -a <br>
+                        SSH -   netstat -natpu <br>
+                        HTTP -  http://golang.org <br>
+                </div>
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
         <div class="three fields">
             <div class="field">
-                <label>任务超时时间 (单位秒, 默认0，不限制超时)</label>
+                <label>任务超时时间(秒)</label>
+                <div class="ui blue message">
+                    默认0，不限制超时
+                </div>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
+        </div>
+        <div class="two fields">
             <div class="field">
-                <label>任务重试次数 (默认0, 取值范围1-10)</label>
+                <label>任务重试次数</label>
+                <div class="ui blue message">
+                        无法连接远程主机，shell返回值非0, http响应码非200等异常返回，可重试<br>
+                        重试时间间隔 重试次数 * 分钟, 按1分钟、2分钟、3分钟.....的间隔进行重试<br>
+                        取值范围1-10, 默认0，不重试
+                </div>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="three fields">
             <div class="field">
-                <label>任务状态 (任务添加成功后，是否立即调度)</label>
+                <label>任务状态</label>
+                <div class="ui blue message">
+                    任务添加成功后，是否立即调度
+                </div>
                 <select name="status">
                     <option value="2"{{{if .Task}}} {{{if eq .Task.Status 2}}}selected{{{end}}} {{{end}}}>暂停</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Status 1}}}selected{{{end}}} {{{end}}}>激活</option>

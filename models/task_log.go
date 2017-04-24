@@ -14,7 +14,7 @@ type TaskLog struct {
     TaskId   int       `xorm:"int notnull index default 0"`       // 任务id
     Name     string    `xorm:"varchar(64) notnull"`               // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`               // crontab
-    Protocol TaskProtocol  `xorm:"tinyint notnull"`               // 协议 1:http 2:ssh-command
+    Protocol TaskProtocol  `xorm:"tinyint notnull"`               // 协议 1:http 2:ssh-command 3:系统命令
     Command  string    `xorm:"varchar(512) notnull"`              // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`       // 任务执行超时时间(单位秒),0不限制
     RetryTimes int8    `xorm:"tinyint notnull default 0"`           // 任务重试次数
