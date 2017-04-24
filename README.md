@@ -1,6 +1,6 @@
 # gocron - 定时任务web管理平台
 
-[![Build Status](https://travis-ci.org/ouqiang/cron-scheduler.png)](https://travis-ci.org/ouqiang/cron-scheduler)
+[![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 
 ## 安装, 解压后执行
 ```shell
