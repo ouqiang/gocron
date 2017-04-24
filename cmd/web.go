@@ -7,15 +7,9 @@ import (
     "gopkg.in/macaron.v1"
     "os"
     "os/signal"
-    "path/filepath"
-    "os/exec"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
-    "github.com/ouqiang/gocron/modules/utils"
 )
-
-// 1号进程id
-const InitProcess = 1
 
 // web服务器默认端口
 const DefaultPort = 5920
@@ -35,16 +29,10 @@ var CmdWeb = cli.Command{
             Value: "prod",
             Usage: "runtime environment, dev|test|prod",
         },
-        cli.BoolFlag{
-            Name: "d",
-            Usage: "-d, run app as daemon, not support windows",
-        },
     },
 }
 
 func run(ctx *cli.Context) {
-    // 作为守护进程运行
-    becomeDaemon(ctx);
     // 设置运行环境
     setEnvironment(ctx)
     // 初始化应用
@@ -102,30 +90,4 @@ func catchSignal()  {
                 os.Exit(1)
         }
     }
-}
-
-// 作为守护进程运行
-func becomeDaemon(ctx *cli.Context) {
-    // 不支持windows
-    if utils.IsWindows() {
-        return
-    }
-    if !ctx.IsSet("d") {
-        return
-    }
-
-    if os.Getppid() == InitProcess {
-        // 已是守护进程，不再处理
-        return
-    }
-
-    filePath, _:= filepath.Abs(os.Args[0])
-    cmd := exec.Command(filePath, os.Args[1:]...)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    cmd.Start()
-
-    // 父进程退出, 子进程由init-1号进程收养
-    os.Exit(0)
 }
