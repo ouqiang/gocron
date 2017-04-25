@@ -17,14 +17,14 @@ const (
 // 任务
 type Task struct {
     Id       int       `xorm:"int pk autoincr"`
-    Name     string    `xorm:"varchar(64) notnull"`              // 任务名称
+    Name     string    `xorm:"varchar(32) notnull"`              // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`              // crontab
     Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command 3: 系统命令
-    Command  string    `xorm:"varchar(512) notnull"`             // URL地址或shell命令
+    Command  string    `xorm:"varchar(256) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
     HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
-    Remark   string    `xorm:"varchar(512) notnull default ''"`  // 备注
+    Remark   string    `xorm:"varchar(256) notnull default ''"`  // 备注
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
     Status   Status    `xorm:"tinyint notnull default 1"`        // 状态 1:正常 0:停止

@@ -4,8 +4,8 @@
 
 ## 安装, 解压后执行
 ```shell
- Windows     ./gocron.exe server
- Linux、OSX  ./gocron server 
+ Windows     ./gocron.exe web
+ Linux、OSX  ./gocron web
 ```
 可选参数 
 + -p 端口, 指定端口, 默认5920

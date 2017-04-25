@@ -15,8 +15,8 @@ import (
 const DefaultPort = 5920
 
 var CmdWeb = cli.Command{
-    Name:   "server",
-    Usage:  "start scheduler web server",
+    Name:   "web",
+    Usage:  "run web server",
     Action: run,
     Flags: []cli.Flag{
         cli.IntFlag{
