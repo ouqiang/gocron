@@ -9,6 +9,7 @@ import (
     "strconv"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/go-macaron/binding"
+    "fmt"
 )
 
 // 系统安装
@@ -60,7 +61,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     migration := new(models.Migration)
     err = migration.Exec(form.DbName)
     if err != nil {
-        return json.CommonFailure("创建数据库表失败", err)
+        return json.CommonFailure(fmt.Sprintf("创建数据库表失败-%s", err.Error()), err)
     }
 
     // 创建管理员账号

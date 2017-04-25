@@ -1,6 +1,8 @@
 package models
 
-import "errors"
+import (
+    "errors"
+)
 
 // 创建数据库表
 
@@ -14,7 +16,14 @@ func (migration *Migration) Exec(dbName string) error {
         &User{}, &Task{}, &TaskLog{}, &Host{},
     }
     for _, table := range tables {
-        err := Db.Sync2(table)
+        exist, err:= Db.IsTableExist(table)
+        if exist {
+            return errors.New("数据表已存在")
+        }
+        if err != nil {
+            return err
+        }
+        err = Db.Sync2(table)
         if err != nil {
             return err
         }
