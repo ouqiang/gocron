@@ -4,7 +4,7 @@
 
 ## 安装, 解压后执行
 ```shell
- Windows     ./gocron.exe web
+ Windows     gocron.exe web
  Linux、OSX  ./gocron web
 ```
 可选参数 

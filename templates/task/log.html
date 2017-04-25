@@ -74,10 +74,12 @@
                 <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>
+                    {{{if ne .Status 3}}}
                     {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>
                     开始时间: {{{.StartTime.Format "2006-01-02 15:04:05" }}}<br>
                     {{{if ne .Status 1}}}
                         结束时间: {{{.EndTime.Format "2006-01-02 15:04:05" }}}
+                    {{{end}}}
                     {{{end}}}
                 </td>
                 <td>
@@ -87,12 +89,12 @@
                         <span style="color:green">执行中</span>
                     {{{else if eq .Status 0}}}
                         <span style="color:red">失败</span>
-                    {{{else}}}
-                        <span style="color:#4499EE">待执行</span>
+                    {{{else if eq .Status 3}}}
+                        <span style="color:#4499EE">取消</span>
                     {{{end}}}
                 </td>
                 <td>
-                    {{{if ne .Status 1}}}
+                    {{{if and (ne .Status 1) (ne .Status 3)}}}
                         <button class="ui small primary button"
                                 onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
                                 >查看结果

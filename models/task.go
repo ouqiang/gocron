@@ -22,6 +22,7 @@ type Task struct {
     Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command 3: 系统命令
     Command  string    `xorm:"varchar(256) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
+    Multi    int8      `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
     HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
     Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
@@ -57,7 +58,7 @@ func (task *Task) Create() (insertId int, err error) {
 }
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
-    return Db.ID(id).UseBool("status").Update(task)
+    return Db.ID(id).UseBool("status,multi").Update(task)
 }
 
 // 更新

@@ -14,6 +14,7 @@ var (
     AppDir       string // 应用根目录
     ConfDir      string // 配置目录
     LogDir       string // 日志目录
+    DataDir      string // 存放session等
     AppConfig    string // 应用配置文件
     Installed    bool   // 应用是否安装过
 )
@@ -28,8 +29,9 @@ func InitEnv() {
     AppDir = wd
     ConfDir = AppDir + "/conf"
     LogDir = AppDir + "/log"
+    DataDir = AppDir + "/data"
     AppConfig = ConfDir + "/app.ini"
-    checkDirExists(ConfDir, LogDir)
+    checkDirExists(ConfDir, LogDir, DataDir)
     Installed = IsInstalled()
     if Installed {
         InitDb()

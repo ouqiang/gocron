@@ -105,7 +105,10 @@ func RegisterMiddleware(m *macaron.Macaron) {
         // 渲染具有缩进格式的 XML，默认为不缩进
         IndentXML: true,
     }))
-    m.Use(session.Sessioner())
+    m.Use(session.Sessioner(session.Options{
+        Provider:       "file",
+        ProviderConfig: app.DataDir + "/sessions",
+    }))
     m.Use(csrf.Csrfer())
     m.Use(toolbox.Toolboxer(m))
     checkAppInstall(m)

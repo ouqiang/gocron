@@ -21,15 +21,13 @@ type TaskLog struct {
     Hostname string       `xorm:"varchar(128) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
-    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕
+    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕 3:任务取消(上次任务未执行完成)
     Result    string    `xorm:"text notnull defalut '' "` // 执行结果
     TotalTime int       `xorm:"-"` // 执行总时长
     BaseModel   `xorm:"-"`
 }
 
 func (taskLog *TaskLog) Create() (insertId int64, err error) {
-    taskLog.Status = Running
-
     _, err = Db.Insert(taskLog)
     if err == nil {
         insertId = taskLog.Id

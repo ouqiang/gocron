@@ -15,6 +15,30 @@ import (
 )
 
 var Cron *cron.Cron
+var runInstance Instance
+
+// 任务ID作为Key, 不会出现并发读写, 不加锁
+type Instance struct {
+    Status map[int]bool
+}
+
+// 是否有任务处于运行中
+func (i *Instance) has(key int) bool {
+    running, ok := i.Status[key]
+    if ok && running {
+        return true
+    }
+
+    return false
+}
+
+func (i *Instance) add(key int)  {
+    i.Status[key] = true
+}
+
+func (i *Instance) done(key int)  {
+    i.Status[key] = false
+}
 
 type Task struct{}
 
@@ -28,6 +52,7 @@ type TaskResult struct {
 func (task *Task) Initialize() {
     Cron = cron.New()
     Cron.Start()
+    runInstance = Instance{make(map[int]bool)}
     taskModel := new(models.Task)
     taskList, err := taskModel.ActiveList()
     if err != nil {
@@ -159,7 +184,7 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
 }
 
 // 创建任务日志
-func createTaskLog(taskModel models.TaskHost) (int64, error) {
+func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
     taskLogModel.Name = taskModel.Task.Name
@@ -171,7 +196,7 @@ func createTaskLog(taskModel models.TaskHost) (int64, error) {
         taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
     }
     taskLogModel.StartTime = time.Now()
-    taskLogModel.Status = models.Running
+    taskLogModel.Status = status
     insertId, err := taskLogModel.Create()
 
     return insertId, err
@@ -202,7 +227,15 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         return nil
     }
     taskFunc := func() {
-        taskLogId, err := createTaskLog(taskModel)
+        if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
+            createTaskLog(taskModel, models.Cancel)
+            return
+        }
+        if taskModel.Multi == 0 {
+            runInstance.add(taskModel.Id)
+            defer runInstance.done(taskModel.Id)
+        }
+        taskLogId, err := createTaskLog(taskModel, models.Running)
         if err != nil {
             logger.Error("任务开始执行#写入任务日志失败-", err)
             return

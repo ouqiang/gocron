@@ -21,6 +21,7 @@ const (
     Enabled  Status = 1 // 启用
     Running  Status = 1 // 运行中
     Finish   Status = 2 // 完成
+    Cancel   Status = 3 // 取消
 )
 
 const (

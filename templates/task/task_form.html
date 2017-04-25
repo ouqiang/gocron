@@ -112,12 +112,21 @@
         </div>
         <div class="three fields">
             <div class="field">
+                <label>允许多实例运行</label>
+                <select name="multi">
+                    <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.Multi 0}}}selected{{{end}}} {{{end}}}>否</option>
+                </select>
+            </div>
+        </div>
+        <div class="three fields">
+            <div class="field">
                 <label>任务状态</label>
                 <div class="ui blue message">
                     任务添加成功后，是否立即调度
                 </div>
                 <select name="status">
-                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 2}}}selected{{{end}}} {{{end}}}>暂停</option>
+                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 0}}}selected{{{end}}} {{{end}}}>暂停</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Status 1}}}selected{{{end}}} {{{end}}}>激活</option>
                 </select>
             </div>

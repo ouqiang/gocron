@@ -20,6 +20,7 @@ type TaskForm struct {
     Protocol models.TaskProtocol `binding:"In(1,2,3)"`
     Command string `binding:"Required;MaxSize(512)"`
     Timeout int `binding:"Range(0,86400)"`
+    Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
     HostId int16
     Remark string
@@ -119,9 +120,13 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.Timeout = form.Timeout
     taskModel.Remark = form.Remark
     taskModel.Status = form.Status
+    taskModel.Multi = form.Multi
     taskModel.RetryTimes = form.RetryTimes
     if taskModel.Status != models.Enabled {
         taskModel.Status = models.Disabled
+    }
+    if taskModel.Multi != 1 {
+        taskModel.Multi = 0
     }
     taskModel.Spec = form.Spec
     if id == 0 {
