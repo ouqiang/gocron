@@ -2,7 +2,7 @@
 
 # set -x -u
 # 构建应用, 生成压缩包 gocron.zip或gocron.tar.gz
-# 使用方式 -p 指定平台(widows linux darwin) -a 指定体系架构(amd64 386), 默认amd64
+# -p 指定平台(widows linux darwin) -a 指定体系架构(amd64 386), 默认amd64
 # ./build.sh -p windows -a amd64
 
 TEMP_DIR=`date +%s`-temp-`echo $RANDOM`
@@ -18,6 +18,7 @@ EXEC_NAME=''
 # 压缩包名称
 COMPRESS_FILE=''
 
+
 # -p 平台 -a 架构
 while getopts "p:a:" OPT;
 do
@@ -25,9 +26,6 @@ do
         p) OS=$OPTARG
         ;;
         a) ARCH=$OPTARG
-        ;;
-        \?)
-        echo "invalid option: -${OPTARG}"
         ;;
     esac
 done
@@ -66,7 +64,7 @@ else
     COMPRESS_FILE=${APP_NAME}.tar.gz
 fi
 
-mkdir $TEMP_DIR
+mkdir -p $TEMP_DIR/$APP_NAME
 if [[ ! $? ]]; then
     exit 1
 fi
@@ -78,23 +76,26 @@ echo '复制文件到临时目录'
 # 复制文件到临时目录
 for i in ${PACKAGE_FILENAME[*]}
 do
-    cp -r $i $TEMP_DIR
+    cp -r $i $TEMP_DIR/$APP_NAME
 done
 
 # 删除运行时产生的文件
-rm -rf $TEMP_DIR/conf/*
-rm -rf $TEMP_DIR/log/*
+rm -rf $TEMP_DIR/$APP_NAME/conf/*
+rm -rf $TEMP_DIR/$APP_NAME/log/*
 
 echo '压缩文件'
 # 压缩文件
 cd $TEMP_DIR
 if [[ $OS = 'windows' ]];then
-    zip -r $COMPRESS_FILE *
+    zip -rq $COMPRESS_FILE *
 else
-    tar cvzf $COMPRESS_FILE *
+    tar czf $COMPRESS_FILE *
 fi
 mv $COMPRESS_FILE ../
-cd ..
+cd ../
 
 rm $EXEC_NAME
 rm -rf $TEMP_DIR
+
+echo '打包完成'
+echo '生成压缩文件--' $COMPRESS_FILE

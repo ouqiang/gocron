@@ -15,7 +15,7 @@ type Host struct {
     Username  string    `xorm:"varchar(32) notnull default '' "`  // ssh 用户名
     Password  string    `xorm:"varchar(64) notnull default ''"`   // ssh 密码
     Port      int       `xorm:"notnull default 22"`               // 主机端口
-    Remark    string    `xorm:"varchar(256) notnull default '' "` // 备注
+    Remark    string    `xorm:"varchar(100) notnull default '' "` // 备注
     AuthType  ssh.HostAuthType      `xorm:"tinyint notnull default 1"` // 认证方式 1: 密码 2: 公钥
     PrivateKey string   `xorm:"varchar(4096) notnull default '' "` // 私钥
     BaseModel       `xorm:"-"`

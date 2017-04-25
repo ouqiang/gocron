@@ -18,11 +18,11 @@ type TaskLog struct {
     Command  string    `xorm:"varchar(256) notnull"`              // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`       // 任务执行超时时间(单位秒),0不限制
     RetryTimes int8    `xorm:"tinyint notnull default 0"`           // 任务重试次数
-    Hostname string       `xorm:"varchar(256) notnull defalut '' "`   // SSH主机名，逗号分隔
+    Hostname string       `xorm:"varchar(128) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
     Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕
-    Result    string    `xorm:"varchar(10000) notnull defalut '' "` // 执行结果
+    Result    string    `xorm:"varchar(4096) notnull defalut '' "` // 执行结果
     TotalTime int       `xorm:"-"` // 执行总时长
     BaseModel   `xorm:"-"`
 }

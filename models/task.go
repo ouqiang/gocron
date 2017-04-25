@@ -24,7 +24,7 @@ type Task struct {
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
     HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
-    Remark   string    `xorm:"varchar(256) notnull default ''"`  // 备注
+    Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
     Status   Status    `xorm:"tinyint notnull default 1"`        // 状态 1:正常 0:停止
