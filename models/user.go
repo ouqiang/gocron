@@ -82,28 +82,14 @@ func (user *User) EmailExists(email string) (int64, error) {
 }
 
 func (user *User) List() ([]User, error) {
-    user.parsePageAndPageSize()
     list := make([]User, 0)
-    err := Db.Desc("id").Limit(user.PageSize, user.pageLimitOffset()).Find(&list)
+    err := Db.Desc("id").Find(&list)
 
     return list, err
 }
 
 func (user *User) Total() (int64, error) {
     return Db.Count(user)
-}
-
-func (user *User) parsePageAndPageSize() {
-    if user.Page <= 0 {
-        user.Page = Page
-    }
-    if user.PageSize >= 0 || user.PageSize > MaxPageSize {
-        user.PageSize = PageSize
-    }
-}
-
-func (user *User) pageLimitOffset() int {
-    return (user.Page - 1) * user.PageSize
 }
 
 // 密码加密
