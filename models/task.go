@@ -44,7 +44,7 @@ type TaskHost struct {
 }
 
 func (TaskHost) TableName() string  {
-    return "task"
+    return TablePrefix + "task"
 }
 
 // 新增
@@ -85,7 +85,7 @@ func (task *Task) Enable(id int) (int64, error) {
 func (task *Task) ActiveList() ([]TaskHost, error) {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
-    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
+    err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
 
     return list, err
 }
@@ -94,7 +94,7 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error)  {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
-    err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
+    err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
 
     return list, err
 }
@@ -120,7 +120,7 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
 func(task *Task) Detail(id int) (TaskHost, error)  {
     taskHost := TaskHost{}
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
-    _, err := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
+    _, err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
 
     return taskHost, err
 }
@@ -128,8 +128,8 @@ func(task *Task) Detail(id int) (TaskHost, error)  {
 func (task *Task) List(params CommonMap) ([]TaskHost, error) {
     task.parsePageAndPageSize(params)
     list := make([]TaskHost, 0)
-    fields := "t.*, host.alias"
-    session := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id")
+    fields := "t.*, host.alias,host.name"
+    session := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id")
     task.parseWhere(session, params)
     err := session.Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
@@ -137,7 +137,7 @@ func (task *Task) List(params CommonMap) ([]TaskHost, error) {
 }
 
 func (task *Task) Total(params CommonMap) (int64, error) {
-    session := Db.Alias("t").Join("LEFT", "host", "t.host_id=host.id")
+    session := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id")
     task.parseWhere(session, params)
     return session.Count(task)
 }
@@ -167,4 +167,8 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     if ok && status.(int) > -1 {
         session.And("status = ?", status)
     }
+}
+
+func hostTableName() []string {
+    return []string{TablePrefix + "host", "host"}
 }

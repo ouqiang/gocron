@@ -112,6 +112,11 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.Remark = form.Remark
     hostModel.PrivateKey = form.PrivateKey
     hostModel.AuthType = form.AuthType
+    if hostModel.AuthType == ssh.HostPublicKey {
+        hostModel.Password = ""
+    } else {
+        hostModel.PrivateKey = ""
+    }
     isCreate := false
     if id > 0 {
         _, err = hostModel.UpdateBean(id)

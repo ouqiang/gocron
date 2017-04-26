@@ -13,6 +13,7 @@ import (
 type Status int8
 type CommonMap map[string]interface{}
 
+var TablePrefix string = ""
 var Db *xorm.Engine
 
 const (
@@ -67,6 +68,7 @@ func CreateDb(config map[string]string) *xorm.Engine {
     }
     if config["prefix"] != "" {
         // 设置表前缀
+        TablePrefix = config["prefix"]
         mapper := core.NewPrefixMapper(core.SnakeMapper{}, config["prefix"])
         engine.SetTableMapper(mapper)
     }

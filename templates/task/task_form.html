@@ -29,8 +29,13 @@
                     <div class="content">
                         crontab表达式
                         <div class="ui blue message">
-                                    Linux-crontab表达式语法, 精确到秒 <br>
+                                    Linux-crontab时间表达式语法, 支持秒级任务定义 <br>
                                     格式:  秒 分 时 天 月 周 <br>
+                                    示例：<br>
+                                    1 * * * * *       每分钟第一秒运行 <br>
+                                    */20 * * * * *    每隔20秒运行一次 <br>
+                                    0 30 21 * * *     每天晚上21:30:00运行一次 <br>
+                                    0 0 23 * * 6      每周六晚上23:00:00 运行一次 <br>
                                     快捷语法: <br>
                                     @yearly 每年运行一次 <br>
                                     @monthly 每月运行一次 <br>
@@ -45,7 +50,7 @@
                     </div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="spec" value="{{{.Task.Spec}}}" />
+                    <input type="text" name="spec" value="{{{.Task.Spec}}}" placeholder="秒 分 时 天 月 周"/>
                 </div>
             </div>
         </div>
@@ -64,7 +69,7 @@
                 </select>
             </div>
         </div>
-        <div class="four fields">
+        <div class="four fields" id="hostField">
             <div class="field">
                 <label>主机</label>
                 <div class="ui blue message">
@@ -112,7 +117,10 @@
         </div>
         <div class="three fields">
             <div class="field">
-                <label>允许多实例运行</label>
+                <label>允许多实例同时运行</label>
+                <div class="ui blue message">
+                    前次任务未执行完成，本次任务是否执行
+                </div>
                 <select name="multi">
                     <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                     <option value="2" {{{if .Task}}} {{{if eq .Task.Multi 0}}}selected{{{end}}} {{{end}}}>否</option>
@@ -144,6 +152,24 @@
 
 
 <script type="text/javascript">
+    $(function() {
+        changeProtocol();
+    });
+
+    $('#protocol').change(function() {
+       changeProtocol();
+    });
+
+    function changeProtocol() {
+        var protocol = $('#protocol').val();
+        if (protocol == 2) {
+            $('#hostField').show();
+            return;
+        }
+
+        $('#hostField').hide();
+    }
+
     $('.ui.checkbox')
             .checkbox()
     ;

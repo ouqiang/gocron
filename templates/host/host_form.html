@@ -52,7 +52,7 @@
                     </select>
                 </div>
             </div>
-            <div class="two fields">
+            <div class="two fields" id="private_key">
                 <div class="field">
                     <label>私钥 (~/.ssh/id_rsa)</label>
                     <div class="ui small  input">
@@ -60,7 +60,7 @@
                     </div>
                 </div>
             </div>
-            <div class="four fields">
+            <div class="four fields" id="password">
                 <div class="field">
                     <label>SSH密码</label>
                     <div class="ui small  input">
@@ -85,6 +85,26 @@
 
 <script type="text/javascript">
     var $uiForm = $('.ui.form');
+    $(function() {
+        changeAuthType($('#authType').val());
+    });
+
+    function changeAuthType(type) {
+        // 私钥
+        if (type == 2) {
+            $('#password').hide();
+            $('#private_key').show();
+            return;
+        }
+
+        // 密码
+        $('#private_key').hide();
+        $('#password').show();
+    }
+
+    $('#authType').change(function() {
+        changeAuthType($(this).val());
+    });
     registerSelectFormValidation("selectPrivateKey", $uiForm, $('#authType'), 'auth_type');
     registerSelectFormValidation("selectPassword", $uiForm, $('#authType'), 'auth_type');
     $($uiForm).form(

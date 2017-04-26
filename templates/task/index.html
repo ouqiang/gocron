@@ -8,7 +8,7 @@
                     <a href="/task/create">
                         <i class="large add icon"></i>
                         <div class="content">
-                           添加任务</a>
+                           添加任务
                         </div>
                     </a>
                 </h3>
@@ -63,9 +63,9 @@
                                <p class="sensorStatus">命令：{{{.Command}}}</p>
                                <p class="sensorStatus">超时时间：{{{if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
                                <p>重试次数: {{{.RetryTimes}}}</p>
-                               <p class="sensorStatus">是否允许多实例：{{{if gt .Multi 0}}}是{{{else}}}否{{{end}}}</p>
+                               <p class="sensorStatus">是否允许多实例运行：{{{if gt .Multi 0}}}是{{{else}}}否{{{end}}}</p>
                                {{{if eq .Protocol 2}}}
-                               <p>主机: {{{.Alias}}}</p>
+                               <p>主机: {{{.Alias}}}-{{{.Name}}}</p>
                                {{{end}}}
                                <p>备注: {{{.Remark}}}</p>
                            </div>
