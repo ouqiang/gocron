@@ -73,7 +73,7 @@ if [[ ! $? ]]; then
 fi
 
 # 需要打包的文件
-PACKAGE_FILENAME=(conf log public templates ${EXEC_NAME})
+PACKAGE_FILENAME=(conf log public data templates ${EXEC_NAME})
 
 echo '复制文件到临时目录'
 # 复制文件到临时目录
@@ -85,6 +85,7 @@ done
 # 删除运行时产生的文件
 rm -rf $TEMP_DIR/$APP_NAME/conf/*
 rm -rf $TEMP_DIR/$APP_NAME/log/*
+rm -rf $TEMP_DIR/$APP_NAME/data/sessions/*
 
 echo '压缩文件'
 # 压缩文件
