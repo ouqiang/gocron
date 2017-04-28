@@ -26,12 +26,11 @@
 ## 安装
     
 ###  二进制安装
-> 
-  1. 解压压缩包
-  2. `cd 解压目录`   
-  3. 启动 
-    * Windows  `./gocron.exe web`
-    * Linux、OSX `./gocron web`
+1. 解压压缩包
+2. `cd 解压目录`   
+3. 启动  
+    * Windows:  `./gocron.exe web`            
+    * Linux、OSX:  `./gocron web`
 ### 源码安装
 > `go get https://github.com/ouqiang/gocron`
   
