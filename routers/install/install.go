@@ -21,9 +21,10 @@ type InstallForm struct {
     DbUsername    string `binding:"Required;MaxSize(50)"`
     DbPassword    string `binding:"Required;MaxSize(30)"`
     DbName        string `binding:"Required;MaxSize(50)"`
-    DbTablePrefix string `binding:"MinSize(20)"`
-    AdminUsername string `binding:"Required;MaxSize(3)"`
-    AdminPassword string `binding:"Required;MaxSize(6)"`
+    DbTablePrefix string `binding:"MaxSize(20)"`
+    AdminUsername string `binding:"Required;MinSize(3)"`
+    AdminPassword string `binding:"Required;MinSize(6)"`
+    ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
     AdminEmail    string `binding:"Required;Email;MaxSize(50)"`
 }
 
@@ -45,6 +46,9 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     json := utils.JsonResponse{}
     if app.Installed {
         return json.CommonFailure("系统已安装!")
+    }
+    if form.AdminPassword != form.ConfirmAdminPassword {
+        return json.CommonFailure("两次输入密码不匹配")
     }
     err := testDbConnection(form)
     if err != nil {

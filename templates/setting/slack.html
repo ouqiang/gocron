@@ -1,0 +1,43 @@
+{{{ template "common/header" . }}}
+<div class="ui grid">
+    {{{template "setting/menu" .}}}
+    <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <div class="content">
+                        {{{.Title}}}
+                    </div>
+                </h3>
+            </div>
+        </div>
+        <form class="ui form fluid vertical segment">
+            <div class="two fields">
+                <div class="field">
+                    <label>
+                        <div class="content">Slack WebHook URL</div>
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="url" value="{{{.SlackUrl}}}">
+                    </div>
+                </div>
+            </div>
+            <div class="ui primary submit button">保存</div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    var $uiForm = $('.ui.form');
+    $($uiForm).form(
+            {
+                onSuccess: function(event, fields) {
+                    util.post('/admin/setting/slack', fields, function(code, message) {
+                        location.reload();
+                    });
+
+                    return false;
+                }
+            }
+    )
+</script>
+{{{ template "common/footer" . }}}

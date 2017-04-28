@@ -5,8 +5,6 @@ import (
     "github.com/go-xorm/xorm"
 )
 
-
-
 // 主机
 type Host struct {
     Id        int16     `xorm:"smallint pk autoincr"`

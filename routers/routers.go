@@ -16,6 +16,7 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/routers/user"
     "github.com/go-macaron/gzip"
+    "github.com/ouqiang/gocron/routers/setting"
 )
 
 // 静态文件目录
@@ -63,6 +64,14 @@ func Register(m *macaron.Macaron) {
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)
     })
+
+    // 管理
+    m.Group("/admin", func() {
+        m.Group("/setting/", func() {
+            m.Get("/slack", setting.EditSlack)
+
+        })
+    }, adminAuth)
 
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
@@ -116,7 +125,6 @@ func RegisterMiddleware(m *macaron.Macaron) {
     setShareData(m)
 }
 
-
 // 系统未安装，重定向到安装页面
 func checkAppInstall(m *macaron.Macaron)  {
     m.Use(func(ctx *macaron.Context) {
@@ -168,6 +176,14 @@ func setShareData(m *macaron.Macaron)  {
         ctx.Data["LoginUsername"] = user.Username(sess)
         ctx.Data["LoginUid"] = user.Uid(sess)
     })
+}
+
+// 管理员认证
+func adminAuth(ctx *macaron.Context, sess session.Store)  {
+    if !user.IsAdmin(sess) {
+        ctx.Data["Title"] = "无权限访问此页面"
+        ctx.HTML(403, "error/no_permission")
+    }
 }
 
 func isAjaxRequest(ctx *macaron.Context) bool {

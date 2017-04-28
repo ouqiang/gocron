@@ -48,7 +48,7 @@
                 </div>
                 <div class="field">
                     <label>密码</label>
-                    <input type="text"  name="db_password">
+                    <input type="password"  name="db_password">
                 </div>
             </div>
             <div class="three fields">
@@ -75,7 +75,13 @@
             <div class="three fields">
                 <div class="field">
                     <label>管理员密码</label>
-                    <input type="text"   name="admin_password">
+                    <input type="password"   name="admin_password">
+                </div>
+            </div>
+            <div class="three fields">
+                <div class="field">
+                    <label>确认管理员密码</label>
+                    <input type="password"   name="confirm_admin_password">
                 </div>
             </div>
             <div class="three fields">
@@ -161,6 +167,15 @@
                             {
                                 type   : 'minLength[6]',
                                 prompt : '管理员密码长度不能少于6位'
+                            }
+                        ]
+                    },
+                    confirmAdminPassword: {
+                        identifier  : 'confirm_admin_password',
+                        rules: [
+                            {
+                                type   : 'match[admin_password]',
+                                prompt : '两次输入密码不匹配'
                             }
                         ]
                     },

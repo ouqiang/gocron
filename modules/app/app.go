@@ -8,6 +8,7 @@ import (
     "github.com/ouqiang/gocron/modules/setting"
     "github.com/ouqiang/gocron/modules/logger"
     "runtime"
+    "github.com/ouqiang/gocron/modules/notify"
 )
 
 var (
@@ -36,6 +37,8 @@ func InitEnv() {
     if Installed {
         InitDb()
         InitResource()
+        settingModel := new(models.Setting)
+        notify.SlackUrl, _  = settingModel.SlackUrl()
     }
 }
 

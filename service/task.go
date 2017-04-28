@@ -2,8 +2,6 @@ package service
 
 import (
     "github.com/ouqiang/gocron/models"
-    "io/ioutil"
-    "net/http"
     "strconv"
     "time"
     "github.com/ouqiang/gocron/modules/logger"
@@ -12,12 +10,14 @@ import (
     "github.com/ouqiang/gocron/modules/utils"
     "errors"
     "fmt"
+    "github.com/ouqiang/gocron/modules/httpclient"
+    "github.com/ouqiang/gocron/modules/notify"
 )
 
 var Cron *cron.Cron
 var runInstance Instance
 
-// 任务ID作为Key, 不会出现并发读写, 不加锁
+// 任务ID作为Key, 不会出现并发写, 不加锁
 type Instance struct {
     Status map[int]bool
 }
@@ -136,35 +136,13 @@ func (h *LocalCommandHandler) runOnUnix(taskModel models.TaskHost) (string, erro
 type HTTPHandler struct{}
 
 func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) {
-    client := &http.Client{}
-    if taskModel.Timeout > 0 {
-        client.Timeout = time.Duration(taskModel.Timeout) * time.Second
-    }
-    req, err := http.NewRequest("GET", taskModel.Command, nil)
-    if err != nil {
-        logger.Error("任务处理#创建HTTP请求错误-", err.Error())
-        return
-    }
-    req.Header.Set("Content-type", "application/x-www-form-urlencoded")
-    req.Header.Set("User-Agent", "golang/gocron")
-
-    resp, err := client.Do(req)
-    if err != nil {
-        logger.Error("任务处理HTTP请求错误-", err.Error())
-        return
-    }
-    defer resp.Body.Close()
-    body, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        logger.Error("任务处理#读取HTTP请求返回值失败-", err.Error())
-        return
-    }
+    resp := httpclient.Get(taskModel.Command, taskModel.Timeout)
     // 返回状态码非200，均为失败
     if resp.StatusCode != 200 {
-        return string(body), errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
+        return resp.Body, errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
     }
 
-    return string(body), err
+    return resp.Body, err
 }
 
 // SSH-command任务
@@ -208,7 +186,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     var status models.Status
     var result string = taskResult.Result
     if taskResult.Err != nil {
-        result = taskResult.Err.Error() + " " + result
+        result = taskResult.Err.Error() + "\n" + result
         status = models.Failure
     } else {
         status = models.Finish
@@ -241,10 +219,27 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
             return
         }
         taskResult := execJob(handler, taskModel)
+        if taskResult.Err != nil {
+            taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
+        }
         _, err = updateTaskLog(taskLogId, taskResult)
         if err != nil {
             logger.Error("任务结束#更新任务日志失败-", err)
         }
+
+        var statusName string
+        if taskResult.Err != nil {
+            statusName = "失败"
+        } else {
+            statusName = "成功"
+        }
+        msg := notify.Message{
+           "name": taskModel.Task.Name,
+          "output": taskResult.Result,
+          "status": statusName,
+          "taskId": taskModel.Id,
+        };
+        notify.Push(msg)
     }
 
     return taskFunc

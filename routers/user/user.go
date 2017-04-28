@@ -31,6 +31,7 @@ func ValidateLogin(ctx *macaron.Context, sess session.Store) string {
 
     sess.Set("username", userModel.Name)
     sess.Set("uid", userModel.Id)
+    sess.Set("isAdmin", userModel.IsAdmin)
 
     return json.Success("登录成功", nil)
 }
@@ -67,6 +68,15 @@ func Uid(sess session.Store) int  {
 func IsLogin(sess session.Store) bool  {
     uid, ok := sess.Get("uid").(int)
     if ok && uid > 0 {
+        return true
+    }
+
+    return false
+}
+
+func IsAdmin(sess session.Store) bool  {
+    isAdmin, ok := sess.Get("isAdmin").(int8)
+    if ok && isAdmin > 0 {
         return true
     }
 

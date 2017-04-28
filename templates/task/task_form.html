@@ -69,7 +69,7 @@
                 </select>
             </div>
         </div>
-        <div class="four fields" id="hostField">
+        <div class="three fields" id="hostField">
             <div class="field">
                 <label>主机</label>
                 <div class="ui blue message">
@@ -81,7 +81,8 @@
                      <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
                     {{{end}}}
                  </select> &nbsp; <a class="ui blue button" href="/host/create">添加主机</a>
-        </div>
+
+            </div>
         </div>
         <div class="two fields">
             <div class="field">
@@ -112,7 +113,7 @@
                         重试时间间隔 重试次数 * 分钟, 按1分钟、2分钟、3分钟.....的间隔进行重试<br>
                         取值范围1-10, 默认0，不重试
                 </div>
-                <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
+                <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
             </div>
         </div>
         <div class="three fields">

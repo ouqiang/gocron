@@ -58,7 +58,7 @@ func (task *Task) Create() (insertId int, err error) {
 }
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
-    return Db.ID(id).UseBool("status,multi").Update(task)
+    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,status").Update(task)
 }
 
 // 更新
@@ -91,7 +91,7 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 }
 
 // 获取某个主机下的所有激活任务
-func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error)  {
+func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error) {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
     err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)

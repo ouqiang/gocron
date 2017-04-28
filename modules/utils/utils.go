@@ -8,6 +8,7 @@ import (
     "time"
     "runtime"
     "github.com/Tang-RoseChild/mahonia"
+    "strings"
 )
 
 
@@ -72,4 +73,15 @@ func GBK2UTF8(s string) (string, bool) {
     dec := mahonia.NewDecoder("gbk")
 
     return dec.ConvertStringOK(s)
+}
+
+// 转义json特殊字符
+func EscapeJson(s string) string  {
+    specialChars := []string{"\\", "\b","\f", "\n", "\r", "\t", "\"",}
+    replaceChars := []string{ "\\\\", "\\b", "\\f", "\\n", "\\r", "\\t", "\\\"",}
+    for i, v := range specialChars {
+        s = strings.Replace(s, v, replaceChars[i], 1000)
+    }
+
+    return s
 }
