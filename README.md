@@ -1,8 +1,6 @@
 [![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 # gocron - 定时任务web管理系统
 
----------------------------
-
 ## 功能特性
 * 定时任务统一调度和管理
 * 支持对任务CURD
