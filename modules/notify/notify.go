@@ -7,8 +7,9 @@ import (
 var SlackUrl string
 
 type Message map[string]interface{}
+
 type Notifiable interface {
-    send(msg Message)
+    Send(msg Message)
 }
 
 var queue chan Message = make(chan Message, 100)
@@ -25,7 +26,7 @@ func Push(msg Message) {
 func run() {
     slack := new(Slack)
     for msg := range queue {
-        // 根据任务配置执行相应通知
+        // 根据任务配置发送通知
         go slack.Send(msg)
         time.Sleep(1 * time.Second)
     }

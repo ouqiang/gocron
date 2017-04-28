@@ -3,7 +3,6 @@ package notify
 
 import (
     "fmt"
-    "strings"
     "github.com/ouqiang/gocron/modules/httpclient"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/utils"
@@ -45,9 +44,7 @@ func (slack *Slack) format(content string) string  {
     content = utils.EscapeJson(content)
     specialChars := []string{"&", "<", ">"}
     replaceChars := []string{"&amp;", "&lt;", "&gt;"}
-    for i, v := range specialChars {
-        content = strings.Replace(content, v, replaceChars[i], 1000)
-    }
+    content = utils.ReplaceStrings(content, specialChars, replaceChars)
 
     return fmt.Sprintf(`{"text":"%s","username":"监控"}`, content)
 }

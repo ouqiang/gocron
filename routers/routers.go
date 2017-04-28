@@ -69,7 +69,7 @@ func Register(m *macaron.Macaron) {
     m.Group("/admin", func() {
         m.Group("/setting/", func() {
             m.Get("/slack", setting.EditSlack)
-
+            m.Post("/slack", setting.StoreSlack)
         })
     }, adminAuth)
 
