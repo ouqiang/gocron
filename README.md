@@ -1,6 +1,6 @@
+[![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 # gocron - 定时任务web管理系统
 
-[![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 ---------------------------
 
 ## 功能特性
@@ -19,11 +19,9 @@
 ### 支持平台
 > Windows、Linux、OSX
 
----------------------------
 ### 环境要求
 >  MySQL
 
----------------------------
 
 ## 安装
     
