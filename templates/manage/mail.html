@@ -1,6 +1,6 @@
 {{{ template "common/header" . }}}
 <div class="ui grid">
-    {{{template "setting/menu" .}}}
+    {{{template "manage/menu" .}}}
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
@@ -95,7 +95,7 @@
     $('.mail-server').form(
             {
                 onSuccess: function(event, fields) {
-                    util.post('/setting/mail/server',
+                    util.post('/manage/mail/server',
                             fields,
                             function(code, message) {
                                 util.alertSuccess();
@@ -147,7 +147,7 @@
     $('.mail-user').form(
             {
                 onSuccess: function(event, fields) {
-                    util.post('/setting/mail/user',
+                    util.post('/manage/mail/user',
                             fields,
                             function(code, message) {
                                 util.alertSuccess();
@@ -184,7 +184,7 @@
     }
 
     function removeMailUser(id) {
-        util.post('/setting/mail/user/remove/' + id, {}, function(code, message) {
+        util.post('/manage/mail/user/remove/' + id, {}, function(code, message) {
             location.reload();
         });
     }

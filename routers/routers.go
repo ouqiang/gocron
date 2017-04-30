@@ -15,8 +15,9 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/routers/user"
     "github.com/go-macaron/gzip"
-    "github.com/ouqiang/gocron/routers/setting"
+    "github.com/ouqiang/gocron/routers/manage"
     "github.com/go-macaron/csrf"
+    "github.com/ouqiang/gocron/routers/loginlog"
 )
 
 // 静态文件目录
@@ -68,21 +69,22 @@ func Register(m *macaron.Macaron) {
     })
 
     // 管理
-    m.Group("/setting", func() {
+    m.Group("/manage", func() {
         m.Group("/slack", func() {
-            m.Get("/", setting.Slack)
-            m.Get("/edit", setting.EditSlack)
-            m.Post("/url", setting.UpdateSlackUrl)
-            m.Post("/channel", setting.CreateSlackChannel)
-            m.Post("/channel/remove/:id", setting.RemoveSlackChannel)
+            m.Get("/", manage.Slack)
+            m.Get("/edit", manage.EditSlack)
+            m.Post("/url", manage.UpdateSlackUrl)
+            m.Post("/channel", manage.CreateSlackChannel)
+            m.Post("/channel/remove/:id", manage.RemoveSlackChannel)
         })
         m.Group("/mail", func() {
-            m.Get("/", setting.Mail)
-            m.Get("/edit", setting.EditMail)
-            m.Post("/server", binding.Bind(setting.MailServerForm{}), setting.UpdateMailServer)
-            m.Post("/user", setting.CreateMailUser)
-            m.Post("/user/remove/:id", setting.RemoveMailUser)
+            m.Get("/", manage.Mail)
+            m.Get("/edit", manage.EditMail)
+            m.Post("/server", binding.Bind(manage.MailServerForm{}), manage.UpdateMailServer)
+            m.Post("/user", manage.CreateMailUser)
+            m.Post("/user/remove/:id", manage.RemoveMailUser)
         })
+        m.Get("/login-log", loginlog.Index)
     })
 
     // 404错误

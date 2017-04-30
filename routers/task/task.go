@@ -11,6 +11,7 @@ import (
     "github.com/Unknwon/paginater"
     "fmt"
     "html/template"
+    "github.com/ouqiang/gocron/routers/base"
 )
 
 type TaskForm struct {
@@ -242,17 +243,7 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
         status -= 1
     }
     params["Status"] = status
-    page := ctx.QueryInt("page")
-    pageSize := ctx.QueryInt("page_size")
-    if page <= 0 {
-        page = 1
-    }
-    if pageSize <= 0 {
-        pageSize = models.PageSize
-    }
-
-    params["Page"] = page
-    params["PageSize"] = pageSize
+    base.ParsePageAndPageSize(ctx, params)
 
     return params
 }

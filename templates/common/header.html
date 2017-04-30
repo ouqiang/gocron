@@ -63,7 +63,7 @@
                 <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>主机</a>
                 <!-- <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a> -->
                 {{{if gt .LoginUid 0}}}
-                <a class="item {{{if eq .Controller "setting"}}}active{{{end}}}" href="/setting/slack/edit"><i class="settings icon"></i>配置</a>
+                <a class="item {{{if eq .Controller "manage"}}}active{{{end}}}" href="/manage/slack/edit"><i class="settings icon"></i>管理</a>
                 {{{end}}}
             </div>
         </div>

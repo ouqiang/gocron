@@ -1,6 +1,6 @@
 {{{ template "common/header" . }}}
 <div class="ui grid">
-    {{{template "setting/menu" .}}}
+    {{{template "manage/menu" .}}}
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
@@ -47,7 +47,7 @@
         methods: {
             updateUrl: function() {
                 var url = $('#url').val();
-                util.post('/setting/slack/url', {"url": url}, function(code, message) {
+                util.post('/manage/slack/url', {"url": url}, function(code, message) {
                     util.alertSuccess();
                 });
             },
@@ -67,7 +67,7 @@
                                 return false
                             }
 
-                            util.post('/setting/slack/channel',
+                            util.post('/manage/slack/channel',
                                     {"channel": inputValue},
                                     function(code, message) {
                                         util.alertSuccess();
@@ -78,7 +78,7 @@
                         });
             },
             removeChannel: function(id) {
-                util.post('/setting/slack/channel/remove/' + id, {}, function(code, message) {
+                util.post('/manage/slack/channel/remove/' + id, {}, function(code, message) {
                     location.reload();
                 });
             }

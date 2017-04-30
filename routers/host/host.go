@@ -11,6 +11,7 @@ import (
     "github.com/Unknwon/paginater"
     "fmt"
     "html/template"
+    "github.com/ouqiang/gocron/routers/base"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -170,17 +171,7 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     var params models.CommonMap = models.CommonMap{}
     params["Id"] = ctx.QueryInt("id")
     params["Name"] = ctx.QueryTrim("name")
-    page := ctx.QueryInt("page")
-    pageSize := ctx.QueryInt("page_size")
-    if page <= 0 {
-        page = 1
-    }
-    if pageSize <= 0 {
-        pageSize = models.PageSize
-    }
-
-    params["Page"] = page
-    params["PageSize"] = pageSize
+    base.ParsePageAndPageSize(ctx, params)
 
     return params
 }

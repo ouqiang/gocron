@@ -1,4 +1,4 @@
-package setting
+package manage
 
 import (
     "gopkg.in/macaron.v1"
@@ -19,7 +19,7 @@ func EditSlack(ctx *macaron.Context)  {
         logger.Error(err)
     }
     ctx.Data["Slack"] = slack
-    ctx.HTML(200, "setting/slack")
+    ctx.HTML(200, "manage/slack")
 }
 
 func Slack(ctx *macaron.Context) string {
@@ -74,7 +74,7 @@ func EditMail(ctx *macaron.Context)  {
         logger.Error(err)
     }
     ctx.Data["Mail"] = mail
-    ctx.HTML(200, "setting/mail")
+    ctx.HTML(200, "manage/mail")
 }
 
 func Mail(ctx *macaron.Context) string {

@@ -54,11 +54,19 @@ func ValidateLogin(ctx *macaron.Context, sess session.Store) string {
     if username == "" || password == "" {
         return json.CommonFailure("用户名、密码不能为空")
     }
-
     userModel := new (models.User)
     if !userModel.Match(username, password) {
         return json.CommonFailure("用户名或密码错误")
     }
+
+    loginLogModel := new(models.LoginLog)
+    loginLogModel.Username = userModel.Name
+    loginLogModel.Ip = ctx.RemoteAddr()
+    _, err := loginLogModel.Create()
+    if err != nil {
+        logger.Error("记录用户登录日志失败", err)
+    }
+
 
     sess.Set("username", userModel.Name)
     sess.Set("uid", userModel.Id)
