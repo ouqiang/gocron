@@ -29,10 +29,7 @@ func (migration *Migration) Exec(dbName string) error {
             return err
         }
     }
-    err := setting.InitBasicField()
-    if err != nil {
-        return err
-    }
+    setting.InitBasicField()
 
     return nil
 }

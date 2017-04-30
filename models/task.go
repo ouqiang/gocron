@@ -25,6 +25,9 @@ type Task struct {
     Multi    int8      `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
     HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
+    NotifyStatus int8  `xorm:"smallint notnull default 1"`       // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
+    NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
+    NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
     Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
@@ -58,7 +61,7 @@ func (task *Task) Create() (insertId int, err error) {
 }
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
-    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,status").Update(task)
+    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,status,notify_status,notify_type,notify_receiver_id").Update(task)
 }
 
 // 更新

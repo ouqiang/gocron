@@ -228,13 +228,27 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         }
 
         var statusName string
+        var enableNotify bool = true
+        // 未开启通知
+        if taskModel.NotifyStatus == 0 {
+            enableNotify = false;
+        } else if taskModel.NotifyStatus == 1 && taskResult.Err == nil {
+            // 执行失败才发送通知
+            enableNotify = false
+        }
         if taskResult.Err != nil {
             statusName = "失败"
         } else {
             statusName = "成功"
         }
+        if !enableNotify {
+            return
+        }
+        // 发送通知
         msg := notify.Message{
-           "name": taskModel.Task.Name,
+          "task_type": taskModel.NotifyType,
+          "task_receiver_id": taskModel.NotifyReceiverId,
+          "name": taskModel.Task.Name,
           "output": taskResult.Result,
           "status": statusName,
           "taskId": taskModel.Id,

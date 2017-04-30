@@ -57,6 +57,12 @@
 			"revisionTime": "2016-05-29T15:11:07Z"
 		},
 		{
+			"checksumSHA1": "DB+/DpKJUO7dR+MyQVchJ+yyHoI=",
+			"path": "github.com/go-gomail/gomail",
+			"revision": "81ebce5c23dfd25c6c67194b37d3dd3f338c98b1",
+			"revisionTime": "2016-04-11T21:29:32Z"
+		},
+		{
 			"checksumSHA1": "OkqfwXeTVoiIxNMDA7HKvmrCDw8=",
 			"path": "github.com/go-macaron/binding",
 			"revision": "48920167fa152d02f228cfbece7e0f1e452d200a",
@@ -145,6 +151,12 @@
 			"revisionTime": "2017-03-29T01:43:45Z"
 		},
 		{
+			"checksumSHA1": "6IzzHO9p32aHJhMYMwijccDUIVA=",
+			"path": "gopkg.in/alexcesaro/quotedprintable.v3",
+			"revision": "2caba252f4dc53eaf6b553000885530023f54623",
+			"revisionTime": "2015-07-16T17:19:45Z"
+		},
+		{
 			"checksumSHA1": "v5M2URDb0vJwelofRjiIsml0Jts=",
 			"path": "gopkg.in/ini.v1",
 			"revision": "74bdc99692c3408cb103221e38675ce8fda0a718",
@@ -164,6 +176,10 @@
 		},
 		{
 			"path": "https://code.google.com/p/mahonia",
+			"revision": ""
+		},
+		{
+			"path": "https://github.com/go-gomail/gomail",
 			"revision": ""
 		}
 	],

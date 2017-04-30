@@ -2,9 +2,9 @@ package notify
 
 import (
     "time"
+    "github.com/ouqiang/gocron/modules/logger"
+    "fmt"
 )
-
-var SlackUrl string
 
 type Message map[string]interface{}
 
@@ -24,10 +24,29 @@ func Push(msg Message) {
 }
 
 func run() {
-    slack := new(Slack)
     for msg := range queue {
         // 根据任务配置发送通知
-        go slack.Send(msg)
+        taskType, taskTypeOk := msg["task_type"]
+        _, taskReceiverIdOk := msg["task_receiver_id"]
+        _, nameOk := msg["name"]
+        _, outputOk := msg["output"]
+        _, statusOk := msg["status"]
+        if !taskTypeOk || !taskReceiverIdOk || !nameOk || !outputOk || !statusOk {
+            logger.Errorf("#notify#参数不完整#%+v", msg)
+            continue
+        }
+        msg["content"] =  fmt.Sprintf("============\n============\n============\n任务名称: %s\n状态: %s\n输出:\n %s\n", msg["name"], msg["status"], msg["output"])
+        logger.Debugf("%+v", msg)
+        switch(taskType.(int8)) {
+            case 1:
+                // 邮件
+                mail := Mail{}
+                go mail.Send(msg)
+            case 2:
+                // Slack
+                slack := Slack{}
+                go slack.Send(msg)
+        }
         time.Sleep(1 * time.Second)
     }
 }

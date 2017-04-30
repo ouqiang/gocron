@@ -24,6 +24,15 @@ const ServerError = 4
 const SuccessContent = "操作成功"
 const FailureContent = "操作失败"
 
+func JsonResponseByErr(err error) string {
+    json := JsonResponse{}
+    if err != nil {
+        return json.CommonFailure(FailureContent, err)
+    }
+
+    return json.Success(SuccessContent, nil)
+}
+
 func (j *JsonResponse) Success(message string, data interface{}) string {
     return j.response(ResponseSuccess, message, data)
 }

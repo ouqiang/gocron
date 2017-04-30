@@ -1,8 +1,11 @@
 <div class="three wide column">
     <div class="verticalMenu">
         <div class="ui vertical pointing menu fluid">
-            <a class="{{{if eq .URI "/admin/setting/slack"}}}active teal{{{end}}}  item" href="/admin/setting/slack">
+            <a class="{{{if eq .URI "/setting/slack/edit"}}}active teal{{{end}}}  item" href="/setting/slack/edit">
             <i class="slack icon"></i> Slack配置
+            </a>
+            <a class="{{{if eq .URI "/setting/mail/edit"}}}active teal{{{end}}}  item" href="/setting/mail/edit">
+                <i class="slack icon"></i> 邮件配置
             </a>
         </div>
     </div>

@@ -9,7 +9,6 @@ import (
     "github.com/ouqiang/gocron/routers/tasklog"
     "github.com/ouqiang/gocron/modules/utils"
     "github.com/go-macaron/session"
-    "github.com/go-macaron/csrf"
     "github.com/go-macaron/toolbox"
     "strings"
     "github.com/ouqiang/gocron/modules/app"
@@ -17,6 +16,7 @@ import (
     "github.com/ouqiang/gocron/routers/user"
     "github.com/go-macaron/gzip"
     "github.com/ouqiang/gocron/routers/setting"
+    "github.com/go-macaron/csrf"
 )
 
 // 静态文件目录
@@ -39,6 +39,8 @@ func Register(m *macaron.Macaron) {
         m.Get("/login", user.Login)
         m.Post("/login", user.ValidateLogin)
         m.Get("/logout", user.Logout)
+        m.Get("/editPassword", user.EditPassword)
+        m.Post("/editPassword", user.UpdatePassword)
     })
 
     // 任务
@@ -66,12 +68,22 @@ func Register(m *macaron.Macaron) {
     })
 
     // 管理
-    m.Group("/admin", func() {
-        m.Group("/setting/", func() {
-            m.Get("/slack", setting.EditSlack)
-            m.Post("/slack", setting.StoreSlack)
+    m.Group("/setting", func() {
+        m.Group("/slack", func() {
+            m.Get("/", setting.Slack)
+            m.Get("/edit", setting.EditSlack)
+            m.Post("/url", setting.UpdateSlackUrl)
+            m.Post("/channel", setting.CreateSlackChannel)
+            m.Post("/channel/remove/:id", setting.RemoveSlackChannel)
         })
-    }, adminAuth)
+        m.Group("/mail", func() {
+            m.Get("/", setting.Mail)
+            m.Get("/edit", setting.EditMail)
+            m.Post("/server", binding.Bind(setting.MailServerForm{}), setting.UpdateMailServer)
+            m.Post("/user", setting.CreateMailUser)
+            m.Post("/user/remove/:id", setting.RemoveMailUser)
+        })
+    })
 
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
@@ -100,7 +112,9 @@ func Register(m *macaron.Macaron) {
 func RegisterMiddleware(m *macaron.Macaron) {
     m.Use(macaron.Logger())
     m.Use(macaron.Recovery())
-    m.Use(gzip.Gziper())
+    if macaron.Env != macaron.DEV {
+        m.Use(gzip.Gziper())
+    }
     m.Use(macaron.Static(StaticDir))
     m.Use(macaron.Renderer(macaron.RenderOptions{
         Directory:  "templates",

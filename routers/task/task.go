@@ -25,6 +25,9 @@ type TaskForm struct {
     HostId int16
     Remark string
     Status models.Status `binding:"In(1,2)"`
+    NotifyStatus int8 `binding:In(1,2,3)`
+    NotifyType int8 `binding:In(1,2)`
+    NotifyReceiverId string
 }
 
 // 首页
@@ -113,7 +116,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     } else {
         taskModel.HostId = 0
     }
-
     taskModel.Name = form.Name
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
@@ -128,7 +130,13 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     if taskModel.Multi != 1 {
         taskModel.Multi = 0
     }
+    taskModel.NotifyStatus = form.NotifyStatus - 1
+    taskModel.NotifyType = form.NotifyType - 1
+    taskModel.NotifyReceiverId = form.NotifyReceiverId
     taskModel.Spec = form.Spec
+    if taskModel.NotifyStatus > 0 && taskModel.NotifyReceiverId == "" {
+        return json.CommonFailure("请至少选择一个接收者", err)
+    }
     if id == 0 {
         id, err = taskModel.Create()
     } else {

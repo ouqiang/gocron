@@ -89,6 +89,16 @@ func ReplaceStrings(s string, old []string, replace []string) string  {
     return s
 }
 
+func InStringSlice(slice []string, element string) bool {
+    for _, v := range slice {
+        if v == element {
+            return true
+        }
+    }
+
+    return false
+}
+
 // 转义json特殊字符
 func EscapeJson(s string) string  {
     specialChars := []string{"\\", "\b","\f", "\n", "\r", "\t", "\"",}

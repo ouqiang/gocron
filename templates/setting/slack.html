@@ -12,32 +12,77 @@
             </div>
         </div>
         <form class="ui form fluid vertical segment">
-            <div class="two fields">
+
                 <div class="field">
                     <label>
                         <div class="content">Slack WebHook URL</div>
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="url" value="{{{.SlackUrl}}}">
+                        <input type="text" id="url" value="{{{.Slack.Url}}}">
                     </div>
                 </div>
+            <div class="ui primary button" @click="updateUrl">保存</div>
+
+            <br><br><br>
+            <div>
+                <div class="content">Slack Channel(配置任务通知时，可选择多Channel)</div><p></p>
+                <div class="fields">
+                {{{range $i, $v := .Slack.Channels}}}
+                    <div class="field">
+                        <div class="ui segment">
+                            {{{.Name}}}&nbsp;&nbsp;&nbsp;<div class="ui blue button" @click="removeChannel({{{.Id}}})">删除</div>
+                        </div>
+                    </div>
+                {{{end}}}
+                </div>
             </div>
-            <div class="ui primary submit button">保存</div>
+            <div class="ui facebook button" @click="createChannel">新增Channel</div>
         </form>
     </div>
 </div>
-<script type="text/javascript">
-    var $uiForm = $('.ui.form');
-    $($uiForm).form(
-            {
-                onSuccess: function(event, fields) {
-                    util.post('/admin/setting/slack', fields, function(code, message) {
-                        location.reload();
-                    });
 
-                    return false;
-                }
+<script type="text/javascript">
+    new Vue({
+        el: '.ui.form',
+        methods: {
+            updateUrl: function() {
+                var url = $('#url').val();
+                util.post('/setting/slack/url', {"url": url}, function(code, message) {
+                    util.alertSuccess();
+                });
+            },
+            createChannel: function() {
+                swal({
+                            title: "新增Channel",
+                            type: "input",
+                            showCancelButton: true,
+                            closeOnConfirm: false,
+                            animation: "slide-from-top"
+                        },
+                        function(inputValue){
+                            if (inputValue === false) return false;
+
+                            if (inputValue === "") {
+                                swal.showInputError("请输入Channel");
+                                return false
+                            }
+
+                            util.post('/setting/slack/channel',
+                                    {"channel": inputValue},
+                                    function(code, message) {
+                                        util.alertSuccess();
+                                        location.reload();
+                                    }
+                            );
+
+                        });
+            },
+            removeChannel: function(id) {
+                util.post('/setting/slack/channel/remove/' + id, {}, function(code, message) {
+                    location.reload();
+                });
             }
-    )
+        }
+    });
 </script>
 {{{ template "common/footer" . }}}

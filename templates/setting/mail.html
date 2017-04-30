@@ -1,0 +1,192 @@
+{{{ template "common/header" . }}}
+<div class="ui grid">
+    {{{template "setting/menu" .}}}
+    <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <div class="content">
+                        {{{.Title}}}
+                    </div>
+                </h3>
+            </div>
+        </div>
+        <form class="ui form fluid vertical segment mail-server">
+            <div class="content">邮件服务器配置</div><br>
+            <div class="four fields">
+                <div class="field">
+                    <label>
+                        主机名
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="host" value="{{{.Mail.Host}}}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>
+                        端口
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="port" value="{{{if gt .Mail.Port 0}}}{{{.Mail.Port}}}{{{end}}}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>
+                        用户名
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="user" value="{{{.Mail.User}}}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>
+                        密码
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="password" value="{{{.Mail.Password}}}">
+                    </div>
+                </div>
+            </div>
+            <button class="ui primary  button">保存</button>
+            <br><br><br>
+            <div>
+                <div class="content">邮箱用户</div><p></p>
+                <div class="fields">
+                    {{{range $i, $v := .Mail.MailUsers}}}
+                    <div class="field">
+                        <div class="ui segment">
+                            {{{.Username}}}-{{{.Email}}}&nbsp;&nbsp;&nbsp;<div class="ui blue button" onclick="removeMailUser({{{.Id}}})">删除</div>
+                        </div>
+                    </div>
+                    {{{end}}}
+                </div>
+            </div>
+        </form>
+        <div class="ui facebook button" onclick="createMailUser();">新增用户</div>
+    </div>
+</div>
+<div class="ui small modal">
+    <div class="header">新增用户</div>
+    <div class="content">
+        <form class="ui form mail-user">
+            <div class="two fields">
+                <div class="field">
+                    <label>
+                        用户名
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="username">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>
+                        邮箱地址
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="email">
+                    </div>
+                </div>
+            </div>
+            <button class="ui primary button">保存</button>
+        </form>
+    </div>
+</div>
+<script type="text/javascript">
+    $('.mail-server').form(
+            {
+                onSuccess: function(event, fields) {
+                    util.post('/setting/mail/server',
+                            fields,
+                            function(code, message) {
+                                util.alertSuccess();
+                            }
+                    );
+                    return false;
+                },
+                fields: {
+                    host: {
+                        identifier  : 'host',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入有效主机名'
+                            }
+                        ]
+                    },
+                    port: {
+                        identifier  : 'port',
+                        rules: [
+                            {
+                                type   : 'integer[1..65535]',
+                                prompt : '请输入有效端口'
+                            }
+                        ]
+                    },
+                    user: {
+                        identifier  : 'user',
+                        rules: [
+                            {
+                                type   : 'email',
+                                prompt : '请输入有效用户名'
+                            }
+                        ]
+                    },
+                    password: {
+                        identifier  : 'password',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入密码'
+                            }
+                        ]
+                    }
+                },
+                inline : true
+            });
+
+    $('.mail-user').form(
+            {
+                onSuccess: function(event, fields) {
+                    util.post('/setting/mail/user',
+                            fields,
+                            function(code, message) {
+                                util.alertSuccess();
+                                location.reload();
+                            }
+                    );
+                    return false;
+                },
+                fields: {
+                    username: {
+                        identifier  : 'username',
+                        rules: [
+                            {
+                                type   : 'empty',
+                                prompt : '请输入用户名'
+                            }
+                        ]
+                    },
+                    email: {
+                        identifier  : 'email',
+                        rules: [
+                            {
+                                type   : 'email',
+                                prompt : '请输入有效的邮箱地址'
+                            }
+                        ]
+                    }
+                },
+                inline : true
+            });
+
+    function createMailUser() {
+        $('.ui.modal').modal('show');
+    }
+
+    function removeMailUser(id) {
+        util.post('/setting/mail/user/remove/' + id, {}, function(code, message) {
+            location.reload();
+        });
+    }
+</script>
+{{{ template "common/footer" . }}}

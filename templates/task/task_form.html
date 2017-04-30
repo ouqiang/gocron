@@ -89,9 +89,9 @@
                 <label>命令</label>
                 <div class="ui blue message">
                         根据选择的协议输入相应的命令 <br>
-                        系统命令 -  windows: ipconfig /all     linux: ifconfig -a <br>
+                        系统命令 - ifconfig -a <br>
                         SSH -   netstat -natpu <br>
-                        HTTP -  http://golang.org <br>
+                        HTTP -  URL地址 例: http://golang.org <br>
                 </div>
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
@@ -109,8 +109,8 @@
             <div class="field">
                 <label>任务重试次数</label>
                 <div class="ui blue message">
-                        无法连接远程主机，shell返回值非0, http响应码非200等异常返回，可重试<br>
-                        重试时间间隔 重试次数 * 分钟, 按1分钟、2分钟、3分钟.....的间隔进行重试<br>
+                        无法连接远程主机，shell返回值非0, http响应码非200等异常返回，可重复执行任务,
+                        重试时间间隔 重试次数 * 分钟, 按1分钟、2分钟、3分钟.....的间隔进行重试
                         取值范围1-10, 默认0，不重试
                 </div>
                 <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
@@ -140,6 +140,27 @@
                 </select>
             </div>
         </div>
+        <div class="three fields">
+            <div class="field">
+                <label>任务通知</label>
+                <select name="notify_status" id="task-status">
+                    <option value="1"{{{if .Task}}} {{{if eq .Task.NotifyStatus 0}}}selected{{{end}}} {{{end}}}>不通知</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.NotifyStatus 1}}}selected{{{end}}} {{{end}}}>失败通知</option>
+                    <option value="3" {{{if .Task}}} {{{if eq .Task.NotifyStatus 2}}}selected{{{end}}} {{{end}}}>执行结束通知</option>
+                </select>
+            </div>
+        </div>
+        <div class="two fields" style="display: none" id="task-notify-type">
+            <div class="field" >
+                <label>通知类型</label>
+                <select name="notify_type">
+                    <option value="1"{{{if .Task}}} {{{if eq .Task.NotifyType 0}}}selected{{{end}}} {{{end}}}>请选择</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.NotifyType 1}}}selected{{{end}}} {{{end}}}>邮件</option>
+                    <option value="3" {{{if .Task}}} {{{if eq .Task.NotifyType 2}}}selected{{{end}}} {{{end}}}>Slack</option>
+                </select>
+            </div>
+        </div>
+        <div class="inline fields" style="display: none" id="receiver-id"></div>
         <div class="two fields">
             <div class="field">
                 <label>备注</label>
@@ -151,15 +172,106 @@
     </div>
 </div>
 
+<script type="x-handlerbar-template" id="mail-template">
+    {{#each MailUsers}}
+    <div class="field">
+        <div class="ui checkbox">
+            <input type="checkbox" name="receiver[]"  {{#if checked}}checked{{/if}} value="{{Id}}" />
+            <label>{{Username}}-{{Email}}</label>
+        </div>
+    </div>
+    {{else}}
+    <a class="ui blue button" href="/setting/mail/edit">邮箱配置</a><br><br>
+    {{/each}}
+</script>
+
+<script type="x-handlervar-template" id="slack-template">
+    {{#each Channels}}
+    <div class="field">
+        <div class="ui  checkbox">
+            <input type="checkbox" name="receiver[]" {{#if checked}}checked{{/if}} value="{{Id}}" />
+            <label>{{Name}}</label>
+        </div>
+    </div>
+    {{else}}
+        <a class="ui blue button" href="/setting/slack/edit">Slack配置</a>
+    {{/each}}
+</script>
 
 <script type="text/javascript">
     $(function() {
         changeProtocol();
+        showNotify();
     });
 
     $('#protocol').change(function() {
        changeProtocol();
     });
+
+    $('#task-status').change(function() {
+        var selected = $(this).val();
+        if (selected == 1) {
+            $('#task-notify-type').hide();
+            $('#receiver-id').hide();
+            $('#task-notify-type').find('select').val('1');
+            return;
+        }
+        $('#task-notify-type').show();
+    });
+
+    $('#task-notify-type').change(function() {
+      changeNotify();
+    });
+
+    function showNotify() {
+        var notifyStatus = {{{.Task.NotifyStatus}}};
+        if (notifyStatus > 0) {
+            $('#task-notify-type').show();
+        }
+        var notifyReceiverIds = '{{{.Task.NotifyReceiverId}}}'.split(',');
+        changeNotify(notifyReceiverIds);
+    }
+
+    function changeNotify(notifyReceiverIds) {
+        var selectedId = $('#task-notify-type').find('select').val();
+        if (selectedId == 1) {
+            $('#receiver-id').hide();
+            $('#receiver-id').html('');
+            return;
+        }
+        if (selectedId == 2) {
+            showMail(notifyReceiverIds);
+        } else if (selectedId == 3) {
+            showSlack(notifyReceiverIds);
+        }
+        $('#receiver-id').show();
+    }
+
+    function showMail(notifyReceiverIds) {
+        util.get("/setting/mail", function(code, message, data) {
+            renderReceiver(notifyReceiverIds, $('#mail-template'), data, 'MailUsers');
+        })
+    }
+
+    function showSlack(notifyReceiverIds) {
+        util.get("/setting/slack", function(code, message, data) {
+            renderReceiver(notifyReceiverIds, $('#slack-template'), data, 'Channels');
+        })
+    }
+
+    function renderReceiver(notifyReceiverIds, $element, data, key) {
+        if (notifyReceiverIds !== undefined && notifyReceiverIds) {
+            console.log(data[key]);
+            for (i in data[key]) {
+                if ($.inArray(data[key][i].Id + '', notifyReceiverIds) != -1) {
+                    data[key][i].checked = true;
+                }
+            }
+        }
+        var html = util.renderTemplate($($element), data);
+        $('#receiver-id').html(html);
+        $('.ui.checkbox').checkbox();
+    }
 
     function changeProtocol() {
         var protocol = $('#protocol').val();
@@ -174,11 +286,40 @@
     $('.ui.checkbox')
             .checkbox()
     ;
+
+    function validateNotify() {
+        var selectedId = $('#task-status').val();
+        if (selectedId == 1) {
+            return true;
+        }
+
+        var checkedLength = $('#receiver-id input:checked').length;
+        if (checkedLength == 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    function parseNotifyReceiver() {
+        var receivers = [];
+        $('#receiver-id input:checked').each(function() {
+           receivers.push($(this).val());
+        });
+
+        return receivers.join(",");
+    }
+
     var $uiForm = $('.ui.form');
     registerSelectFormValidation("selectProtocol", $uiForm, $('#protocol'), 'protocol');
     $($uiForm).form(
             {
                 onSuccess: function(event, fields) {
+                    if (!validateNotify()) {
+                        swal('错误提示', '请至少选择一个接收者', 'error');
+                        return false;
+                    }
+                    fields.notify_receiver_id = parseNotifyReceiver();
                     util.post('/task/store', fields, function(code, message) {
                         location.href = "/task"
                     });

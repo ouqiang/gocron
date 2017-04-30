@@ -6,6 +6,9 @@ function Util() {
     var util = {};
     var SUCCESS = 0;     // 操作成功
     var FAILURE_MESSAGE = '操作失败';
+    util.alertSuccess = function() {
+        swal("操作成功", '保存成功', 'success');
+    };
     // ajax成功处理
     util.ajaxSuccess = function(response, callback) {
         if (response.code === undefined) {
@@ -84,6 +87,13 @@ function Util() {
       }
 
       return fields;
+    };
+
+    util.renderTemplate = function($element, data) {
+        var template = Handlebars.compile($($element).html());
+        var html = template(data);
+
+        return html;
     };
 
     return util;
