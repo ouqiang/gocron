@@ -46,6 +46,7 @@
                         你好，{{{.LoginUsername}}}
                         <i class="dropdown icon"></i>
                         <div class="menu">
+                            <a href="/user/editPassword" class="item"><i class="edit icon"></i>修改密码</a>
                             <a class="item" href="/user/logout"><i class="sign out icon"></i>退出</a>
                         </div>
                     {{{end}}}
@@ -61,7 +62,7 @@
                 <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>主机</a>
                 <!-- <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a> -->
                 {{{if gt .LoginUid 0}}}
-                <a class="item {{{if eq .Controller "admin"}}}active{{{end}}}" href="/admin/setting/slack"><i class="settings icon"></i>管理</a>
+                <a class="item {{{if eq .Controller "setting"}}}active{{{end}}}" href="/setting/slack/edit"><i class="settings icon"></i>配置</a>
                 {{{end}}}
             </div>
         </div>

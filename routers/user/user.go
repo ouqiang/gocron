@@ -16,6 +16,37 @@ func Login(ctx *macaron.Context)  {
     ctx.HTML(200, "user/login")
 }
 
+func EditPassword(ctx *macaron.Context)  {
+    ctx.Data["Title"] = "修改密码"
+    ctx.HTML(200, "user/editPassword")
+}
+
+func UpdatePassword(ctx *macaron.Context, sess session.Store) string  {
+    oldPassword := ctx.QueryTrim("old_password")
+    newPassword := ctx.QueryTrim("new_password")
+    confirmNewPassword := ctx.QueryTrim("confirm_new_password")
+    json := utils.JsonResponse{}
+    if oldPassword == "" || newPassword == "" || confirmNewPassword == "" {
+        return json.CommonFailure("原密码和新密码均不能为空")
+    }
+    if newPassword != confirmNewPassword {
+        return json.CommonFailure("两次输入密码不一致")
+    }
+    if oldPassword == newPassword {
+        return json.CommonFailure("原密码与新密码不能相同")
+    }
+    userModel := new(models.User)
+    if !userModel.Match(Username(sess), oldPassword) {
+        return json.CommonFailure("原密码输入错误")
+    }
+    _, err := userModel.UpdatePassword(Uid(sess), newPassword)
+    if err != nil {
+        return json.CommonFailure("修改失败")
+    }
+
+    return json.Success("修改成功", nil)
+}
+
 func ValidateLogin(ctx *macaron.Context, sess session.Store) string {
     username := ctx.QueryTrim("username")
     password := ctx.QueryTrim("password")

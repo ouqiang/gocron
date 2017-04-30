@@ -41,6 +41,13 @@ func (user *User) Update(id int, data CommonMap) (int64, error) {
     return Db.Table(user).ID(id).Update(data)
 }
 
+func (user *User) UpdatePassword(id int, password string) (int64, error)  {
+    salt := user.generateSalt()
+    safePassword := user.encryptPassword(password, salt)
+
+    return user.Update(id, CommonMap{"password": safePassword, "salt": salt})
+}
+
 // 删除
 func (user *User) Delete(id int) (int64, error) {
     return Db.Id(id).Delete(user)
