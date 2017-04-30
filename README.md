@@ -15,8 +15,8 @@
 * 任务执行结果通知, 支持邮件、Slack
 
 ### 截图
-![任务](http://172.16.10.128:5920/screenhot_task.png)
-![Slack](http://172.16.10.128:5920/screenhot_slack.png)
+![任务](https://raw.githubusercontent.com/ouqiang/gocron/develop/screenshot_task.png)
+![Slack](https://raw.githubusercontent.com/ouqiang/gocron/develop/screenshot_slack.png)
     
 ### 支持平台
 > Windows、Linux、OSX
