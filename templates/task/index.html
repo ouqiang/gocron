@@ -33,7 +33,7 @@
                 <div class="field">
                     <select name="protocol" id="protocol">
                         <option value="0">选择协议</option>
-                        <option value="3" {{{if eq .Params.Protocol 3}}}selected{{{end}}}>本地命令</option>
+                        <option value="3" {{{if eq .Params.Protocol 3}}}selected{{{end}}}>系统命令</option>
                         <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
                         <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
                     </select>

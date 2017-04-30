@@ -181,7 +181,7 @@
         </div>
     </div>
     {{else}}
-    <a class="ui blue button" href="/setting/mail/edit">邮箱配置</a><br><br>
+    <a class="ui blue button" href="/manage/mail/edit">邮箱配置</a><br><br>
     {{/each}}
 </script>
 
@@ -194,7 +194,7 @@
         </div>
     </div>
     {{else}}
-        <a class="ui blue button" href="/setting/slack/edit">Slack配置</a>
+        <a class="ui blue button" href="/manage/slack/edit">Slack配置</a>
     {{/each}}
 </script>
 
@@ -248,13 +248,13 @@
     }
 
     function showMail(notifyReceiverIds) {
-        util.get("/setting/mail", function(code, message, data) {
+        util.get("/manage/mail", function(code, message, data) {
             renderReceiver(notifyReceiverIds, $('#mail-template'), data, 'MailUsers');
         })
     }
 
     function showSlack(notifyReceiverIds) {
-        util.get("/setting/slack", function(code, message, data) {
+        util.get("/manage/slack", function(code, message, data) {
             renderReceiver(notifyReceiverIds, $('#slack-template'), data, 'Channels');
         })
     }

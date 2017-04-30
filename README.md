@@ -13,6 +13,10 @@
     * 执行HTTP-GET请求
 * 查看任务执行日志
 * 任务执行结果通知, 支持邮件、Slack
+
+### 截图
+![任务](http://172.16.10.128:5920/screenhot_task.png)
+![Slack](http://172.16.10.128:5920/screenhot_slack.png)
     
 ### 支持平台
 > Windows、Linux、OSX
