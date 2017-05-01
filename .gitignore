@@ -25,7 +25,9 @@ _testmain.go
 
 .idea
 log/*
-data/*
+data/sessions/*
+data/ssh/password/*
+data/ssh/private_key/*
 conf/install.lock
 conf/app.ini
 conf/ansible_hosts.ini
