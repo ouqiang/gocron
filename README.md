@@ -33,6 +33,7 @@
 3. 启动  
     * Windows:  `gocron.exe web`            
     * Linux、OSX:  `./gocron web`
+4. 浏览器访问 http://localhost:5920
 ### 源码安装
 > `go get https://github.com/ouqiang/gocron`
   
