@@ -53,6 +53,9 @@ func run(ctx *cli.Context) {
 }
 
 func initModule()  {
+    if !app.Installed {
+        return
+    }
     models.Db = models.CreateDb()
 
     // 初始化定时任务
