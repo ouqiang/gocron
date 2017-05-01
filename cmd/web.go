@@ -9,6 +9,8 @@ import (
     "os/signal"
     "syscall"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/service"
+    "github.com/ouqiang/gocron/models"
 )
 
 // web服务器默认端口
@@ -37,6 +39,8 @@ func run(ctx *cli.Context) {
     setEnvironment(ctx)
     // 初始化应用
     app.InitEnv()
+    // 初始化模块 DB、定时任务等
+    initModule()
     // 捕捉信号,配置热更新等
     go catchSignal()
     m := macaron.Classic()
@@ -46,6 +50,14 @@ func run(ctx *cli.Context) {
     routers.RegisterMiddleware(m)
     port := parsePort(ctx)
     m.Run(port)
+}
+
+func initModule()  {
+    models.Db = models.CreateDb()
+
+    // 初始化定时任务
+    serviceTask := new(service.Task)
+    serviceTask.Initialize()
 }
 
 // 解析端口

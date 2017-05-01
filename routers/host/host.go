@@ -64,15 +64,28 @@ func Ping(ctx *macaron.Context) string  {
         return json.CommonFailure("主机不存在", err)
     }
 
-    sshConfig := ssh.SSHConfig{
-        User: hostModel.Username,
-        Password: hostModel.Password,
-        Host: hostModel.Name,
-        Port: hostModel.Port,
-        ExecTimeout: 5,
-        AuthType: hostModel.AuthType,
-        PrivateKey: hostModel.PrivateKey,
+    sshConfig := ssh.SSHConfig{}
+    sshConfig.User = hostModel.Username
+    sshConfig.Host = hostModel.Name
+    sshConfig.Port = hostModel.Port
+    sshConfig.ExecTimeout = 5
+    sshConfig.AuthType = hostModel.AuthType
+    var password string
+    var privateKey string
+    if hostModel.AuthType == ssh.HostPassword {
+        password, err = hostModel.GetPasswordByHost(hostModel.Name)
+        if err != nil {
+            return json.CommonFailure(err.Error(), err)
+        }
+        sshConfig.Password = password
+    } else {
+        privateKey, err = hostModel.GetPrivateKeyByHost(hostModel.Name)
+        if err != nil {
+            return json.CommonFailure(err.Error(), err)
+        }
+        sshConfig.PrivateKey = privateKey
     }
+
     _, err = ssh.Exec(sshConfig, "pwd")
     if err != nil {
         return json.CommonFailure("连接失败-" + err.Error(), err)
@@ -86,10 +99,8 @@ type HostForm struct {
     Name string `binding:"Required;MaxSize(100)"`
     Alias string `binding:"Required;MaxSize(32)"`
     Username string `binding:"Required;MaxSize(32)"`
-    Password string
     Port int `binding:"Required;Range(1-65535)"`
     AuthType ssh.HostAuthType `binding:"Required:Range(1,2)"`
-    PrivateKey string
     Remark string
 }
 
@@ -108,16 +119,9 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.Name = form.Name
     hostModel.Alias = form.Alias
     hostModel.Username = form.Username
-    hostModel.Password = form.Password
     hostModel.Port = form.Port
     hostModel.Remark = form.Remark
-    hostModel.PrivateKey = form.PrivateKey
     hostModel.AuthType = form.AuthType
-    if hostModel.AuthType == ssh.HostPublicKey {
-        hostModel.Password = ""
-    } else {
-        hostModel.PrivateKey = ""
-    }
     isCreate := false
     if id > 0 {
         _, err = hostModel.UpdateBean(id)

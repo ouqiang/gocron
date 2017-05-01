@@ -86,6 +86,8 @@ done
 rm -rf $TEMP_DIR/$APP_NAME/conf/*
 rm -rf $TEMP_DIR/$APP_NAME/log/*
 rm -rf $TEMP_DIR/$APP_NAME/data/sessions/*
+rm -rf $TEMP_DIR/$APP_NAME/data/password/*
+rm -rf $TEMP_DIR/$APP_NAME/data/private_key/*
 
 echo '压缩文件'
 # 压缩文件

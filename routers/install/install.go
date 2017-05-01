@@ -10,6 +10,7 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/go-macaron/binding"
     "fmt"
+    "github.com/ouqiang/gocron/service"
 )
 
 // 系统安装
@@ -60,7 +61,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
         return json.CommonFailure("数据库配置写入文件失败", err)
     }
 
-    app.InitDb()
+    models.Db = models.CreateDb()
     // 创建数据库表
     migration := new(models.Migration)
     err = migration.Exec(form.DbName)
@@ -81,8 +82,9 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     }
 
     app.Installed = true
-    // 初始化定时任务等
-    app.InitResource()
+    // 初始化定时任务
+    serviceTask := new(service.Task)
+    serviceTask.Initialize()
 
     return json.Success("安装成功", nil)
 }

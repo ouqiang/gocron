@@ -8,6 +8,9 @@ import (
     "gopkg.in/macaron.v1"
     "strings"
     "time"
+    "github.com/ouqiang/gocron/modules/logger"
+    "github.com/ouqiang/gocron/modules/setting"
+    "github.com/ouqiang/gocron/modules/app"
 )
 
 type Status int8
@@ -60,7 +63,8 @@ func (model *BaseModel) pageLimitOffset() int {
 }
 
 // 创建Db
-func CreateDb(config map[string]string) *xorm.Engine {
+func CreateDb() *xorm.Engine {
+    config := getDbConfig()
     dsn := getDbEngineDSN(config["engine"], config)
     engine, err := xorm.NewEngine(config["engine"], dsn)
     if err != nil {
@@ -115,4 +119,27 @@ func keepDbAlived(engine *xorm.Engine)  {
         <- t
         engine.Ping()
     }
+}
+
+// 获取数据库配置
+func getDbConfig() map[string]string {
+    config, err := setting.Read(app.AppConfig)
+    if err != nil {
+        logger.Fatal(err)
+    }
+    section := config.Section("db")
+    if err != nil {
+        logger.Fatal(err)
+    }
+    var db map[string]string = make(map[string]string)
+    db["user"] = section.Key("user").String()
+    db["password"] = section.Key("password").String()
+    db["host"] = section.Key("host").String()
+    db["port"] = section.Key("port").String()
+    db["database"] = section.Key("database").String()
+    db["charset"] = section.Key("charset").String()
+    db["prefix"] = section.Key("prefix").String()
+    db["engine"] = section.Key("engine").String()
+
+    return db
 }

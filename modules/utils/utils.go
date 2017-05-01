@@ -9,6 +9,7 @@ import (
     "runtime"
     "github.com/Tang-RoseChild/mahonia"
     "strings"
+    "os"
 )
 
 
@@ -105,4 +106,16 @@ func EscapeJson(s string) string  {
     replaceChars := []string{ "\\\\", "\\b", "\\f", "\\n", "\\r", "\\t", "\\\"",}
 
     return ReplaceStrings(s, specialChars, replaceChars)
+}
+
+func FileExist(file string) bool {
+    _, err := os.Stat(file)
+    if os.IsNotExist(err) {
+        return false
+    }
+    if os.IsPermission(err) {
+        return false
+    }
+
+    return true
 }

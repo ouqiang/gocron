@@ -40,10 +40,8 @@ type TaskHost struct {
     Name string
     Port int
     Username string
-    Password string
     Alias string
     AuthType ssh.HostAuthType
-    PrivateKey string
 }
 
 func (TaskHost) TableName() string  {
@@ -87,7 +85,7 @@ func (task *Task) Enable(id int) (int64, error) {
 // 获取所有激活任务
 func (task *Task) ActiveList() ([]TaskHost, error) {
     list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
+    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
     err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
 
     return list, err
@@ -96,7 +94,7 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 // 获取某个主机下的所有激活任务
 func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error) {
     list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
+    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
     err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
 
     return list, err
@@ -122,7 +120,7 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
 
 func(task *Task) Detail(id int) (TaskHost, error)  {
     taskHost := TaskHost{}
-    fields := "t.*, host.alias,host.name,host.username,host.password,host.port,host.auth_type,host.private_key"
+    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
     _, err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
 
     return taskHost, err

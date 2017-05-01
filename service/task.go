@@ -149,15 +149,33 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
 type SSHCommandHandler struct{}
 
 func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
-    sshConfig := ssh.SSHConfig{
-        User: taskModel.Username,
-        Password: taskModel.Password,
-        Host: taskModel.Name,
-        Port: taskModel.Port,
-        ExecTimeout: taskModel.Timeout,
-        AuthType: taskModel.AuthType,
-        PrivateKey: taskModel.PrivateKey,
+    hostModel := new(models.Host)
+    err := hostModel.Find(int(taskModel.HostId))
+    if err != nil {
+        return "", err
     }
+    sshConfig := ssh.SSHConfig{}
+    sshConfig.User = hostModel.Username
+    sshConfig.Host = hostModel.Name
+    sshConfig.Port = hostModel.Port
+    sshConfig.ExecTimeout = 5
+    sshConfig.AuthType = hostModel.AuthType
+    var password string
+    var privateKey string
+    if hostModel.AuthType == ssh.HostPassword {
+        password, err = hostModel.GetPasswordByHost(hostModel.Name)
+        if err != nil {
+            return "", err
+        }
+        sshConfig.Password = password
+    } else {
+        privateKey, err = hostModel.GetPrivateKeyByHost(hostModel.Name)
+        if err != nil {
+            return "", err
+        }
+        sshConfig.PrivateKey = privateKey
+    }
+
     return ssh.Exec(sshConfig, taskModel.Command)
 }
 

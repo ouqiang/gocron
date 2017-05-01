@@ -43,29 +43,19 @@
                     </div>
                 </div>
             </div>
-            <div class="four fields">
+            <div class="fields">
                 <div class="field">
+                    <div class="ui blue message">
+                        密码认证: 把密码写入文件 gocron根目录/data/ssh/password/主机名<br>
+                        例: echo '12345678'  >  data/ssh/password/127.0.0.1<br><br>
+                        公钥认证: 把私钥写入文件 gocron根目录/data/ssh/private_key/主机名<br>
+                        例: cp ~/.ssh/id_rsa   data/ssh/private_key/127.0.0.1
+                    </div>
                     <label>认证方式</label>
                     <select name="auth_type" id="authType">
                             <option value="2" {{{if .Host}}} {{{if eq .Host.AuthType 2}}}selected {{{end}}} {{{end}}} data-validate-type="selectPrivateKey" data-match="private_key">公钥</option>
                             <option value="1" {{{if .Host}}} {{{if eq .Host.AuthType 1}}}selected {{{end}}} {{{end}}} data-validate-type="selectPassword" data-match="password">密码</option>
                     </select>
-                </div>
-            </div>
-            <div class="two fields" id="private_key">
-                <div class="field">
-                    <label>私钥 (~/.ssh/id_rsa)</label>
-                    <div class="ui small  input">
-                        <textarea rows="7" name="private_key">{{{.Host.PrivateKey}}}</textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="four fields" id="password">
-                <div class="field">
-                    <label>SSH密码</label>
-                    <div class="ui small  input">
-                        <input type="text" placeholder="" name="password" value="{{{.Host.Password}}}">
-                    </div>
                 </div>
             </div>
             <div class="two fields">
@@ -85,28 +75,6 @@
 
 <script type="text/javascript">
     var $uiForm = $('.ui.form');
-    $(function() {
-        changeAuthType($('#authType').val());
-    });
-
-    function changeAuthType(type) {
-        // 私钥
-        if (type == 2) {
-            $('#password').hide();
-            $('#private_key').show();
-            return;
-        }
-
-        // 密码
-        $('#private_key').hide();
-        $('#password').show();
-    }
-
-    $('#authType').change(function() {
-        changeAuthType($(this).val());
-    });
-    registerSelectFormValidation("selectPrivateKey", $uiForm, $('#authType'), 'auth_type');
-    registerSelectFormValidation("selectPassword", $uiForm, $('#authType'), 'auth_type');
     $($uiForm).form(
             {
                 onSuccess: function(event, fields) {
@@ -150,24 +118,6 @@
                             {
                                 type   : 'integer[1..65535]',
                                 prompt : '请输入有效的端口号'
-                            }
-                        ]
-                    },
-                    PrivateKey: {
-                        identifier  : 'private_key',
-                        rules: [
-                            {
-                                type   : 'selectPrivateKey',
-                                prompt : '请输入私钥'
-                            }
-                        ]
-                    },
-                    Password: {
-                        identifier  : 'password',
-                        rules: [
-                            {
-                                type   : 'selectPassword',
-                                prompt : '请输入密码'
                             }
                         ]
                     }
