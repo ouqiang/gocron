@@ -34,7 +34,7 @@ type Result struct {
 }
 
 func parseSSHConfig(sshConfig SSHConfig) (config *ssh.ClientConfig, err error) {
-    timeout := SSHConnectTimeout * time.Second
+    timeout := time.Duration(SSHConnectTimeout) * time.Second
     // 密码认证
     if sshConfig.AuthType == HostPassword {
         config = &ssh.ClientConfig{

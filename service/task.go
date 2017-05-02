@@ -158,7 +158,7 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
     sshConfig.User = hostModel.Username
     sshConfig.Host = hostModel.Name
     sshConfig.Port = hostModel.Port
-    sshConfig.ExecTimeout = 5
+    sshConfig.ExecTimeout = taskModel.Timeout
     sshConfig.AuthType = hostModel.AuthType
     var password string
     var privateKey string
@@ -204,7 +204,6 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     var status models.Status
     var result string = taskResult.Result
     if taskResult.Err != nil {
-        result = taskResult.Err.Error() + "\n" + result
         status = models.Failure
     } else {
         status = models.Finish
