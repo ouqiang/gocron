@@ -68,7 +68,7 @@ func CreateDb() *xorm.Engine {
     dsn := getDbEngineDSN(config["engine"], config)
     engine, err := xorm.NewEngine(config["engine"], dsn)
     if err != nil {
-        panic(err)
+        logger.Fatal("创建xorm引擎失败", err)
     }
     if config["prefix"] != "" {
         // 设置表前缀
@@ -125,11 +125,11 @@ func keepDbAlived(engine *xorm.Engine)  {
 func getDbConfig() map[string]string {
     config, err := setting.Read(app.AppConfig)
     if err != nil {
-        logger.Fatal(err)
+        logger.Fatal("获取应用配置失败", err)
     }
     section := config.Section("db")
     if err != nil {
-        logger.Fatal(err)
+        logger.Fatal("获取DB配置失败", err)
     }
     var db map[string]string = make(map[string]string)
     db["user"] = section.Key("user").String()

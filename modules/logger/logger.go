@@ -5,6 +5,7 @@ import (
     "gopkg.in/macaron.v1"
     "fmt"
     "os"
+    "runtime"
 )
 
 // 日志库
@@ -31,10 +32,16 @@ func InitLogger()  {
 }
 
 func Debug(v ...interface{}) {
+    if macaron.Env != macaron.DEV {
+        return
+    }
 	write(DEBUG, v)
 }
 
 func Debugf(format string, v ...interface{})  {
+    if macaron.Env != macaron.DEV {
+        return
+    }
     writef(DEBUG, format, v...)
 }
 
@@ -73,23 +80,37 @@ func Fatalf(format string, v ...interface{})  {
 func write(level Level, v ...interface{}) {
     defer logger.Flush()
 
+    content := ""
+    pc, file, line, ok := runtime.Caller(2)
+    if ok {
+        content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+    }
+
     switch level {
         case DEBUG:
-            logger.Debug(v)
+            logger.Debug(content, v)
         case INFO:
-            logger.Info(v)
+            logger.Info(content, v)
         case WARN:
-            logger.Warn(v)
+            logger.Warn(content, v)
         case FATAL:
-            logger.Critical(v)
+            logger.Critical(content, v)
             os.Exit(1)
         case ERROR:
-            logger.Error(v)
+            logger.Error(content, v)
 	}
 }
 
 func writef(level Level, format string, v ...interface{})  {
     defer logger.Flush()
+
+    content := ""
+    pc, file, line, ok := runtime.Caller(2)
+    if ok {
+        content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+    }
+
+    format = content + format
 
     switch level {
         case DEBUG:
