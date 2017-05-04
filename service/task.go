@@ -12,10 +12,40 @@ import (
     "fmt"
     "github.com/ouqiang/gocron/modules/httpclient"
     "github.com/ouqiang/gocron/modules/notify"
+    "sync"
 )
 
+// 定时任务调度管理器
 var Cron *cron.Cron
+// 同一任务是否有实例处于运行中
 var runInstance Instance
+// 任务计数-正在运行中的任务
+var TaskNum TaskCount
+
+// 任务计数
+type TaskCount struct {
+    num int
+    sync.RWMutex
+}
+
+func (c *TaskCount) Add()  {
+    c.Lock()
+    defer c.Unlock()
+    c.num += 1
+}
+
+func (c *TaskCount) Done()  {
+    c.Lock()
+    defer c.Unlock()
+    c.num -= 1
+}
+
+func (c *TaskCount) Num() int  {
+    c.RLock()
+    defer c.RUnlock()
+
+    return c.num
+}
 
 // 任务ID作为Key, 不会出现并发写, 不加锁
 type Instance struct {
@@ -54,6 +84,8 @@ func (task *Task) Initialize() {
     Cron = cron.New()
     Cron.Start()
     runInstance = Instance{make(map[int]bool)}
+    TaskNum = TaskCount{0, sync.RWMutex{}}
+
     taskModel := new(models.Task)
     taskList, err := taskModel.ActiveList()
     if err != nil {
@@ -89,6 +121,11 @@ func (task *Task) Add(taskModel models.TaskHost) {
     if err != nil {
         logger.Error("添加任务到调度器失败#", err)
     }
+}
+
+// 停止所有任务
+func (task *Task) StopAll()  {
+    Cron.Stop()
 }
 
 // 直接运行任务
@@ -231,6 +268,8 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         return nil
     }
     taskFunc := func() {
+        TaskNum.Add()
+        defer TaskNum.Done()
         taskLogId := beforeExecJob(&taskModel)
         if taskLogId <= 0 {
             return

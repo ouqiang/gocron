@@ -81,9 +81,11 @@ func write(level Level, v ...interface{}) {
     defer logger.Flush()
 
     content := ""
-    pc, file, line, ok := runtime.Caller(2)
-    if ok {
-        content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+    if macaron.Env == macaron.DEV {
+        pc, file, line, ok := runtime.Caller(2)
+        if ok {
+            content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+        }
     }
 
     switch level {
@@ -105,9 +107,11 @@ func writef(level Level, format string, v ...interface{})  {
     defer logger.Flush()
 
     content := ""
-    pc, file, line, ok := runtime.Caller(2)
-    if ok {
-        content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+    if macaron.Env == macaron.DEV {
+        pc, file, line, ok := runtime.Caller(2)
+        if ok {
+            content = fmt.Sprintf("#%s#%s#%d行#", file, runtime.FuncForPC(pc).Name(), line)
+        }
     }
 
     format = content + format

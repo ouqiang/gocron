@@ -12,6 +12,7 @@ import (
     "github.com/ouqiang/gocron/service"
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/setting"
+    "time"
 )
 
 // web服务器默认端口
@@ -45,6 +46,7 @@ func run(ctx *cli.Context) {
     // 捕捉信号,配置热更新等
     go catchSignal()
     m := macaron.Classic()
+
     // 注册路由
     routers.Register(m)
     // 注册中间件.
@@ -110,7 +112,25 @@ func catchSignal()  {
         logger.Info("收到信号 -- ", s)
         switch s {
             case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
-                os.Exit(1)
+            shutdown()
         }
     }
+}
+
+func shutdown()  {
+    logger.Info("应用准备退出\n停止任务调度")
+    serviceTask := new(service.Task)
+    // 停止所有任务调度
+    serviceTask.StopAll()
+    taskNumInRunning := service.TaskNum.Num()
+    logger.Infof("正在运行的任务有%d个", taskNumInRunning)
+    for {
+        if taskNumInRunning <= 0 {
+            break
+        }
+        time.Sleep(3 * time.Second)
+        taskNumInRunning = service.TaskNum.Num()
+    }
+    logger.Info("已退出")
+    os.Exit(0)
 }
