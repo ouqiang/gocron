@@ -101,6 +101,7 @@ func writeConfig(form InstallForm) error {
         "db.prefix":   form.DbTablePrefix,
         "db.charset":  "utf8",
         "allow_ips" : "",
+        "app.name": "定时任务管理系统", // 应用名称
     }
 
     return setting.Write(dbConfig, app.AppConfig)

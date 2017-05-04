@@ -29,11 +29,12 @@
 </head>
 <body>
 <div class="page">
+    {{{if not .DisableNav}}}
     <!--header begin-->
     <header>
         <div class="bigcontainer">
             <div id="logo">
-                定时任务管理平台
+                {{{.AppName}}}
             </div>
             <div class="user">
                 <div class="ui inline labeled icon top right pointing dropdown">
@@ -69,3 +70,4 @@
             </div>
         </div>
     </div>
+    {{{end}}}

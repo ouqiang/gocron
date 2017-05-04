@@ -16,7 +16,6 @@ import (
     "github.com/ouqiang/gocron/routers/user"
     "github.com/go-macaron/gzip"
     "github.com/ouqiang/gocron/routers/manage"
-    "github.com/go-macaron/csrf"
     "github.com/ouqiang/gocron/routers/loginlog"
 )
 
@@ -139,12 +138,15 @@ func RegisterMiddleware(m *macaron.Macaron) {
         Provider:       "file",
         ProviderConfig: app.DataDir + "/sessions",
     }))
-    m.Use(csrf.Csrfer())
     m.Use(toolbox.Toolboxer(m))
     checkAppInstall(m)
-    ipAuth(m)
-    userAuth(m)
-    setShareData(m)
+    m.Use(func(ctx *macaron.Context, sess session.Store){
+        if app.Installed {
+            ipAuth(ctx)
+            userAuth(ctx, sess)
+            setShareData(ctx, sess)
+        }
+    })
 }
 
 // 系统未安装，重定向到安装页面
@@ -161,57 +163,54 @@ func checkAppInstall(m *macaron.Macaron)  {
 }
 
 // IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
-func ipAuth(m *macaron.Macaron)  {
-    m.Use(func(ctx *macaron.Context) {
-        allowIpsStr := app.Setting.Key("allow_ips").String()
-        if allowIpsStr == "" {
-            return
-        }
-        clientIp := ctx.RemoteAddr()
-        if !utils.InStringSlice(allowIps, clientIp) {
-           ctx.Status(403)
-        }
-    })
+func ipAuth(ctx *macaron.Context)  {
+    allowIpsStr := app.Setting.Key("allow_ips").String()
+    if allowIpsStr == "" {
+        return
+    }
+    clientIp := ctx.RemoteAddr()
+    allowIps := strings.Split(allowIpsStr, ",")
+    if !utils.InStringSlice(allowIps, clientIp) {
+        logger.Warnf("非法IP访问-%s", clientIp)
+       ctx.Status(403)
+    }
 }
 
 // 用户认证
-func userAuth(m *macaron.Macaron)  {
-    m.Use(func(ctx *macaron.Context, sess session.Store) {
-        if user.IsLogin(sess) {
-            return
+func userAuth(ctx *macaron.Context, sess session.Store)  {
+    if user.IsLogin(sess) {
+        return
+    }
+    uri := ctx.Req.URL.Path
+    found := false
+    excludePaths := []string{"/install", "/user/login", "/api"}
+    for _, path := range excludePaths {
+        if strings.HasPrefix(uri, path) {
+            found = true
+            break
         }
-        uri := ctx.Req.URL.Path
-        found := false
-        excludePaths := []string{"/install", "/user/login", "/api"}
-        for _, path := range excludePaths {
-            if strings.HasPrefix(uri, path) {
-                found = true
-                break
-            }
-        }
-        if !found {
-            ctx.Redirect("/user/login")
-        }
-    })
+    }
+    if !found {
+        ctx.Redirect("/user/login")
+    }
 }
 
 // 设置共享数据
-func setShareData(m *macaron.Macaron)  {
-    m.Use(func(ctx *macaron.Context, sess session.Store) {
-        ctx.Data["URI"] = ctx.Req.URL.Path
-        urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")
-        paths := strings.Split(urlPath, "/")
-        ctx.Data["Controller"] = ""
-        ctx.Data["Action"] = ""
-        if len(paths) > 0 {
-            ctx.Data["Controller"] = paths[0]
-        }
-        if len(paths) > 1 {
-            ctx.Data["Action"] = paths[1]
-        }
-        ctx.Data["LoginUsername"] = user.Username(sess)
-        ctx.Data["LoginUid"] = user.Uid(sess)
-    })
+func setShareData(ctx *macaron.Context, sess session.Store)  {
+    ctx.Data["URI"] = ctx.Req.URL.Path
+    urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")
+    paths := strings.Split(urlPath, "/")
+    ctx.Data["Controller"] = ""
+    ctx.Data["Action"] = ""
+    if len(paths) > 0 {
+        ctx.Data["Controller"] = paths[0]
+    }
+    if len(paths) > 1 {
+        ctx.Data["Action"] = paths[1]
+    }
+    ctx.Data["LoginUsername"] = user.Username(sess)
+    ctx.Data["LoginUid"] = user.Uid(sess)
+    ctx.Data["AppName"] = app.Setting.Key("app.name").String()
 }
 
 func isAjaxRequest(ctx *macaron.Context) bool {

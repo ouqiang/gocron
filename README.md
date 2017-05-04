@@ -1,10 +1,12 @@
 [![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 # gocron - 定时任务web管理系统
 
+# 项目简介
+使用Go语言开发的定时任务集中调度和管理系统, 用于替代Linux-crontab
+
 ## 功能特性
-* 定时任务统一调度和管理
 * 支持任务CURD
-* crontab时间表达式，支持秒级任务定义
+* crontab时间表达式，可精确到每秒
 * 任务执行失败重试设置
 * 任务超时设置
 * 任务执行方式
