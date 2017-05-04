@@ -42,6 +42,7 @@
                         <option value="2" {{{if eq .Params.Status 1}}}selected{{{end}}}>执行中</option>
                         <option value="3" {{{if eq .Params.Status 2}}}selected{{{end}}}>成功</option>
                         <option value="4" {{{if eq .Params.Status 3}}}selected{{{end}}}>取消</option>
+                        <option value="5" {{{if eq .Params.Status 3}}}selected{{{end}}}>后台运行</option>
                     </select>
                 </div>
                 <div class="field">
@@ -75,7 +76,7 @@
                 <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>
-                    {{{if ne .Status 3}}}
+                    {{{if and (ne .Status 3) (ne .Status 4)}}}
                     {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>
                     开始时间: {{{.StartTime.Format "2006-01-02 15:04:05" }}}<br>
                     {{{if ne .Status 1}}}
@@ -92,6 +93,8 @@
                         <span style="color:red">失败</span>
                     {{{else if eq .Status 3}}}
                         <span style="color:#4499EE">取消</span>
+                    {{{else if eq .Status 4}}}
+                        <span style="color:#43A102">后台运行</span>
                     {{{end}}}
                 </td>
                 <td>

@@ -32,7 +32,7 @@
                 </div>
                 <div class="field">
                     <select name="protocol" id="protocol">
-                        <option value="0">选择协议</option>
+                        <option value="0">执行方式</option>
                         <option value="3" {{{if eq .Params.Protocol 3}}}selected{{{end}}}>系统命令</option>
                         <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
                         <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
@@ -59,7 +59,7 @@
                                </h5>
                                <p>任务ID： <span class="stress">{{{.Id}}}</span></p>
                                <p>cron表达式： {{{.Spec}}}</p>
-                               <p>协议: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
+                               <p>执行方式: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
                                <p class="sensorStatus">命令：{{{.Command}}}</p>
                                <p class="sensorStatus">超时时间：{{{if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
                                <p>重试次数: {{{.RetryTimes}}}</p>

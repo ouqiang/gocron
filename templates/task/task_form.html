@@ -28,25 +28,6 @@
                 <label>
                     <div class="content">
                         crontab表达式
-                        <div class="ui blue message">
-                                    Linux-crontab时间表达式语法, 支持秒级任务定义 <br>
-                                    格式:  秒 分 时 天 月 周 <br>
-                                    示例：<br>
-                                    1 * * * * *       每分钟第一秒运行 <br>
-                                    */20 * * * * *    每隔20秒运行一次 <br>
-                                    0 30 21 * * *     每天晚上21:30:00运行一次 <br>
-                                    0 0 23 * * 6      每周六晚上23:00:00 运行一次 <br>
-                                    快捷语法: <br>
-                                    @yearly 每年运行一次 <br>
-                                    @monthly 每月运行一次 <br>
-                                    @weekly 每周运行一次 <br>
-                                    @daily 每天运行一次 <br>
-                                    @midnight 每天午夜运行一次<br>
-                                    @hourly 每小时运行一次 <br>
-                                    @every 30s 每隔30秒运行一次 <br>
-                                    @every 1m20s 每隔1分钟20秒运行一次 <br>
-                                    @every 3h5m10s 每隔3小时5分钟10秒运行一次 <br>
-                        </div>
                     </div>
                 </label>
                 <div class="ui small input">
@@ -56,12 +37,7 @@
         </div>
         <div class="three fields">
             <div class="field">
-                <label>协议</label>
-                <div class="ui blue message">
-                    系统命令: 调用本机系统命令 <br>
-                    SSH:  通过SSH执行远程命令 <br>
-                    HTTP: 执行HTTP-GET请求 <br>
-                </div>
+                <label>执行方式</label>
                 <select name="protocol" id="protocol">
                     <option value="3" {{{if .Task}}} {{{if eq .Task.Protocol 3}}}selected{{{end}}} {{{end}}}>系统命令</option>
                     <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
@@ -87,32 +63,18 @@
         <div class="two fields">
             <div class="field">
                 <label>命令</label>
-                <div class="ui blue message">
-                        根据选择的协议输入相应的命令 <br>
-                        系统命令 - ifconfig -a <br>
-                        SSH -   netstat -natpu <br>
-                        HTTP -  URL地址 例: http://golang.org <br>
-                </div>
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
         <div class="three fields">
             <div class="field">
                 <label>任务超时时间(秒)</label>
-                <div class="ui blue message">
-                    默认0，不限制超时
-                </div>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="two fields">
             <div class="field">
-                <label>任务重试次数</label>
-                <div class="ui blue message">
-                        无法连接远程主机，shell返回值非0, http响应码非200等异常返回，可重复执行任务,
-                        重试时间间隔 重试次数 * 分钟, 按1分钟、2分钟、3分钟.....的间隔进行重试
-                        取值范围1-10, 默认0，不重试
-                </div>
+                <label>任务失败重试次数</label>
                 <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
             </div>
         </div>

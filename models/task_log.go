@@ -21,7 +21,8 @@ type TaskLog struct {
     Hostname string       `xorm:"varchar(128) notnull defalut '' "`   // SSH主机名，逗号分隔
     StartTime time.Time `xorm:"datetime created"`                   // 开始执行时间
     EndTime   time.Time `xorm:"datetime updated"`                   // 执行完成（失败）时间
-    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕 3:任务取消(上次任务未执行完成)
+    Status    Status    `xorm:"tinyint notnull default 1"`          // 状态 0:执行失败 1:执行中  2:执行完毕 3:任务取消(上次任务未执行完成) 4:异步执行
+    NotifyId  string    `xorm:"varchar(32) notnull default '' "`    // 回调通知ID
     Result    string    `xorm:"mediumtext notnull defalut '' "` // 执行结果
     TotalTime int       `xorm:"-"` // 执行总时长
     BaseModel   `xorm:"-"`
@@ -39,6 +40,12 @@ func (taskLog *TaskLog) Create() (insertId int64, err error) {
 // 更新
 func (taskLog *TaskLog) Update(id int64, data CommonMap) (int64, error) {
     return Db.Table(taskLog).ID(id).Update(data)
+}
+
+func (taskLog *TaskLog) UpdateStatus(notifyId string, status Status, result string) (int64, error)  {
+    taskLog.Status = status
+    taskLog.Result = result
+    return Db.Cols("status,result").Where("notify_id = ?", notifyId).Update(taskLog)
 }
 
 func (taskLog *TaskLog) setStatus(id int64, status Status) (int64, error) {

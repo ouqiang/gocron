@@ -46,6 +46,7 @@ type TaskResult struct {
     Result string
     Err error
     RetryTimes int8
+    IsAsync bool
 }
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
@@ -180,7 +181,7 @@ func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
 }
 
 // 创建任务日志
-func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, error) {
+func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, string, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
     taskLogModel.Name = taskModel.Task.Name
@@ -193,9 +194,15 @@ func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, erro
     }
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = status
+    // SSH执行远程命令，后台运行
+    var notifyId string = ""
+    if taskModel.Timeout == -1 && taskModel.Protocol == models.TaskSSH {
+        notifyId = utils.RandString(32);
+        taskLogModel.NotifyId = notifyId;
+    }
     insertId, err := taskLogModel.Create()
 
-    return insertId, err
+    return insertId, notifyId, err
 }
 
 // 更新任务日志
@@ -205,6 +212,8 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     var result string = taskResult.Result
     if taskResult.Err != nil {
         status = models.Failure
+    } else if taskResult.IsAsync {
+        status = models.Background
     } else {
         status = models.Finish
     }
@@ -222,55 +231,12 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         return nil
     }
     taskFunc := func() {
-        if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
-            createTaskLog(taskModel, models.Cancel)
-            return
-        }
-        if taskModel.Multi == 0 {
-            runInstance.add(taskModel.Id)
-            defer runInstance.done(taskModel.Id)
-        }
-        taskLogId, err := createTaskLog(taskModel, models.Running)
-        if err != nil {
-            logger.Error("任务开始执行#写入任务日志失败-", err)
+        taskLogId := beforeExecJob(&taskModel)
+        if taskLogId <= 0 {
             return
         }
         taskResult := execJob(handler, taskModel)
-        if taskResult.Err != nil {
-            taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
-        }
-        _, err = updateTaskLog(taskLogId, taskResult)
-        if err != nil {
-            logger.Error("任务结束#更新任务日志失败-", err)
-        }
-
-        var statusName string
-        var enableNotify bool = true
-        // 未开启通知
-        if taskModel.NotifyStatus == 0 {
-            enableNotify = false;
-        } else if taskModel.NotifyStatus == 1 && taskResult.Err == nil {
-            // 执行失败才发送通知
-            enableNotify = false
-        }
-        if taskResult.Err != nil {
-            statusName = "失败"
-        } else {
-            statusName = "成功"
-        }
-        if !enableNotify {
-            return
-        }
-        // 发送通知
-        msg := notify.Message{
-          "task_type": taskModel.NotifyType,
-          "task_receiver_id": taskModel.NotifyReceiverId,
-          "name": taskModel.Task.Name,
-          "output": taskResult.Result,
-          "status": statusName,
-          "taskId": taskModel.Id,
-        };
-        notify.Push(msg)
+        afterExecJob(taskModel, taskResult, taskLogId)
     }
 
     return taskFunc
@@ -290,7 +256,78 @@ func createHandler(taskModel models.TaskHost) Handler  {
     return handler;
 }
 
+func beforeExecJob(taskModel *models.TaskHost) (taskLogId int64)  {
+    if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
+        createTaskLog(*taskModel, models.Cancel)
+        return
+    }
+    if taskModel.Multi == 0 {
+        runInstance.add(taskModel.Id)
+    }
+    taskLogId, notifyId, err := createTaskLog(*taskModel, models.Running)
+    if err != nil {
+        logger.Error("任务开始执行#写入任务日志失败-", err)
+        return
+    }
+    // 设置notifyId到环境变量中
+    if notifyId != "" {
+        taskModel.Command = fmt.Sprintf("export GOCRON_TASK_ID=%s;%s", notifyId, taskModel.Command)
+    }
+
+    return taskLogId
+}
+
+func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId int64)  {
+    if taskResult.Err != nil {
+        taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
+    }
+    if taskModel.Protocol == models.TaskSSH && taskModel.Timeout == -1 {
+        taskResult.IsAsync = true
+    }
+    _, err := updateTaskLog(taskLogId, taskResult)
+    if err != nil {
+        logger.Error("任务结束#更新任务日志失败-", err)
+    }
+    if taskResult.IsAsync {
+        return
+    }
+
+    sendNotification(taskModel, taskResult)
+}
+
+// 发送任务结果通知
+func sendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
+    var statusName string
+    // 未开启通知
+    if taskModel.NotifyStatus == 0 {
+        return
+    }
+    if taskModel.NotifyStatus == 1 && taskResult.Err == nil {
+        // 执行失败才发送通知
+        return
+    }
+    if taskResult.Err != nil {
+        statusName = "失败"
+    } else {
+        statusName = "成功"
+    }
+    // 发送通知
+    msg := notify.Message{
+        "task_type": taskModel.NotifyType,
+        "task_receiver_id": taskModel.NotifyReceiverId,
+        "name": taskModel.Task.Name,
+        "output": taskResult.Result,
+        "status": statusName,
+        "taskId": taskModel.Id,
+    };
+    notify.Push(msg)
+}
+
+// 执行具体任务
 func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
+    if taskModel.Multi == 0 {
+        defer runInstance.done(taskModel.Id)
+    }
     // 默认只运行任务一次
     var execTimes int8 = 1
     if (taskModel.RetryTimes > 0) {

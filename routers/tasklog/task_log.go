@@ -49,6 +49,30 @@ func Clear(ctx *macaron.Context) string  {
     return json.Success(utils.SuccessContent, nil)
 }
 
+// 更新任务状态
+func UpdateStatus(ctx *macaron.Context) string {
+    id := ctx.QueryTrim("id")
+    status := ctx.QueryInt("status")
+    result := ctx.QueryTrim("result")
+    json := utils.JsonResponse{}
+    if id == "" {
+        return json.CommonFailure("任务ID不能为空")
+    }
+    if status != 1 && status != 2 {
+        return json.CommonFailure("status值错误")
+    }
+    if status == 1 {
+        status -= 1
+    }
+    taskLogModel := new(models.TaskLog)
+    affectRows, err := taskLogModel.UpdateStatus(id, models.Status(status), result)
+    if err != nil || affectRows == 0 {
+        return json.CommonFailure("更新任务状态失败")
+    }
+
+    return json.Success("success", nil)
+}
+
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     var params models.CommonMap = models.CommonMap{}

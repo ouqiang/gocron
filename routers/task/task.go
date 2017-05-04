@@ -20,7 +20,7 @@ type TaskForm struct {
     Spec string `binding:"Required;MaxSize(64)"`
     Protocol models.TaskProtocol `binding:"In(1,2,3)"`
     Command string `binding:"Required;MaxSize(512)"`
-    Timeout int `binding:"Range(0,86400)"`
+    Timeout int `binding:"Range(-1,86400)"`
     Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
     HostId int16

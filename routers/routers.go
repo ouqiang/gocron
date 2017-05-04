@@ -87,6 +87,11 @@ func Register(m *macaron.Macaron) {
         m.Get("/login-log", loginlog.Index)
     })
 
+    // API
+    m.Group("/api/v1", func() {
+       m.Get("/tasklog/update-status", tasklog.UpdateStatus)
+    });
+
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
         if isGetRequest(ctx) && !isAjaxRequest(ctx) {
@@ -162,7 +167,7 @@ func userAuth(m *macaron.Macaron)  {
         }
         uri := ctx.Req.URL.Path
         found := false
-        excludePaths := []string{"/install", "/user/login"}
+        excludePaths := []string{"/install", "/user/login", "/"}
         for _, path := range excludePaths {
             if strings.HasPrefix(uri, path) {
                 found = true

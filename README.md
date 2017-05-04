@@ -39,7 +39,8 @@
 2. `go get -d https://github.com/ouqiang/gocron`
 3. 编译 `go build`
 4. 启动、访问方式同上
-5. 生成压缩包（Windows: gocron.zip, 其他平台: gocron.tar.gz） ./build.sh -p 平台 -a CPU架构 例 ./build.sh -p darwin -a amd64
+5. 生成压缩包（Windows: gocron.zip, 其他平台: gocron.tar.gz） 
+> ./build.sh -p 平台 -a CPU架构 例 ./build.sh -p darwin -a amd64
 
 ### 启动可选参数
 
