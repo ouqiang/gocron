@@ -57,7 +57,7 @@ func (task *Task) Initialize() {
     taskModel := new(models.Task)
     taskList, err := taskModel.ActiveList()
     if err != nil {
-        logger.Error("获取任务列表错误-", err.Error())
+        logger.Error("定时任务初始化#获取任务列表错误-", err.Error())
         return
     }
     if len(taskList) == 0 {

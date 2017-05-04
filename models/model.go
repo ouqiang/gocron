@@ -9,7 +9,6 @@ import (
     "strings"
     "time"
     "github.com/ouqiang/gocron/modules/logger"
-    "github.com/ouqiang/gocron/modules/setting"
     "github.com/ouqiang/gocron/modules/app"
 )
 
@@ -124,23 +123,15 @@ func keepDbAlived(engine *xorm.Engine)  {
 
 // 获取数据库配置
 func getDbConfig() map[string]string {
-    config, err := setting.Read(app.AppConfig)
-    if err != nil {
-        logger.Fatal("获取应用配置失败", err)
-    }
-    section := config.Section("db")
-    if err != nil {
-        logger.Fatal("获取DB配置失败", err)
-    }
     var db map[string]string = make(map[string]string)
-    db["user"] = section.Key("user").String()
-    db["password"] = section.Key("password").String()
-    db["host"] = section.Key("host").String()
-    db["port"] = section.Key("port").String()
-    db["database"] = section.Key("database").String()
-    db["charset"] = section.Key("charset").String()
-    db["prefix"] = section.Key("prefix").String()
-    db["engine"] = section.Key("engine").String()
+    db["user"] = app.Setting.Key("db.user").String()
+    db["password"] = app.Setting.Key("db.password").String()
+    db["host"] = app.Setting.Key("db.host").String()
+    db["port"] = app.Setting.Key("db.port").String()
+    db["database"] = app.Setting.Key("db.database").String()
+    db["charset"] = app.Setting.Key("db.charset").String()
+    db["prefix"] = app.Setting.Key("db.prefix").String()
+    db["engine"] = app.Setting.Key("db.engine").String()
 
     return db
 }

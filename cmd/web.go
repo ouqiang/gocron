@@ -11,6 +11,7 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/service"
     "github.com/ouqiang/gocron/models"
+    "github.com/ouqiang/gocron/modules/setting"
 )
 
 // web服务器默认端口
@@ -56,6 +57,13 @@ func initModule()  {
     if !app.Installed {
         return
     }
+
+    config, err := setting.Read(app.AppConfig)
+    if err != nil {
+        logger.Fatal("读取应用配置失败", err)
+    }
+    app.Setting = config
+
     models.Db = models.CreateDb()
 
     // 初始化定时任务

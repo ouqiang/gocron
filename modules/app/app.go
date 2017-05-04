@@ -6,6 +6,7 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "runtime"
     "github.com/ouqiang/gocron/modules/utils"
+    "gopkg.in/ini.v1"
 )
 
 var (
@@ -15,6 +16,7 @@ var (
     DataDir      string // 存放session等
     AppConfig    string // 应用配置文件
     Installed    bool   // 应用是否安装过
+    Setting      *ini.Section // 应用配置
 )
 
 func InitEnv() {
@@ -47,7 +49,7 @@ func IsInstalled() bool {
 func CreateInstallLock() error {
     _, err := os.Create(ConfDir + "/install.lock")
     if err != nil {
-        logger.Error("创建安装锁文件失败")
+        logger.Error("创建安装锁文件conf/install.lock失败")
     }
 
     return err

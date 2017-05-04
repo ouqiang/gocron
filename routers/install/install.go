@@ -7,8 +7,6 @@ import (
     "github.com/ouqiang/gocron/modules/utils"
     "gopkg.in/macaron.v1"
     "strconv"
-    "github.com/ouqiang/gocron/modules/logger"
-    "github.com/go-macaron/binding"
     "fmt"
     "github.com/ouqiang/gocron/service"
 )
@@ -27,10 +25,6 @@ type InstallForm struct {
     AdminPassword string `binding:"Required;MinSize(6)"`
     ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
     AdminEmail    string `binding:"Required;Email;MaxSize(50)"`
-}
-
-func(f InstallForm) Error(ctx *macaron.Context, errs binding.Errors)  {
-    logger.Error(errs)
 }
 
 func Create(ctx *macaron.Context) {
@@ -61,6 +55,12 @@ func Store(ctx *macaron.Context, form InstallForm) string {
         return json.CommonFailure("数据库配置写入文件失败", err)
     }
 
+    appConfig, err := setting.Read(app.AppConfig)
+    if err != nil {
+        return json.CommonFailure("读取应用配置失败", err)
+    }
+    app.Setting = appConfig
+
     models.Db = models.CreateDb()
     // 创建数据库表
     migration := new(models.Migration)
@@ -89,19 +89,18 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     return json.Success("安装成功", nil)
 }
 
-// 数据库配置写入文件
+// 配置写入文件
 func writeConfig(form InstallForm) error {
-    dbConfig := map[string]map[string]string{
-        "db": map[string]string{
-            "engine":   form.DbType,
-            "host":     form.DbHost,
-            "port":     strconv.Itoa(form.DbPort),
-            "user":     form.DbUsername,
-            "password": form.DbPassword,
-            "database": form.DbName,
-            "prefix":   form.DbTablePrefix,
-            "charset":  "utf8",
-        },
+    dbConfig := map[string]string{
+        "db.engine":   form.DbType,
+        "db.host":     form.DbHost,
+        "db.port":     strconv.Itoa(form.DbPort),
+        "db.user":     form.DbUsername,
+        "db.password": form.DbPassword,
+        "db.database": form.DbName,
+        "db.prefix":   form.DbTablePrefix,
+        "db.charset":  "utf8",
+        "allow_ips" : "",
     }
 
     return setting.Write(dbConfig, app.AppConfig)

@@ -142,6 +142,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
     m.Use(csrf.Csrfer())
     m.Use(toolbox.Toolboxer(m))
     checkAppInstall(m)
+    ipAuth(m)
     userAuth(m)
     setShareData(m)
 }
@@ -159,6 +160,20 @@ func checkAppInstall(m *macaron.Macaron)  {
     })
 }
 
+// IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
+func ipAuth(m *macaron.Macaron)  {
+    m.Use(func(ctx *macaron.Context) {
+        allowIpsStr := app.Setting.Key("allow_ips").String()
+        if allowIpsStr == "" {
+            return
+        }
+        clientIp := ctx.RemoteAddr()
+        if !utils.InStringSlice(allowIps, clientIp) {
+           ctx.Status(403)
+        }
+    })
+}
+
 // 用户认证
 func userAuth(m *macaron.Macaron)  {
     m.Use(func(ctx *macaron.Context, sess session.Store) {
@@ -167,7 +182,7 @@ func userAuth(m *macaron.Macaron)  {
         }
         uri := ctx.Req.URL.Path
         found := false
-        excludePaths := []string{"/install", "/user/login", "/"}
+        excludePaths := []string{"/install", "/user/login", "/api"}
         for _, path := range excludePaths {
             if strings.HasPrefix(uri, path) {
                 found = true
@@ -197,14 +212,6 @@ func setShareData(m *macaron.Macaron)  {
         ctx.Data["LoginUsername"] = user.Username(sess)
         ctx.Data["LoginUid"] = user.Uid(sess)
     })
-}
-
-// 管理员认证
-func adminAuth(ctx *macaron.Context, sess session.Store)  {
-    if !user.IsAdmin(sess) {
-        ctx.Data["Title"] = "无权限访问此页面"
-        ctx.HTML(403, "error/no_permission")
-    }
 }
 
 func isAjaxRequest(ctx *macaron.Context) bool {

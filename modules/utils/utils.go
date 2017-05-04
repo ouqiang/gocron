@@ -91,8 +91,9 @@ func ReplaceStrings(s string, old []string, replace []string) string  {
 }
 
 func InStringSlice(slice []string, element string) bool {
+    element = strings.TrimSpace(element)
     for _, v := range slice {
-        if v == element {
+        if strings.TrimSpace(v) == element{
             return true
         }
     }

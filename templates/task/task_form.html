@@ -66,13 +66,13 @@
                 <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="three fields">
+        <div class="six fields">
             <div class="field">
                 <label>任务超时时间(秒)</label>
                 <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
             </div>
         </div>
-        <div class="two fields">
+        <div class="six fields">
             <div class="field">
                 <label>任务失败重试次数</label>
                 <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
@@ -143,7 +143,7 @@
         </div>
     </div>
     {{else}}
-    <a class="ui blue button" href="/manage/mail/edit">邮箱配置</a><br><br>
+    <a class="ui blue button" href="/manage/mail/edit" target="_blank">邮箱配置</a><br><br>
     {{/each}}
 </script>
 
@@ -156,7 +156,7 @@
         </div>
     </div>
     {{else}}
-        <a class="ui blue button" href="/manage/slack/edit">Slack配置</a>
+        <a class="ui blue button" href="/manage/slack/edit" target="_blank">Slack配置</a>
     {{/each}}
 </script>
 

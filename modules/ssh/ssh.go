@@ -89,7 +89,7 @@ func Exec(sshConfig SSHConfig, cmd string) (output string, err error) {
     // 后台运行
     if  sshConfig.ExecTimeout < 0 {
         go session.CombinedOutput(cmd)
-        time.Sleep(5 * time.Second)
+        time.Sleep(3 * time.Second)
         return "", nil
     }
     // 不限制超时
