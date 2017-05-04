@@ -233,7 +233,7 @@ func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, stri
     taskLogModel.Status = status
     // SSH执行远程命令，后台运行
     var notifyId string = ""
-    if taskModel.Timeout == -1 && taskModel.Protocol == models.TaskSSH {
+    if taskModel.Timeout == -1 {
         notifyId = utils.RandString(32);
         taskLogModel.NotifyId = notifyId;
     }
@@ -320,7 +320,7 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
     if taskResult.Err != nil {
         taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
     }
-    if taskModel.Protocol == models.TaskSSH && taskModel.Timeout == -1 {
+    if taskModel.Timeout == -1 {
         taskResult.IsAsync = true
     }
     _, err := updateTaskLog(taskLogId, taskResult)

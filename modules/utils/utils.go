@@ -10,28 +10,41 @@ import (
     "github.com/Tang-RoseChild/mahonia"
     "strings"
     "os"
+    "syscall"
 )
 
 
 // 执行shell命令，可设置执行超时时间
+// todo Windows不能KILL掉子进程, 需特殊处理
 func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
     cmd := exec.Command(command, args...)
+    cmd.SysProcAttr = &syscall.SysProcAttr{
+        Setpgid: true,
+    }
 
-    // 不限制超时时间
-    if timeout <= 0 {
+    // 后台运行
+    if timeout == -1 {
+        go cmd.CombinedOutput()
+        return "", nil
+    }
+    // 不限制超时
+    if timeout == 0 {
         output ,err := cmd.CombinedOutput()
         return string(output), err
     }
+
     d := time.Duration(timeout) * time.Second
     timer := time.AfterFunc(d, func() {
         // 超时kill进程
-        cmd.Process.Kill()
+        syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
     })
     output ,err := cmd.CombinedOutput()
     timer.Stop()
 
     return string(output), err
 }
+
+
 
 // 生成长度为length的随机字符串
 func RandString(length int64) string {

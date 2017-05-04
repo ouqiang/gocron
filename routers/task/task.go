@@ -138,6 +138,9 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     if taskModel.NotifyStatus > 0 && taskModel.NotifyReceiverId == "" {
         return json.CommonFailure("请至少选择一个接收者", err)
     }
+    if taskModel.Protocol == models.TaskHTTP && taskModel.Timeout == -1 {
+        return json.CommonFailure("HTTP任务不支持后台运行", err)
+    }
     if id == 0 {
         id, err = taskModel.Create()
     } else {
