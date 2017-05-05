@@ -69,13 +69,13 @@
         <div class="six fields">
             <div class="field">
                 <label>任务超时时间(秒)</label>
-                <input type="text"  name="timeout"  value="{{{.Task.Timeout}}}">
+                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{.Task.Timeout}}}">
             </div>
         </div>
         <div class="six fields">
             <div class="field">
                 <label>任务失败重试次数</label>
-                <input type="text"  name="retry_times"  value="{{{.Task.RetryTimes}}}">
+                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{.Task.RetryTimes}}}">
             </div>
         </div>
         <div class="three fields">
@@ -337,30 +337,12 @@
                             }
                         ]
                     },
-                    timeout: {
-                        identifier  : 'timeout',
-                        rules: [
-                            {
-                                type   : 'integer[-1..86400]',
-                                prompt : '取值范围-1 - 86400'
-                            }
-                        ]
-                    },
                     remark: {
                         identifier  : 'remark',
                         rules: [
                             {
                                 type   : 'maxLength[100]',
                                 prompt : '长度不能超过100'
-                            }
-                        ]
-                    },
-                    retryTimes: {
-                        identifier  : 'retry_times',
-                        rules: [
-                            {
-                                type   : 'integer[0..10]',
-                                prompt : '取值范围 0 - 10'
                             }
                         ]
                     }
