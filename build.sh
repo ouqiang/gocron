@@ -61,10 +61,10 @@ echo '编译完成'
 
 if [[ $OS = 'windows' ]];then
     EXEC_NAME=${APP_NAME}.exe
-    COMPRESS_FILE=${APP_NAME}.zip
+    COMPRESS_FILE=${APP_NAME}-${OS}-${ARCH}.zip
 else
     EXEC_NAME=${APP_NAME}
-    COMPRESS_FILE=${APP_NAME}.tar.gz
+    COMPRESS_FILE=${APP_NAME}-${OS}-${ARCH}.tar.gz
 fi
 
 mkdir -p $TEMP_DIR/$APP_NAME

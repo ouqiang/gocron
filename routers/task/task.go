@@ -153,7 +153,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     if taskModel.Protocol == models.TaskHTTP && taskModel.Timeout == -1 {
         return json.CommonFailure("HTTP任务不支持后台运行", err)
     }
-    if taskModel.RetryTimes > 10 || taskModel < 0 {
+    if taskModel.RetryTimes > 10 || taskModel.RetryTimes < 0 {
         return json.CommonFailure("任务重试次数取值0-10")
     }
     if id == 0 {
