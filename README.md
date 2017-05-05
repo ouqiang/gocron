@@ -37,7 +37,7 @@
     * Linux、OSX:  `./gocron web`
 4. 浏览器访问 http://localhost:5920
 ### 源码安装
-1. `go`语言版本1.5+, 1.5版本需设置环境变量 `GO15VENDOREXPERIMENT=1`
+1. `go`语言版本1.7+
 2. `go get -d https://github.com/ouqiang/gocron`
 3. 编译 `go build`
 4. 启动、访问方式同上
