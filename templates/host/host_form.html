@@ -91,6 +91,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入主机名'
+                            },
+                            {
+                                type   : 'maxLength[64]',
+                                prompt : '长度不能超过64'
                             }
                         ]
                     },
@@ -100,6 +104,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入主机别名'
+                            },
+                            {
+                                type   : 'maxLength[32]',
+                                prompt : '长度不能超过32'
                             }
                         ]
                     },
@@ -109,6 +117,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入SSH用户名'
+                            },
+                            {
+                                type   : 'maxLength[32]',
+                                prompt : '长度不能超过32'
                             }
                         ]
                     },
@@ -118,6 +130,15 @@
                             {
                                 type   : 'integer[1..65535]',
                                 prompt : '请输入有效的端口号'
+                            }
+                        ]
+                    },
+                    remark: {
+                        identifier  : 'remark',
+                        rules: [
+                            {
+                                type   : 'maxLength[100]',
+                                prompt : '长度不能超过100'
                             }
                         ]
                     }

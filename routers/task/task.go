@@ -12,14 +12,15 @@ import (
     "fmt"
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
+    "github.com/go-macaron/binding"
 )
 
 type TaskForm struct {
     Id int
-    Name string `binding:"Required;"`
+    Name string `binding:"Required;MaxSize(32)"`
     Spec string `binding:"Required;MaxSize(64)"`
     Protocol models.TaskProtocol `binding:"In(1,2,3)"`
-    Command string `binding:"Required;MaxSize(512)"`
+    Command string `binding:"Required;MaxSize(256)"`
     Timeout int `binding:"Range(-1,86400)"`
     Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
@@ -29,6 +30,17 @@ type TaskForm struct {
     NotifyStatus int8 `binding:In(1,2,3)`
     NotifyType int8 `binding:In(1,2)`
     NotifyReceiverId string
+}
+
+
+func (f TaskForm) Error(ctx *macaron.Context, errs binding.Errors) {
+    if len(errs) == 0 {
+        return
+    }
+    json := utils.JsonResponse{}
+    content := json.CommonFailure("表单验证失败, 请检测输入")
+
+    ctx.Resp.Write([]byte(content))
 }
 
 // 首页
@@ -140,6 +152,9 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     }
     if taskModel.Protocol == models.TaskHTTP && taskModel.Timeout == -1 {
         return json.CommonFailure("HTTP任务不支持后台运行", err)
+    }
+    if taskModel.RetryTimes > 10 || taskModel < 0 {
+        return json.CommonFailure("任务重试次数取值0-10")
     }
     if id == 0 {
         id, err = taskModel.Create()

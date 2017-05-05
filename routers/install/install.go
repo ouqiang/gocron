@@ -9,6 +9,7 @@ import (
     "strconv"
     "fmt"
     "github.com/ouqiang/gocron/service"
+    "github.com/go-macaron/binding"
 )
 
 // 系统安装
@@ -25,6 +26,16 @@ type InstallForm struct {
     AdminPassword string `binding:"Required;MinSize(6)"`
     ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
     AdminEmail    string `binding:"Required;Email;MaxSize(50)"`
+}
+
+func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
+    if len(errs) == 0 {
+        return
+    }
+    json := utils.JsonResponse{}
+    content := json.CommonFailure("表单验证失败, 请检测输入")
+
+    ctx.Resp.Write([]byte(content))
 }
 
 func Create(ctx *macaron.Context) {

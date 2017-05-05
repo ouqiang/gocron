@@ -12,6 +12,7 @@ import (
     "fmt"
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
+    "github.com/go-macaron/binding"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -96,12 +97,22 @@ func Ping(ctx *macaron.Context) string  {
 
 type HostForm struct {
     Id int16
-    Name string `binding:"Required;MaxSize(100)"`
+    Name string `binding:"Required;MaxSize(64)"`
     Alias string `binding:"Required;MaxSize(32)"`
     Username string `binding:"Required;MaxSize(32)"`
     Port int `binding:"Required;Range(1-65535)"`
     AuthType ssh.HostAuthType `binding:"Required:Range(1,2)"`
     Remark string
+}
+
+func (f HostForm) Error(ctx *macaron.Context, errs binding.Errors) {
+    if len(errs) == 0 {
+        return
+    }
+    json := utils.JsonResponse{}
+    content := json.CommonFailure("表单验证失败, 请检测输入")
+
+    ctx.Resp.Write([]byte(content))
 }
 
 func Store(ctx *macaron.Context, form HostForm) string  {

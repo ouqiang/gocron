@@ -97,7 +97,7 @@
                     任务添加成功后，是否立即调度
                 </div>
                 <select name="status">
-                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 0}}}selected{{{end}}} {{{end}}}>暂停</option>
+                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 0}}}selected{{{end}}} {{{end}}}>停止</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Status 1}}}selected{{{end}}} {{{end}}}>激活</option>
                 </select>
             </div>
@@ -295,6 +295,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入任务名称'
+                            },
+                            {
+                                type : 'maxLength[32]',
+                                prompt : '长度不能超过32'
                             }
                         ]
                     },
@@ -304,6 +308,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入crontab格式表达式'
+                            },
+                            {
+                                type : 'maxLength[64]',
+                                prompt : '长度不能超过64'
                             }
                         ]
                     },
@@ -313,6 +321,10 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入任务命令'
+                            },
+                            {
+                                type : 'maxLength[256]',
+                                prompt : '长度不能超过256'
                             }
                         ]
                     },
@@ -322,6 +334,33 @@
                             {
                                 type   : 'selectProtocol',
                                 prompt : '请选择主机'
+                            }
+                        ]
+                    },
+                    timeout: {
+                        identifier  : 'timeout',
+                        rules: [
+                            {
+                                type   : 'integer[-1..86400]',
+                                prompt : '取值范围-1 - 86400'
+                            }
+                        ]
+                    },
+                    remark: {
+                        identifier  : 'remark',
+                        rules: [
+                            {
+                                type   : 'maxLength[100]',
+                                prompt : '长度不能超过100'
+                            }
+                        ]
+                    },
+                    retryTimes: {
+                        identifier  : 'retry_times',
+                        rules: [
+                            {
+                                type   : 'integer[0..10]',
+                                prompt : '取值范围 0 - 10'
                             }
                         ]
                     }

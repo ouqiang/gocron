@@ -58,6 +58,7 @@
                                <h5 class="ui header">{{{.Task.Name}}} {{{if eq .Status 1}}}<i class="large checkmark blue icon"></i> {{{else}}} <i class="large red minus icon"></i> {{{end}}}
                                </h5>
                                <p>任务ID： <span class="stress">{{{.Id}}}</span></p>
+                               <p>状态： <span class="stress">{{{if eq .Status 1}}}激活{{{else}}}停止{{{end}}}</span></p>
                                <p>cron表达式： {{{.Spec}}}</p>
                                <p>执行方式: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
                                <p class="sensorStatus">命令：{{{.Command}}}</p>
@@ -74,7 +75,7 @@
                            <div class="ui buttons operation">
                                <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
                                {{{if eq .Status 1}}}
-                               <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">暂停</button>
+                               <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">停止</button>
                                {{{else}}}
                                <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
                                {{{end}}}
