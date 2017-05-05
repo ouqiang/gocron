@@ -30,7 +30,7 @@
 ## 安装
     
 ###  二进制安装
-1. [下载](https://github.com/ouqiang/gocron/releases), 解压压缩包
+1. [下载](https://pan.baidu.com/s/1pLNRndx#list/path=%2Fgocron), 解压压缩包
 2. `cd 解压目录`   
 3. 启动  
     * Windows:  `gocron.exe web`            
