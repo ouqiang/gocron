@@ -2,13 +2,6 @@ package utils
 
 import "testing"
 
-func TestExecShell(t *testing.T) {
-    _, err := ExecShell("ls")
-    if err != nil {
-        t.Fatal(err)
-    }
-}
-
 func TestRandString(t *testing.T) {
     str := RandString(32)
     if len(str) != 32 {

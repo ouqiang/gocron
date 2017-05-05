@@ -111,7 +111,9 @@ func catchSignal()  {
         s := <- c
         logger.Info("收到信号 -- ", s)
         switch s {
-            case syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM:
+            case syscall.SIGHUP:
+            logger.Info("收到终端断开信号, 忽略")
+            case  syscall.SIGINT, syscall.SIGTERM:
             shutdown()
         }
     }

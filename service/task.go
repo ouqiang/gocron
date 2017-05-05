@@ -310,8 +310,15 @@ func beforeExecJob(taskModel *models.TaskHost) (taskLogId int64)  {
     }
     // 设置notifyId到环境变量中
     if notifyId != "" {
-        taskModel.Command = fmt.Sprintf("export GOCRON_TASK_ID=%s;%s", notifyId, taskModel.Command)
+        envName := "GOCRON_TASK_ID"
+        if taskModel.Protocol == models.TaskSSH {
+            taskModel.Command = fmt.Sprintf("%s%s", utils.FormatUnixEnv(envName, notifyId), taskModel.Command)
+        } else {
+            taskModel.Command = fmt.Sprintf("%s%s", utils.FormatEnv(envName, notifyId), taskModel.Command)
+        }
     }
+
+    logger.Debugf("任务命令-%s", taskModel.Command)
 
     return taskLogId
 }

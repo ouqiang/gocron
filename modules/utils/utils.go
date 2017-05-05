@@ -4,47 +4,13 @@ import (
     "crypto/md5"
     "encoding/hex"
     "math/rand"
-    "os/exec"
     "time"
     "runtime"
     "github.com/Tang-RoseChild/mahonia"
     "strings"
     "os"
-    "syscall"
+    "fmt"
 )
-
-
-// 执行shell命令，可设置执行超时时间
-// todo Windows不能KILL掉子进程, 需特殊处理
-func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
-    cmd := exec.Command(command, args...)
-    cmd.SysProcAttr = &syscall.SysProcAttr{
-        Setpgid: true,
-    }
-
-    // 后台运行
-    if timeout == -1 {
-        go cmd.CombinedOutput()
-        return "", nil
-    }
-    // 不限制超时
-    if timeout == 0 {
-        output ,err := cmd.CombinedOutput()
-        return string(output), err
-    }
-
-    d := time.Duration(timeout) * time.Second
-    timer := time.AfterFunc(d, func() {
-        // 超时kill进程
-        syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-    })
-    output ,err := cmd.CombinedOutput()
-    timer.Stop()
-
-    return string(output), err
-}
-
-
 
 // 生成长度为length的随机字符串
 func RandString(length int64) string {
@@ -122,6 +88,7 @@ func EscapeJson(s string) string  {
     return ReplaceStrings(s, specialChars, replaceChars)
 }
 
+// 判断文件是否存在及是否有权限访问
 func FileExist(file string) bool {
     _, err := os.Stat(file)
     if os.IsNotExist(err) {
@@ -132,4 +99,9 @@ func FileExist(file string) bool {
     }
 
     return true
+}
+
+// 格式化环境变量
+func FormatUnixEnv(key, value string) string {
+    return fmt.Sprintf("export %s=%s; ", key, value)
 }

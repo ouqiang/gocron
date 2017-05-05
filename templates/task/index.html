@@ -61,7 +61,7 @@
                                <p>cron表达式： {{{.Spec}}}</p>
                                <p>执行方式: {{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</p>
                                <p class="sensorStatus">命令：{{{.Command}}}</p>
-                               <p class="sensorStatus">超时时间：{{{if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
+                               <p class="sensorStatus">超时时间：{{{if eq .Timeout -1}}}后台运行{{{else if eq .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</p>
                                <p>重试次数: {{{.RetryTimes}}}</p>
                                <p class="sensorStatus">是否允许多实例运行：{{{if gt .Multi 0}}}是{{{else}}}否{{{end}}}</p>
                                {{{if eq .Protocol 2}}}
