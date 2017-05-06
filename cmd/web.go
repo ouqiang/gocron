@@ -120,6 +120,10 @@ func catchSignal()  {
 }
 
 func shutdown()  {
+    if !app.Installed {
+        os.Exit(0)
+        return
+    }
     logger.Info("应用准备退出\n停止任务调度")
     serviceTask := new(service.Task)
     // 停止所有任务调度
