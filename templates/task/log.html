@@ -72,7 +72,7 @@
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else}}} 系统命令 {{{end}}}</td>
-                <td>{{{if eq .Timeout -1}}}后台运行{{{else if eq .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
+                <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
                 <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>

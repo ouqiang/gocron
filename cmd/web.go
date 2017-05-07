@@ -124,12 +124,12 @@ func shutdown()  {
         os.Exit(0)
         return
     }
-    logger.Info("应用准备退出\n停止任务调度")
+    logger.Info("应用准备退出, 停止任务调度")
     serviceTask := new(service.Task)
     // 停止所有任务调度
     serviceTask.StopAll()
     taskNumInRunning := service.TaskNum.Num()
-    logger.Infof("正在运行的任务有%d个", taskNumInRunning)
+    logger.Infof("正在运行的任务有%d个, 等待所有任务执行完成后退出", taskNumInRunning)
     for {
         if taskNumInRunning <= 0 {
             break
