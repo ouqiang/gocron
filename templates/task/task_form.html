@@ -56,7 +56,7 @@
                     {{{range $i, $v := .Hosts}}}
                      <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
                     {{{end}}}
-                 </select> &nbsp; <a class="ui blue button" href="/host/create">添加主机</a>
+                 </select> &nbsp; <a class="ui blue button" href="/host/create" target="_blank">添加主机</a>
 
             </div>
         </div>
