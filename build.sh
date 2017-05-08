@@ -4,7 +4,7 @@
 # 构建应用, 生成压缩包 gocron.zip或gocron.tar.gz
 # ./build.sh -p windows -a amd64
 # 参数含义
-# -p 指定平台(widows|linux|darwin)
+# -p 指定平台(windows|linux|darwin)
 # -a 指定体系架构(amd64|386), 默认amd64
 
 

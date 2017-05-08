@@ -274,7 +274,9 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         if taskLogId <= 0 {
             return
         }
+        logger.Infof("开始执行任务#%s#命令-%s", taskModel.Task.Name, taskModel.Command)
         taskResult := execJob(handler, taskModel)
+        logger.Infof("任务完成#%s#命令-%s", taskModel.Task.Name, taskModel.Command)
         afterExecJob(taskModel, taskResult, taskLogId)
     }
 
