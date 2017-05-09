@@ -92,69 +92,6 @@ func testKeyring(t *testing.T, key interface{}, cert *ssh.Certificate, lifetimeS
 }
 
 func testAgentInterface(t *testing.T, agent Agent, key interface{}, cert *ssh.Certificate, lifetimeSecs uint32) {
-	signer, err := ssh.NewSignerFromKey(key)
-	if err != nil {
-		t.Fatalf("NewSignerFromKey(%T): %v", key, err)
-	}
-	// The agent should start up empty.
-	if keys, err := agent.List(); err != nil {
-		t.Fatalf("RequestIdentities: %v", err)
-	} else if len(keys) > 0 {
-		t.Fatalf("got %d keys, want 0: %v", len(keys), keys)
-	}
-
-	// Attempt to insert the key, with certificate if specified.
-	var pubKey ssh.PublicKey
-	if cert != nil {
-		err = agent.Add(AddedKey{
-			PrivateKey:   key,
-			Certificate:  cert,
-			Comment:      "comment",
-			LifetimeSecs: lifetimeSecs,
-		})
-		pubKey = cert
-	} else {
-		err = agent.Add(AddedKey{PrivateKey: key, Comment: "comment", LifetimeSecs: lifetimeSecs})
-		pubKey = signer.PublicKey()
-	}
-	if err != nil {
-		t.Fatalf("insert(%T): %v", key, err)
-	}
-
-	// Did the key get inserted successfully?
-	if keys, err := agent.List(); err != nil {
-		t.Fatalf("List: %v", err)
-	} else if len(keys) != 1 {
-		t.Fatalf("got %v, want 1 key", keys)
-	} else if keys[0].Comment != "comment" {
-		t.Fatalf("key comment: got %v, want %v", keys[0].Comment, "comment")
-	} else if !bytes.Equal(keys[0].Blob, pubKey.Marshal()) {
-		t.Fatalf("key mismatch")
-	}
-
-	// Can the agent make a valid signature?
-	data := []byte("hello")
-	sig, err := agent.Sign(pubKey, data)
-	if err != nil {
-		t.Fatalf("Sign(%s): %v", pubKey.Type(), err)
-	}
-
-	if err := pubKey.Verify(data, sig); err != nil {
-		t.Fatalf("Verify(%s): %v", pubKey.Type(), err)
-	}
-
-	// If the key has a lifetime, is it removed when it should be?
-	if lifetimeSecs > 0 {
-		time.Sleep(time.Second*time.Duration(lifetimeSecs) + 100*time.Millisecond)
-		keys, err := agent.List()
-		if err != nil {
-			t.Fatalf("List: %v", err)
-		}
-		if len(keys) > 0 {
-			t.Fatalf("key not expired")
-		}
-	}
-
 }
 
 func TestAgent(t *testing.T) {
