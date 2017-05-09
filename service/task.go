@@ -173,7 +173,13 @@ func (h *LocalCommandHandler) runOnUnix(taskModel models.TaskHost) (string, erro
 // HTTP任务
 type HTTPHandler struct{}
 
+// http任务执行时间不超过300秒
+const HttpExecTimeout = 300
+
 func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) {
+    if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
+        taskModel.Timeout = HttpExecTimeout
+    }
     resp := httpclient.Get(taskModel.Command, taskModel.Timeout)
     // 返回状态码非200，均为失败
     if resp.StatusCode != 200 {

@@ -88,7 +88,7 @@ func Register(m *macaron.Macaron) {
 
     // API
     m.Group("/api/v1", func() {
-       m.Get("/tasklog/update-status", tasklog.UpdateStatus)
+       m.Route("/tasklog/update-status", "GET,POST", tasklog.UpdateStatus)
     });
 
     // 404错误

@@ -6,7 +6,7 @@
 
 ## 功能特性
 * 支持任务CURD
-* crontab时间表达式，可精确到每秒
+* crontab时间表达式，精确到秒
 * 任务执行失败重试设置
 * 任务超时设置
 * 任务执行方式
@@ -21,7 +21,7 @@
 ![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot_slack.png)
     
 ### 支持平台
-> Windows、Linux、OSX
+> Windows、Linux、Mac OS
 
 ### 环境要求
 >  MySQL
@@ -34,7 +34,7 @@
 2. `cd 解压目录`   
 3. 启动  
     * Windows:  `gocron.exe web`            
-    * Linux、OSX:  `./gocron web`
+    * Linux、Mac OS:  `./gocron web`
 4. 浏览器访问 http://localhost:5920
 ### 源码安装
 1. `go`语言版本1.7+
