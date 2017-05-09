@@ -55,5 +55,12 @@
 * 网站访问设置IP白名单
 * SSH登录设置IP白名单
 
+## 程序使用的组件
+* web框架 [Macaron](http://go-macaron.com/)
+* 定时任务调度 [cron](https://github.com/robfig/cron)
+* ORM [Xorm](https://github.com/go-xorm/xorm)
+* UI框架 [Semantic UI](https://semantic-ui.com/)
+* 依赖管理(所有依赖包放入vendor目录) [govendor](https://github.com/kardianos/govendor)
+
 ## 贡献
 欢迎提交PR
