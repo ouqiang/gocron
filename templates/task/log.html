@@ -98,7 +98,7 @@
                     {{{end}}}
                 </td>
                 <td>
-                    {{{if and (ne .Status 1) (ne .Status 3)}}}
+                    {{{if or (eq .Status 2) (eq .Status 0)}}}
                         <button class="ui small primary button"
                                 onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
                                 >查看结果
