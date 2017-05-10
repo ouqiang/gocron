@@ -35,7 +35,7 @@
     * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
     * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
     
-2.解压压缩包
+2.解压压缩包    
 3. `cd 解压目录`   
 4. 启动  
     * Windows:  `gocron.exe web`            
