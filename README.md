@@ -27,20 +27,20 @@
 >  MySQL
 
 
+## 下载
+* [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-linux-amd64.tar.gz)
+* [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
+* [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
+
 ## 安装
-    
+
 ###  二进制安装
-1. 下载
-    * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-linux-amd64.tar.gz)
-    * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
-    * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
-    
-2.解压压缩包    
-3. `cd 解压目录`   
-4. 启动  
+1. 解压压缩包    
+2. `cd 解压目录`   
+3. 启动  
     * Windows:  `gocron.exe web`            
     * Linux、Mac OS:  `./gocron web`
-5. 浏览器访问 http://localhost:5920
+4. 浏览器访问 http://localhost:5920
 ### 源码安装
 1. `go`语言版本1.7+
 2. `go get -d https://github.com/ouqiang/gocron`
