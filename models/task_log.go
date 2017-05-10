@@ -73,8 +73,14 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 }
 
 // 清空表
-func (TaskLog *TaskLog) Clear() (int64, error)  {
-    return Db.Where("1=1").Delete(TaskLog);
+func (taskLog *TaskLog) Clear() (int64, error)  {
+    return Db.Where("1=1").Delete(taskLog);
+}
+
+// 删除N个月前的日志
+func (taskLog *TaskLog) Remove(id int) (int64, error) {
+    t := time.Now().AddDate(0, -id, 0)
+    return Db.Where("start_time <= ?", t.Format(DefaultTimeFormat)).Delete(taskLog)
 }
 
 func (taskLog *TaskLog) Total(params CommonMap) (int64, error) {

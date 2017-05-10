@@ -1,5 +1,7 @@
 package tasklog
 
+// 任务日志
+
 import (
     "gopkg.in/macaron.v1"
     "github.com/ouqiang/gocron/models"
@@ -10,9 +12,6 @@ import (
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
 )
-
-// @author qiang.ou<qingqianludao@gmail.com>
-// @date 2017/4/7-21:18
 
 func Index(ctx *macaron.Context)  {
     logModel := new(models.TaskLog)
@@ -49,12 +48,29 @@ func Clear(ctx *macaron.Context) string  {
     return json.Success(utils.SuccessContent, nil)
 }
 
+// 删除N个月前的日志
+func Remove(ctx *macaron.Context) string {
+    month := ctx.ParamsInt(":id")
+    json := utils.JsonResponse{}
+    if month < 1 || month > 12 {
+        return json.CommonFailure("参数取值范围1-12")
+    }
+    taskLogModel := new(models.TaskLog)
+    _, err := taskLogModel.Remove(month)
+    if err != nil {
+        return json.CommonFailure("删除失败", err)
+    }
+
+    return json.Success("删除成功", nil)
+}
+
 // 更新任务状态
 func UpdateStatus(ctx *macaron.Context) string {
     id := ctx.QueryTrim("id")
     status := ctx.QueryInt("status")
     result := ctx.QueryTrim("result")
     json := utils.JsonResponse{}
+
     if id == "" {
         return json.CommonFailure("任务ID不能为空")
     }
