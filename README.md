@@ -30,19 +30,22 @@
 ## 安装
     
 ###  二进制安装
-1. [下载](http://opns468ov.bkt.clouddn.com/index.html), 解压压缩包
-2. `cd 解压目录`   
-3. 启动  
+1. 下载
+    * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-linux-amd64.tar.gz)
+    * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
+    * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
+    
+2.解压压缩包
+3. `cd 解压目录`   
+4. 启动  
     * Windows:  `gocron.exe web`            
     * Linux、Mac OS:  `./gocron web`
-4. 浏览器访问 http://localhost:5920
+5. 浏览器访问 http://localhost:5920
 ### 源码安装
 1. `go`语言版本1.7+
 2. `go get -d https://github.com/ouqiang/gocron`
 3. 编译 `go build`
 4. 启动、访问方式同上
-5. 生成压缩包（Windows: gocron.zip, 其他平台: gocron.tar.gz） 
-> ./build.sh -p 平台 -a CPU架构 例 ./build.sh -p darwin -a amd64
 
 ### 启动可选参数
 
