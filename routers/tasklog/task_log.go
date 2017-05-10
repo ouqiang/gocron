@@ -11,6 +11,8 @@ import (
     "fmt"
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
+    "github.com/ouqiang/gocron/service"
+    "errors"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -85,6 +87,26 @@ func UpdateStatus(ctx *macaron.Context) string {
     if err != nil || affectRows == 0 {
         return json.CommonFailure("更新任务状态失败")
     }
+
+    // 发送通知
+    taskId, err := taskLogModel.GetTaskIdByNotifyId(id)
+    if err != nil || taskId <= 0 {
+        logger.Error("异步任务回调#根据notify-id获取taskId失败", err)
+        return json.Success("success", nil)
+    }
+    taskModel := new(models.Task)
+    task, err := taskModel.Detail(taskId)
+    if err != nil || task.Id <= 0 {
+        logger.Error("异步任务回调#根据获取任务详情失败", err)
+        return json.Success("success", nil)
+    }
+
+    taskResult := service.TaskResult{}
+    taskResult.Result = result
+    if status == 0 {
+        taskResult.Err = errors.New("error")
+    }
+    service.SendNotification(task, taskResult)
 
     return json.Success("success", nil)
 }

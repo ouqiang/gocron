@@ -150,7 +150,9 @@ func RegisterMiddleware(m *macaron.Macaron) {
     })
 }
 
-// 系统未安装，重定向到安装页面
+// region 自定义中间件
+
+/** 系统未安装，重定向到安装页面 **/
 func checkAppInstall(m *macaron.Macaron)  {
     m.Use(func(ctx *macaron.Context) {
         installUrl := "/install"
@@ -196,7 +198,9 @@ func userAuth(ctx *macaron.Context, sess session.Store)  {
     }
 }
 
-// 设置共享数据
+// endregion
+
+/** 设置共享数据 **/
 func setShareData(ctx *macaron.Context, sess session.Store)  {
     ctx.Data["URI"] = ctx.Req.URL.Path
     urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")

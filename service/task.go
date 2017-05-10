@@ -346,11 +346,11 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
         return
     }
 
-    sendNotification(taskModel, taskResult)
+    SendNotification(taskModel, taskResult)
 }
 
 // 发送任务结果通知
-func sendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
+func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
     var statusName string
     // 未开启通知
     if taskModel.NotifyStatus == 0 {
@@ -358,6 +358,9 @@ func sendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
     }
     if taskModel.NotifyStatus == 1 && taskResult.Err == nil {
         // 执行失败才发送通知
+        return
+    }
+    if taskModel.NotifyReceiverId == "" {
         return
     }
     if taskResult.Err != nil {

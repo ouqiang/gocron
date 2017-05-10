@@ -72,6 +72,17 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
     return list, err
 }
 
+// 根据通知ID获取任务ID
+func (taskLog *TaskLog) GetTaskIdByNotifyId(notifyId string) (taskId int, err error) {
+    exist, err := Db.Where("notify_id = ?", notifyId).Get(taskLog)
+    if !exist || err != nil {
+        return
+    }
+    taskId = taskLog.TaskId
+
+    return
+}
+
 // 清空表
 func (taskLog *TaskLog) Clear() (int64, error)  {
     return Db.Where("1=1").Delete(taskLog);
