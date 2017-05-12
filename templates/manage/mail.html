@@ -48,6 +48,9 @@
                 </div>
             </div>
             <button class="ui primary  button">保存</button>
+            {{{if .Mail.Host}}}
+                <a class="ui green button" onclick="clearMailServer()">删除</a>
+            {{{end}}}
             <br><br><br>
             <div>
                 <div class="content">邮箱用户</div><p></p>
@@ -98,7 +101,7 @@
                     util.post('/manage/mail/server',
                             fields,
                             function(code, message) {
-                                util.alertSuccess();
+                                location.reload();
                             }
                     );
                     return false;
@@ -185,6 +188,12 @@
 
     function removeMailUser(id) {
         util.post('/manage/mail/user/remove/' + id, {}, function(code, message) {
+            location.reload();
+        });
+    }
+
+    function clearMailServer() {
+        util.post('/manage/mail/server/clear', {}, function(code, message) {
             location.reload();
         });
     }

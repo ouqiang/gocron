@@ -80,6 +80,7 @@ func Register(m *macaron.Macaron) {
             m.Get("/", manage.Mail)
             m.Get("/edit", manage.EditMail)
             m.Post("/server", binding.Bind(manage.MailServerForm{}), manage.UpdateMailServer)
+            m.Post("/server/clear", manage.ClearMailServer)
             m.Post("/user", manage.CreateMailUser)
             m.Post("/user/remove/:id", manage.RemoveMailUser)
         })

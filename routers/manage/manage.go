@@ -105,6 +105,14 @@ func UpdateMailServer(ctx *macaron.Context, form MailServerForm) string {
     return utils.JsonResponseByErr(err)
 }
 
+func ClearMailServer(ctx *macaron.Context) string {
+    jsonByte, _ := json.Marshal(MailServerForm{})
+    settingModel := new(models.Setting)
+    _, err := settingModel.UpdateMailServer(string(jsonByte))
+
+    return utils.JsonResponseByErr(err)
+}
+
 func CreateMailUser(ctx *macaron.Context) string  {
     username := ctx.QueryTrim("username")
     email := ctx.QueryTrim("email")
