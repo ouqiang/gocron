@@ -13,6 +13,7 @@ import (
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
     "github.com/go-macaron/binding"
+    "strings"
 )
 
 type TaskForm struct {
@@ -26,7 +27,6 @@ type TaskForm struct {
     RetryTimes int8
     HostId int16
     Remark string
-    Status models.Status `binding:"In(1,2)"`
     NotifyStatus int8 `binding:In(1,2,3)`
     NotifyType int8 `binding:In(1,2)`
     NotifyReceiverId string
@@ -82,11 +82,6 @@ func Create(ctx *macaron.Context)  {
 // 编辑页面
 func Edit(ctx *macaron.Context)  {
     id := ctx.ParamsInt(":id")
-    hostModel := new(models.Host)
-    hosts, err := hostModel.List(models.CommonMap{})
-    if err != nil || len(hosts) == 0 {
-        logger.Error(err)
-    }
     taskModel := new(models.Task)
     task, err := taskModel.Detail(id)
     if err != nil || task.Id != id {
@@ -95,11 +90,7 @@ func Edit(ctx *macaron.Context)  {
     }
     ctx.Data["Task"]  = task
     ctx.Data["Title"] = "编辑"
-    ctx.Data["Hosts"] = hosts
-    if len(hosts) > 0 {
-        ctx.Data["FirstHostName"] = hosts[0].Name
-        ctx.Data["FirstHostId"] = hosts[0].Id
-    }
+    setHostsToTemplate(ctx)
     ctx.HTML(200, "task/task_form")
 }
 
@@ -134,12 +125,8 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.Command = form.Command
     taskModel.Timeout = form.Timeout
     taskModel.Remark = form.Remark
-    taskModel.Status = form.Status
     taskModel.Multi = form.Multi
     taskModel.RetryTimes = form.RetryTimes
-    if taskModel.Status != models.Enabled {
-        taskModel.Status = models.Disabled
-    }
     if taskModel.Multi != 1 {
         taskModel.Multi = 0
     }
@@ -151,6 +138,10 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("请至少选择一个接收者")
     }
     if taskModel.Protocol == models.TaskHTTP {
+        command := strings.ToLower(taskModel.Command)
+        if !strings.HasPrefix(command, "http://") && !strings.HasPrefix(command, "https://") {
+            return json.CommonFailure("请输入正确的URL地址")
+        }
         if taskModel.Timeout == -1 {
             return json.CommonFailure("HTTP任务不支持后台运行")
         }
@@ -159,10 +150,15 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         }
     }
 
-
     if taskModel.RetryTimes > 10 || taskModel.RetryTimes < 0 {
         return json.CommonFailure("任务重试次数取值0-10")
     }
+
+
+    if taskModel.Protocol != models.TaskSSH {
+        taskModel.HostId = 0
+    }
+
     if id == 0 {
         id, err = taskModel.Create()
     } else {
@@ -170,11 +166,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     }
     if err != nil {
         return json.CommonFailure("保存失败", err)
-    }
-
-    // 任务处于激活状态,加入调度管理
-    if (taskModel.Status == models.Enabled) {
-        addTaskToTimer(id)
     }
 
     return json.Success("保存成功", nil)
@@ -280,8 +271,4 @@ func setHostsToTemplate(ctx *macaron.Context)  {
         logger.Error(err)
     }
     ctx.Data["Hosts"] = hosts
-    if len(hosts) > 0 {
-        ctx.Data["FirstHostName"] = hosts[0].Name
-        ctx.Data["FirstHostId"] = hosts[0].Id
-    }
 }

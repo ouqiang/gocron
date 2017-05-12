@@ -50,7 +50,7 @@ func (slack *Slack) send(msg Message, slackUrl string, channel string)  {
         i += 1
         time.Sleep(2 * time.Second)
         if i < maxTimes {
-            logger.Error("slack#发送消息失败#%s#消息内容-%s", resp.Body, msg["content"])
+            logger.Errorf("slack#发送消息失败#%s#消息内容-%s", resp.Body, msg["content"])
         }
     }
 }

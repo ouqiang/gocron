@@ -63,7 +63,7 @@
         <div class="two fields">
             <div class="field">
                 <label>命令</label>
-                <textarea rows="5" name="command">{{{.Task.Command}}}</textarea>
+                <textarea rows="5" name="command" placeholder="请输入系统命令" id="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
         <div class="six fields">
@@ -81,24 +81,9 @@
         <div class="three fields">
             <div class="field">
                 <label>允许多实例同时运行</label>
-                <div class="ui blue message">
-                    前次任务未执行完成，本次任务是否执行
-                </div>
                 <select name="multi">
                     <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                     <option value="2" {{{if .Task}}} {{{if eq .Task.Multi 0}}}selected{{{end}}} {{{end}}}>否</option>
-                </select>
-            </div>
-        </div>
-        <div class="three fields">
-            <div class="field">
-                <label>任务状态</label>
-                <div class="ui blue message">
-                    任务添加成功后，是否立即调度
-                </div>
-                <select name="status">
-                    <option value="2"{{{if .Task}}} {{{if eq .Task.Status 0}}}selected{{{end}}} {{{end}}}>停止</option>
-                    <option value="1" {{{if .Task}}} {{{if eq .Task.Status 1}}}selected{{{end}}} {{{end}}}>激活</option>
                 </select>
             </div>
         </div>
@@ -162,13 +147,17 @@
 
 <script type="text/javascript">
     $(function() {
+        changeCommandPlaceholder();
         changeProtocol();
         showNotify();
     });
 
     $('#protocol').change(function() {
-       changeProtocol();
+        changeCommandPlaceholder();
+        changeProtocol();
     });
+
+
 
     $('#task-status').change(function() {
         var selected = $(this).val();
@@ -184,6 +173,21 @@
     $('#task-notify-type').change(function() {
       changeNotify();
     });
+
+    function changeCommandPlaceholder() {
+        var selectedId = $('#protocol').val();
+        switch (selectedId) {
+            case '1':
+                $('#command').attr('placeholder', '请输入URL地址');
+                break;
+            case '2':
+                $('#command').attr('placeholder', '请输入shell命令');
+                break;
+            case '3':
+                $('#command').attr('placeholder', '请输入系统命令');
+                break;
+        }
+    }
 
     function showNotify() {
         var notifyStatus = {{{.Task.NotifyStatus}}};

@@ -66,7 +66,7 @@ func (mail *Mail) send(mailSetting models.Mail, toUsers []string, msg Message)  
         i += 1
         time.Sleep(2 * time.Second)
         if i < maxTimes {
-            logger.Error("mail#发送消息失败#%s#消息内容-%s", err.Error(), msg["content"])
+            logger.Errorf("mail#发送消息失败#%s#消息内容-%s", err.Error(), msg["content"])
         }
     }
 }

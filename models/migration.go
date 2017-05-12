@@ -13,8 +13,9 @@ func (migration *Migration) Exec(dbName string) error {
         return errors.New("数据库不存在")
     }
     setting := new(Setting)
+    task := new(Task)
     tables := []interface{}{
-        &User{}, &Task{}, &TaskLog{}, &Host{}, setting,&LoginLog{},
+        &User{}, task, &TaskLog{}, &Host{}, setting,&LoginLog{},
     }
     for _, table := range tables {
         exist, err:= Db.IsTableExist(table)
@@ -30,6 +31,7 @@ func (migration *Migration) Exec(dbName string) error {
         }
     }
     setting.InitBasicField()
+    task.CreateTestTask()
 
     return nil
 }

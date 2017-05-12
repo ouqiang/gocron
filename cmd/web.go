@@ -93,12 +93,12 @@ func setEnvironment(ctx *cli.Context)  {
     }
 
     switch env {
-        case "prod":
-            macaron.Env = macaron.PROD
         case "test":
             macaron.Env = macaron.TEST
         case "dev":
             macaron.Env = macaron.DEV
+        default:
+        macaron.Env = macaron.PROD
     }
 }
 

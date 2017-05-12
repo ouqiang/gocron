@@ -4,6 +4,7 @@ import (
     "time"
     "github.com/ouqiang/gocron/modules/ssh"
     "github.com/go-xorm/xorm"
+    "github.com/ouqiang/gocron/modules/utils"
 )
 
 type TaskProtocol int8
@@ -29,9 +30,9 @@ type Task struct {
     NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
     NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
     Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
+    Status   Status    `xorm:"tinyint notnull default 0"`        // 状态 1:正常 0:停止
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
-    Status   Status    `xorm:"tinyint notnull default 1"`        // 状态 1:正常 0:停止
     BaseModel `xorm:"-"`
 }
 
@@ -58,8 +59,33 @@ func (task *Task) Create() (insertId int, err error) {
     return
 }
 
+// 新增测试任务
+func (task *Task) CreateTestTask() {
+    // HTTP任务
+    task.Name = "测试HTTP任务"
+    task.Protocol = TaskHTTP
+    task.Spec = "*/30 * * * * *"
+    // 查询IP地址区域信息
+    task.Command = "http://ip.taobao.com/service/getIpInfo.php?ip=117.27.140.253"
+    task.Status = Enabled
+    task.Create()
+
+    // 系统命令
+    task.Id = 0
+    task.Name = "测试系统命令任务"
+    task.Protocol = TaskLocalCommand
+    task.Spec = "@every 1m"
+    task.Status = Enabled
+    if utils.IsWindows() {
+        task.Command = "dir"
+    } else {
+        task.Command = "ls"
+    }
+    task.Create()
+}
+
 func (task *Task) UpdateBean(id int) (int64, error)  {
-    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,status,notify_status,notify_type,notify_receiver_id").Update(task)
+    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,notify_status,notify_type,notify_receiver_id").Update(task)
 }
 
 // 更新
