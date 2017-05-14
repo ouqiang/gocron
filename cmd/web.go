@@ -71,6 +71,17 @@ func initModule()  {
     // 初始化定时任务
     serviceTask := new(service.Task)
     serviceTask.Initialize()
+
+    delayTaskEnabled, err := config.Key("delay.task.enable").Bool()
+    if err != nil {
+        logger.Error("获取延时任务配置失败", err)
+        return
+    }
+    if !delayTaskEnabled {
+        return
+    }
+    serviceDelayTask := new(service.DelayTask)
+    serviceDelayTask.Initialize()
 }
 
 // 解析端口
@@ -128,6 +139,11 @@ func shutdown()  {
     serviceTask := new(service.Task)
     // 停止所有任务调度
     serviceTask.StopAll()
+    delayTaskEnable, _ := app.Setting.Key("delay.task.enable").Bool()
+    if delayTaskEnable {
+        serviceDelayTask := new(service.DelayTask)
+        serviceDelayTask.Stop()
+    }
     taskNumInRunning := service.TaskNum.Num()
     logger.Infof("正在运行的任务有%d个", taskNumInRunning)
     if taskNumInRunning > 0 {

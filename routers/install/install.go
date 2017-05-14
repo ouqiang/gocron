@@ -113,6 +113,7 @@ func writeConfig(form InstallForm) error {
         "db.charset":  "utf8",
         "allow_ips" : "",
         "app.name": "定时任务管理系统", // 应用名称
+        "delay.task.enable": "false", // 是否开启延时任务
     }
 
     return setting.Write(dbConfig, app.AppConfig)

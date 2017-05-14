@@ -26,6 +26,7 @@ const (
     Finish   Status = 2 // 完成
     Cancel   Status = 3 // 取消
     Background Status = 4 // 后台运行
+    Waiting Status  = 5 // 等待中
 )
 
 const (

@@ -17,6 +17,7 @@ import (
     "github.com/go-macaron/gzip"
     "github.com/ouqiang/gocron/routers/manage"
     "github.com/ouqiang/gocron/routers/loginlog"
+    "github.com/ouqiang/gocron/routers/delaytask"
 )
 
 // 静态文件目录
@@ -43,7 +44,7 @@ func Register(m *macaron.Macaron) {
         m.Post("/editPassword", user.UpdatePassword)
     })
 
-    // 任务
+    // 定时任务
     m.Group("/task", func() {
         m.Get("/create", task.Create)
         m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
@@ -55,6 +56,11 @@ func Register(m *macaron.Macaron) {
         m.Post("/enable/:id", task.Enable)
         m.Post("/disable/:id", task.Disable)
         m.Get("/run/:id", task.Run)
+    })
+
+    // 延时任务
+    m.Group("/delaytask", func() {
+        m.Get("", delaytask.Index)
     })
 
     // 主机
@@ -91,6 +97,8 @@ func Register(m *macaron.Macaron) {
     m.Group("/api/v1", func() {
        m.Route("/tasklog/update-status", "GET,POST", tasklog.UpdateStatus)
        m.Post("/tasklog/remove/:id", tasklog.Remove)
+       m.Post("/delaytask/create", delaytask.Create)
+       m.Post("/delaytask/remove/:id", delaytask.Remove)
     });
 
     // 404错误
