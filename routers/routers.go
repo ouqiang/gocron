@@ -97,7 +97,7 @@ func Register(m *macaron.Macaron) {
     m.Group("/api/v1", func() {
        m.Route("/tasklog/update-status", "GET,POST", tasklog.UpdateStatus)
        m.Post("/tasklog/remove/:id", tasklog.Remove)
-       m.Post("/delaytask/create", delaytask.Create)
+       m.Post("/delaytask/push", delaytask.Create)
        m.Post("/delaytask/remove/:id", delaytask.Remove)
     });
 

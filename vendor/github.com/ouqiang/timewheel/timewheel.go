@@ -2,7 +2,6 @@ package timewheel
 
 import (
     "time"
-    "container/ring"
     "container/list"
 )
 
@@ -11,7 +10,8 @@ import (
 type TimeWheel struct {
     interval time.Duration
     ticker *time.Ticker
-    slots *ring.Ring
+    slots []*list.List
+    currentPos int
     slotNum int
     taskChannel chan Task
     stopChannel chan bool
@@ -32,7 +32,8 @@ func New(interval time.Duration, slotNum int) *TimeWheel {
     }
     tw := &TimeWheel{
         interval: interval,
-        slots: ring.New(slotNum),
+        slots: make([]*list.List, slotNum),
+        currentPos: 0,
         slotNum: slotNum,
         taskChannel: make(chan Task),
         stopChannel: make(chan bool),
@@ -44,9 +45,8 @@ func New(interval time.Duration, slotNum int) *TimeWheel {
 }
 
 func (tw *TimeWheel) initSlots()  {
-    for i := 0; i < tw.slots.Len(); i++ {
-        tw.slots.Value = list.New()
-        tw.slots = tw.slots.Next()
+    for i := 0; i < tw.slotNum; i++ {
+        tw.slots[i] = list.New()
     }
 }
 
@@ -81,9 +81,13 @@ func (tw *TimeWheel) start()  {
 }
 
 func (tw *TimeWheel) tickHandler()  {
-    l := tw.slots.Value.(*list.List)
+    l := tw.slots[tw.currentPos]
     tw.scanAndRunTask(l)
-    tw.slots = tw.slots.Next()
+    if tw.currentPos == tw.slotNum - 1 {
+        tw.currentPos = 0
+    } else {
+        tw.currentPos++
+    }
 }
 
 func (tw *TimeWheel) scanAndRunTask(l *list.List)  {
@@ -103,18 +107,18 @@ func (tw *TimeWheel) scanAndRunTask(l *list.List)  {
 }
 
 func (tw *TimeWheel) addTask(task *Task)  {
-    step, circle := tw.getStepAndCircle(task.delay)
+    pos, circle := tw.getPositionAndCircle(task.delay)
     task.circle = circle
 
-    l := tw.slots.Move(step).Value.(*list.List)
-    l.PushBack(task)
+    tw.slots[pos].PushBack(task)
 }
 
-func (tw *TimeWheel) getStepAndCircle(d time.Duration) (step int, circle int) {
+func (tw *TimeWheel) getPositionAndCircle(d time.Duration) (pos int, circle int) {
     delaySeconds := int(d.Seconds())
     intervalSeconds := int(tw.interval.Seconds())
     circle = int(delaySeconds / intervalSeconds /  tw.slotNum)
-    step = int(delaySeconds / intervalSeconds) % tw.slotNum
+    pos = int(tw.currentPos + delaySeconds / intervalSeconds) % tw.slotNum
+
 
     return
 }
