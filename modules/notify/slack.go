@@ -43,7 +43,7 @@ func (slack *Slack) send(msg Message, slackUrl string, channel string)  {
     maxTimes := 3
     i := 0
     for i < maxTimes {
-        resp := httpclient.PostBody(slackUrl, formatBody, timeout)
+        resp := httpclient.PostJson(slackUrl, formatBody, timeout)
         if resp.StatusCode == 200 {
             break;
         }

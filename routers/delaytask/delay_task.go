@@ -40,7 +40,7 @@ func Create(ctx *macaron.Context) string {
     json := utils.JsonResponse{}
     delayTaskEnabled, _ := app.Setting.Key("delay.task.enable").Bool()
     if !delayTaskEnabled {
-        return json.CommonFailure("未开启延时任务")
+        return json.CommonFailure("系统未开启延时任务")
     }
     if url == ""  {
         return json.CommonFailure("url地址不能为空")

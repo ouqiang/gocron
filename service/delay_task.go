@@ -15,8 +15,8 @@ var tw  *timewheel.TimeWheel
 type DelayTask struct {}
 
 // 从数据库中取出所有延迟任务
-func (task *DelayTask) Initialize()  {
-    tw = timewheel.New(1 * time.Second, 3600)
+func (task *DelayTask) Initialize(tick time.Duration, slots int)  {
+    tw = timewheel.New(tick, slots)
     tw.Start()
     taskModel := new(models.DelayTask)
     currentTime := time.Now()
@@ -80,7 +80,7 @@ func (task *DelayTask) Run(id int64, url, params string)  {
     success := false
     logger.Infof("延迟任务开始执行#id-%d#url-%s#params-%s", id, url, params)
     for i := 0; i < tryTimes; {
-        response := httpclient.PostBody(url, params, timeout)
+        response := httpclient.PostParams(url, params, timeout)
         if response.StatusCode == 200 && strings.TrimSpace(response.Body) == "success"{
             success = true
             break;
@@ -88,8 +88,7 @@ func (task *DelayTask) Run(id int64, url, params string)  {
         i++
         if i < tryTimes {
             logger.Errorf("延迟任务执行失败#重试第%d次#任务Id-%d#HTTP状态码-%d#HTTP-BODY-%s",
-            i,id,response.StatusCode,response.Body,
-            )
+            i,id,response.StatusCode,response.Body)
             time.Sleep(30 * time.Second)
         }
     }

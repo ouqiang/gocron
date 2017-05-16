@@ -98,7 +98,7 @@ func Register(m *macaron.Macaron) {
        m.Route("/tasklog/update-status", "GET,POST", tasklog.UpdateStatus)
        m.Post("/tasklog/remove/:id", tasklog.Remove)
        m.Post("/delaytask/push", delaytask.Create)
-       m.Post("/delaytask/remove/:id", delaytask.Remove)
+       m.Post("/delaytask/log/remove/:id", delaytask.Remove)
     });
 
     // 404错误
