@@ -53,8 +53,8 @@ if [[ $ARCH != '386' && $ARCH != 'amd64' ]];then
 fi
 
 echo '开始编译'
-GOOS=$OS GOARCH=$ARCH go build
-if [[ ! $? ]];then
+GOOS=$OS GOARCH=$ARCH go build -ldflags '-w'
+if [[ $? != 0 ]];then
     exit 1
 fi
 echo '编译完成'
@@ -68,7 +68,7 @@ else
 fi
 
 mkdir -p $TEMP_DIR/$APP_NAME
-if [[ ! $? ]]; then
+if [[ $? != 0 ]]; then
     exit 1
 fi
 

@@ -11,7 +11,7 @@ fi
 for i in linux darwin windows
 do
     ./build.sh -p $i
-    if [[ ! $? ]];then
+    if [[ $? != 0 ]];then
         break
     fi
 done
@@ -25,7 +25,7 @@ do
     # 上传文件 qrsctl put bucket  key srcFile
     KEY=gocron/$i
     qrsctl put github $KEY $i
-    if [[ ! $? ]];then
+    if [[ $? != 0 ]];then
         break
     fi
     echo "刷新七牛CDN-" $QINIU_URL/$KEY
