@@ -7,12 +7,15 @@ import (
 
 // @author qiang.ou<qingqianludao@gmail.com>
 
+type Job func([]interface{})
+
 type TimeWheel struct {
     interval time.Duration
     ticker *time.Ticker
     slots []*list.List
     currentPos int
     slotNum int
+    job Job
     taskChannel chan Task
     stopChannel chan bool
 }
@@ -21,19 +24,18 @@ type TimeWheel struct {
 type Task struct {
     delay time.Duration
     circle int
-    job Job
+    data []interface{}
 }
 
-type Job func()
-
-func New(interval time.Duration, slotNum int) *TimeWheel {
-    if  interval <= 0 || slotNum <= 0 {
+func New(interval time.Duration, slotNum int, job Job) *TimeWheel {
+    if  interval <= 0 || slotNum <= 0 || job == nil {
         return nil
     }
     tw := &TimeWheel{
         interval: interval,
         slots: make([]*list.List, slotNum),
         currentPos: 0,
+        job: job,
         slotNum: slotNum,
         taskChannel: make(chan Task),
         stopChannel: make(chan bool),
@@ -55,11 +57,11 @@ func (tw *TimeWheel) Start()  {
     go tw.start()
 }
 
-func (tw *TimeWheel) Add(delay time.Duration, job Job)  {
-    if delay < 0 || job == nil {
+func (tw *TimeWheel) Add(delay time.Duration, data []interface{})  {
+    if delay <= 0  {
         return
     }
-    tw.taskChannel <- Task{delay:delay, job: job}
+    tw.taskChannel <- Task{delay:delay, data: data}
 }
 
 func (tw *TimeWheel) Stop()  {
@@ -99,7 +101,7 @@ func (tw *TimeWheel) scanAndRunTask(l *list.List)  {
             continue
         }
 
-        go task.job()
+        go tw.job(task.data)
         next := e.Next()
         l.Remove(e)
         e = next

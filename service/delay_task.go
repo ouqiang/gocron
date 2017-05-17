@@ -16,7 +16,7 @@ type DelayTask struct {}
 
 // 从数据库中取出所有延迟任务
 func (task *DelayTask) Initialize(tick time.Duration, slots int)  {
-    tw = timewheel.New(tick, slots)
+    tw = timewheel.New(tick, slots, task.Run)
     tw.Start()
     taskModel := new(models.DelayTask)
     currentTime := time.Now()
@@ -57,18 +57,28 @@ func (task *DelayTask) Add(taskModel models.DelayTask)  {
     currentTimestamp := time.Now().Unix()
     execTimestamp := taskModel.Created.Unix() + int64(taskModel.Delay)
     // 时间过期, 立即执行任务
+    data := []interface{}{taskModel.Id, taskModel.Url, taskModel.Params}
     if execTimestamp <= currentTimestamp {
-        go task.Run(taskModel.Id, taskModel.Url, taskModel.Params)
+        go task.Run(data)
         return
     }
     delay := execTimestamp - currentTimestamp
-    tw.Add(time.Duration(delay) * time.Second, func() {
-        task.Run(taskModel.Id, taskModel.Url, taskModel.Params)
-    })
+    tw.Add(time.Duration(delay) * time.Second, data)
 }
 
 // 运行任务
-func (task *DelayTask) Run(id int64, url, params string)  {
+func (task *DelayTask) Run(data []interface{})  {
+    if len(data) < 3 {
+        logger.Errorf("延时任务开始执行#参数不足#%+v", data)
+        return
+    }
+    id := data[0].(int64)
+    url := data[1].(string)
+    params := data[2].(string)
+    if id <= 0 || url == "" {
+        logger.Errorf("延时任务开始执行#参数为空#%+v", data)
+        return
+    }
     taskModel := new(models.DelayTask)
     _, err := taskModel.UpdateStatus(id, models.Running)
     if err != nil {
