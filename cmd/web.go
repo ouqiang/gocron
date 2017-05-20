@@ -13,6 +13,8 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/setting"
     "time"
+    "io"
+    "fmt"
 )
 
 // web服务器默认端口
@@ -45,7 +47,7 @@ func run(ctx *cli.Context) {
     initModule()
     // 捕捉信号,配置热更新等
     go catchSignal()
-    m := macaron.Classic()
+    m := macaron.NewWithLogger(getWebLogWriter())
 
     // 注册路由
     routers.Register(m)
@@ -140,6 +142,22 @@ func catchSignal()  {
     }
 }
 
+func getWebLogWriter() io.Writer  {
+    if macaron.Env == macaron.DEV {
+        return os.Stdout
+    }
+    logFile := app.LogDir + "/access.log"
+    var err error
+    w, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND ,0666)
+    if err != nil {
+        fmt.Printf("日志文件[%s]打开失败", logFile)
+        panic(err)
+    }
+
+    return w
+}
+
+// 应用退出
 func shutdown()  {
     if !app.Installed {
         os.Exit(0)
