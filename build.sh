@@ -53,7 +53,12 @@ if [[ $ARCH != '386' && $ARCH != 'amd64' ]];then
 fi
 
 echo '开始编译'
-GOOS=$OS GOARCH=$ARCH go build -ldflags '-w'
+if [[ $OS = 'windows' ]];then
+    GOOS=$OS GOARCH=$ARCH go build -ldflags '-w -H windowsgui'
+else
+    GOOS=$OS GOARCH=$ARCH go build -ldflags '-w'
+fi
+
 if [[ $? != 0 ]];then
     exit 1
 fi
