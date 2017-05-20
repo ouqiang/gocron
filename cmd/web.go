@@ -15,10 +15,15 @@ import (
     "time"
     "io"
     "fmt"
+    "path/filepath"
+    "os/exec"
+    "github.com/ouqiang/gocron/modules/utils"
 )
 
 // web服务器默认端口
 const DefaultPort = 5920
+
+const InitProcess = 1
 
 var CmdWeb = cli.Command{
     Name:   "web",
@@ -28,17 +33,23 @@ var CmdWeb = cli.Command{
         cli.IntFlag{
             Name:  "port,p",
             Value: DefaultPort,
-            Usage: "bind port number",
+            Usage: "bind port",
         },
         cli.StringFlag{
             Name: "env,e",
             Value: "prod",
             Usage: "runtime environment, dev|test|prod",
         },
+        cli.BoolFlag{
+            Name: "d",
+            Usage: "-d=true, run as daemon process",
+        },
     },
 }
 
 func run(ctx *cli.Context) {
+    // 设置守护进程
+    becomeDaemon(ctx)
     // 设置运行环境
     setEnvironment(ctx)
     // 初始化应用
@@ -55,6 +66,31 @@ func run(ctx *cli.Context) {
     routers.RegisterMiddleware(m)
     port := parsePort(ctx)
     m.Run(port)
+}
+
+func becomeDaemon(ctx *cli.Context) {
+    // 不支持windows
+    if utils.IsWindows() {
+        return
+    }
+    if !ctx.IsSet("d") {
+        return
+    }
+
+    if os.Getppid() == InitProcess {
+        // 子进程不再处理
+        return
+    }
+
+    filePath, _:= filepath.Abs(os.Args[0])
+    cmd := exec.Command(filePath, os.Args[1:]...)
+    cmd.Stdin = os.Stdin
+    cmd.Stdout = os.Stdout
+    cmd.Stderr = os.Stderr
+    cmd.Start()
+
+    // 父进程退出, 子进程由init-1号进程收养
+    os.Exit(0)
 }
 
 func initModule()  {

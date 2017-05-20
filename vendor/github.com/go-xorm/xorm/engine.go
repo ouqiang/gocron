@@ -252,7 +252,9 @@ func (engine *Engine) Close() error {
 func (engine *Engine) Ping() error {
 	session := engine.NewSession()
 	defer session.Close()
-	engine.logger.Infof("PING DATABASE %v", engine.DriverName())
+	if engine.showSQL {
+		engine.logger.Infof("PING DATABASE %v", engine.DriverName())
+	}
 	return session.Ping()
 }
 
