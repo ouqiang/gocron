@@ -48,11 +48,16 @@
 3. 编译 `go build`
 4. 启动、访问方式同上
 
-### 启动可选参数
+### 命令
 
-* -p 端口, 指定端口, 默认5920
-* -e 指定运行环境, dev|test|prod, dev模式下可查看更多日志信息, 默认prod
-* -h 查看帮助
+* gocron web
+    * -p 端口, 指定端口, 默认5920
+    * -e 指定运行环境, dev|test|prod, dev模式下可查看更多日志信息, 默认prod
+    * -d 后台运行
+    * -h 查看帮助
+* gocron serv 
+    * -s stop|status stop:停止gocron status:查看运行状态
+    
 
 ## 安全
 * 使用`https`访问保证数据传输安全, 可在web服务器如nginx中配置https，通过反向代理，访问内部的gocron

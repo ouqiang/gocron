@@ -28,7 +28,7 @@ const InitProcess = 1
 var CmdWeb = cli.Command{
     Name:   "web",
     Usage:  "run web server",
-    Action: run,
+    Action: runWeb,
     Flags: []cli.Flag{
         cli.IntFlag{
             Name:  "port,p",
@@ -47,13 +47,14 @@ var CmdWeb = cli.Command{
     },
 }
 
-func run(ctx *cli.Context) {
+func runWeb(ctx *cli.Context) {
     // 设置守护进程
     becomeDaemon(ctx)
     // 设置运行环境
     setEnvironment(ctx)
     // 初始化应用
     app.InitEnv()
+    app.WritePid()
     // 初始化模块 DB、定时任务等
     initModule()
     // 捕捉信号,配置热更新等
@@ -65,6 +66,7 @@ func run(ctx *cli.Context) {
     // 注册中间件.
     routers.RegisterMiddleware(m)
     port := parsePort(ctx)
+    fmt.Println("server start")
     m.Run(port)
 }
 
@@ -195,8 +197,13 @@ func getWebLogWriter() io.Writer  {
 
 // 应用退出
 func shutdown()  {
-    if !app.Installed {
+    defer func() {
+        app.RemovePid()
+        logger.Info("已退出")
         os.Exit(0)
+    }()
+
+    if !app.Installed {
         return
     }
     logger.Info("应用准备退出")
@@ -222,6 +229,4 @@ func shutdown()  {
         time.Sleep(3 * time.Second)
         taskNumInRunning = service.TaskNum.Num()
     }
-    logger.Info("已退出")
-    os.Exit(0)
 }

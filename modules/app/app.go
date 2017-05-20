@@ -7,6 +7,8 @@ import (
     "runtime"
     "github.com/ouqiang/gocron/modules/utils"
     "gopkg.in/ini.v1"
+    "io/ioutil"
+    "strconv"
 )
 
 var (
@@ -17,7 +19,9 @@ var (
     AppConfig    string // 应用配置文件
     Installed    bool   // 应用是否安装过
     Setting      *ini.Section // 应用配置
+    PidFile      string
 )
+
 
 func InitEnv() {
     runtime.GOMAXPROCS(runtime.NumCPU())
@@ -31,6 +35,7 @@ func InitEnv() {
     LogDir = AppDir + "/log"
     DataDir = AppDir + "/data"
     AppConfig = ConfDir + "/app.ini"
+    PidFile = LogDir + "/gocron.pid"
     checkDirExists(ConfDir, LogDir, DataDir)
     Installed = IsInstalled()
 }
@@ -43,6 +48,33 @@ func IsInstalled() bool {
     }
 
     return true
+}
+
+func WritePid()  {
+    pid := os.Getpid()
+    pidStr := strconv.Itoa(pid)
+    err := ioutil.WriteFile(PidFile, []byte(pidStr), 0644)
+    if err != nil {
+        logger.Fatalf("写入pid文件失败", err)
+    }
+}
+
+func GetPid() int {
+    bytes, err := ioutil.ReadFile(PidFile)
+    if err != nil {
+        return 0
+    }
+    pidStr := string(bytes)
+    pid, err := strconv.Atoi(pidStr)
+    if err != nil {
+        return 0
+    }
+
+    return pid
+}
+
+func RemovePid()  {
+    os.Remove(PidFile)
 }
 
 // 创建安装锁文件

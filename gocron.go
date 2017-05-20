@@ -13,7 +13,7 @@ import (
     "github.com/ouqiang/gocron/cmd"
 )
 
-const AppVersion = "0.2"
+const AppVersion = "0.3"
 
 func main() {
     app := cli.NewApp()
@@ -22,6 +22,7 @@ func main() {
     app.Version = AppVersion
     app.Commands = []cli.Command{
         cmd.CmdWeb,
+        cmd.CmdServ,
     }
     app.Flags = append(app.Flags, []cli.Flag{}...)
     app.Run(os.Args)
