@@ -31,14 +31,14 @@ func (task *DelayTask) Create() (insertId int64, err error) {
 func (task *DelayTask) ActiveList(endTime time.Time) ([]DelayTask, error) {
     list := make([]DelayTask, 0)
     fields := "id,url,params,delay,created"
-    err := Db.Where("status = ? AND created <= ?", Waiting, endTime.Format(DefaultTimeFormat)).Cols(fields).Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+    err := Db.Where("status IN (?, ?) AND created <= ?", Waiting, Running, endTime.Format(DefaultTimeFormat)).Cols(fields).Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
     return list, err
 }
 
 // 获取待执行任务数量
 func (task *DelayTask) ActiveNum(endTime time.Time) (int, error) {
-    count ,err := Db.Where("status = ? AND created <= ?", Waiting, endTime.Format(DefaultTimeFormat)).Count(task)
+    count ,err := Db.Where("status IN (?, ?) AND created <= ?", Waiting, Running, endTime.Format(DefaultTimeFormat)).Count(task)
 
     return int(count), err
 }
