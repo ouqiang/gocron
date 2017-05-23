@@ -19,9 +19,12 @@ func Read(filename string) (*ini.Section,error) {
 }
 
 // 写入配置
-func Write(config map[string]string, filename string) error {
+func Write(config []string, filename string) error {
     if len(config) == 0 {
         return errors.New("参数不能为空")
+    }
+    if len(config) % 2 != 0 {
+        return errors.New("参数不匹配")
     }
 
     file := ini.Empty()
@@ -30,14 +33,12 @@ func Write(config map[string]string, filename string) error {
     if err != nil {
         return err
     }
-    for key, value := range config {
-        if key == "" {
-            continue
-        }
-        _, err = section.NewKey(key, value)
+    for i := 0 ;i < len(config); {
+        _, err = section.NewKey(config[i], config[i+1])
         if err != nil {
             return err
         }
+        i += 2
     }
     err = file.SaveTo(filename)
 

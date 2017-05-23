@@ -18,6 +18,8 @@ import (
     "github.com/ouqiang/gocron/routers/manage"
     "github.com/ouqiang/gocron/routers/loginlog"
     "github.com/ouqiang/gocron/routers/delaytask"
+    "time"
+    "strconv"
 )
 
 // 静态文件目录
@@ -99,7 +101,7 @@ func Register(m *macaron.Macaron) {
        m.Post("/tasklog/remove/:id", tasklog.Remove)
        m.Post("/delaytask/push", delaytask.Create)
        m.Post("/delaytask/log/remove/:id", delaytask.Remove)
-    });
+    }, apiAuth);
 
     // 404错误
     m.NotFound(func(ctx *macaron.Context) {
@@ -207,8 +209,6 @@ func userAuth(ctx *macaron.Context, sess session.Store)  {
     }
 }
 
-// endregion
-
 /** 设置共享数据 **/
 func setShareData(ctx *macaron.Context, sess session.Store)  {
     ctx.Data["URI"] = ctx.Req.URL.Path
@@ -226,6 +226,52 @@ func setShareData(ctx *macaron.Context, sess session.Store)  {
     ctx.Data["LoginUid"] = user.Uid(sess)
     ctx.Data["AppName"] = app.Setting.Key("app.name").String()
 }
+
+/** API接口签名验证 **/
+func apiAuth(ctx *macaron.Context)  {
+    apiSignEnable := app.Setting.Key("app.sign.enable").String()
+    apiSignEnable = strings.TrimSpace(apiSignEnable)
+    if apiSignEnable == "false" {
+        return
+    }
+    apiKey := app.Setting.Key("api.key").String()
+    apiSecret := app.Setting.Key("api.secret").String()
+    apiKey = strings.TrimSpace(apiKey)
+    apiSecret = strings.TrimSpace(apiSecret)
+    json := utils.JsonResponse{}
+    if apiKey == "" || apiSecret == "" {
+        msg := json.CommonFailure("使用API前, 请先配置密钥")
+        ctx.Write([]byte(msg))
+        return
+    }
+    currentTimestamp := time.Now().Unix()
+    time := ctx.QueryInt64("time")
+    if time <= 0 {
+        msg := json.CommonFailure("参数time不能为空")
+        ctx.Write([]byte(msg))
+        return
+    }
+    if time < (currentTimestamp - 1800) {
+        msg := json.CommonFailure("time无效")
+        ctx.Write([]byte(msg))
+        return
+    }
+    sign := ctx.QueryTrim("sign")
+    if sign == "" {
+        msg := json.CommonFailure("参数sign不能为空")
+        ctx.Write([]byte(msg))
+        return
+    }
+    raw := apiKey + strconv.FormatInt(time, 10) + strings.TrimSpace(ctx.Req.URL.Path) + apiSecret
+    realSign := utils.Md5(raw)
+    if sign  != realSign {
+        msg := json.CommonFailure("签名验证失败")
+        ctx.Write([]byte(msg))
+        return
+    }
+}
+
+// endregion
 
 func isAjaxRequest(ctx *macaron.Context) bool {
     req := ctx.Req.Header.Get("X-Requested-With")
