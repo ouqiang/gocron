@@ -229,7 +229,7 @@ func setShareData(ctx *macaron.Context, sess session.Store)  {
 
 /** API接口签名验证 **/
 func apiAuth(ctx *macaron.Context)  {
-    apiSignEnable := app.Setting.Key("app.sign.enable").String()
+    apiSignEnable := app.Setting.Key("api.sign.enable").String()
     apiSignEnable = strings.TrimSpace(apiSignEnable)
     if apiSignEnable == "false" {
         return
