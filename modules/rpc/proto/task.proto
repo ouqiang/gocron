@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package rpc;
+
+service Task {
+    rpc Run(TaskRequest) returns (TaskResponse) {}
+}
+
+message TaskRequest {
+    string name = 1;
+}
+
+message TaskResponse {
+    string name = 1;
+}
