@@ -5,7 +5,7 @@
 使用Go语言开发的定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
 
 ## 功能特性
-* 支持任务CURD
+* Web界面管理定时任务, 支持动态添加、删除、编辑任务
 * crontab时间表达式，精确到秒
 * 任务执行失败重试设置
 * 任务超时设置
