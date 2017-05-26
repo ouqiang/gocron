@@ -71,5 +71,5 @@
 * UI框架 [Semantic UI](https://semantic-ui.com/)
 * 依赖管理(所有依赖包放入vendor目录) [govendor](https://github.com/kardianos/govendor)
 
-## 贡献
-欢迎提交PR
+## 反馈
+提交[issue](https://github.com/ouqiang/gocron/issues/new)

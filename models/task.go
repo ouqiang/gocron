@@ -2,17 +2,14 @@ package models
 
 import (
     "time"
-    "github.com/ouqiang/gocron/modules/ssh"
     "github.com/go-xorm/xorm"
-    "github.com/ouqiang/gocron/modules/utils"
 )
 
 type TaskProtocol int8
 
 const (
     TaskHTTP TaskProtocol = iota + 1 // HTTP协议
-    TaskSSH  // SSH命令
-    TaskLocalCommand // 本地命令
+    TaskRPC  // RPC方式执行命令
 )
 
 // 任务
@@ -20,12 +17,12 @@ type Task struct {
     Id       int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(32) notnull"`              // 任务名称
     Spec     string    `xorm:"varchar(64) notnull"`              // crontab
-    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:ssh-command 3: 系统命令
+    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:系统命令
     Command  string    `xorm:"varchar(256) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     Multi    int8      `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
-    HostId   int16    `xorm:"smallint notnull default 0"`        // SSH host id，
+    HostId   int16    `xorm:"smallint notnull default 0"`        // RPC host id，
     NotifyStatus int8  `xorm:"smallint notnull default 1"`       // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
     NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
     NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
@@ -40,9 +37,7 @@ type TaskHost struct {
     Task `xorm:"extends"`
     Name string
     Port int
-    Username string
     Alias string
-    AuthType ssh.HostAuthType
 }
 
 func (TaskHost) TableName() string  {
@@ -68,19 +63,6 @@ func (task *Task) CreateTestTask() {
     // 查询IP地址区域信息
     task.Command = "http://ip.taobao.com/service/getIpInfo.php?ip=117.27.140.253"
     task.Status = Enabled
-    task.Create()
-
-    // 系统命令
-    task.Id = 0
-    task.Name = "测试系统命令任务"
-    task.Protocol = TaskLocalCommand
-    task.Spec = "@every 1m"
-    task.Status = Enabled
-    if utils.IsWindows() {
-        task.Command = "dir"
-    } else {
-        task.Command = "ls"
-    }
     task.Create()
 }
 
@@ -111,7 +93,7 @@ func (task *Task) Enable(id int) (int64, error) {
 // 获取所有激活任务
 func (task *Task) ActiveList() ([]TaskHost, error) {
     list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
+    fields := "t.*, host.alias,host.name,host.port"
     err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
 
     return list, err
@@ -120,7 +102,7 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 // 获取某个主机下的所有激活任务
 func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error) {
     list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
+    fields := "t.*, host.alias,host.name,host.port"
     err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
 
     return list, err
@@ -146,7 +128,7 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
 
 func(task *Task) Detail(id int) (TaskHost, error)  {
     taskHost := TaskHost{}
-    fields := "t.*, host.alias,host.name,host.username,host.port,host.auth_type"
+    fields := "t.*, host.alias,host.name,host.port"
     _, err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
 
     return taskHost, err

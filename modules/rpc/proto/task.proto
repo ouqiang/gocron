@@ -7,9 +7,10 @@ service Task {
 }
 
 message TaskRequest {
-    string name = 1;
+    string command = 2; // 命令
+    int32 timeout = 3;  // 任务执行超时时间
 }
 
 message TaskResponse {
-    string name = 1;
+    string output = 1; // 命令输出
 }

@@ -6,7 +6,6 @@ import (
     "github.com/ouqiang/gocron/modules/utils"
     "github.com/ouqiang/gocron/modules/logger"
     "strconv"
-    "github.com/ouqiang/gocron/modules/ssh"
     "github.com/ouqiang/gocron/service"
     "github.com/Unknwon/paginater"
     "fmt"
@@ -56,52 +55,11 @@ func Edit(ctx *macaron.Context)  {
     ctx.HTML(200, "host/host_form")
 }
 
-func Ping(ctx *macaron.Context) string  {
-    id := ctx.ParamsInt(":id")
-    hostModel := new(models.Host)
-    err := hostModel.Find(id)
-    json := utils.JsonResponse{}
-    if err != nil || hostModel.Id <= 0{
-        return json.CommonFailure("主机不存在", err)
-    }
-
-    sshConfig := ssh.SSHConfig{}
-    sshConfig.User = hostModel.Username
-    sshConfig.Host = hostModel.Name
-    sshConfig.Port = hostModel.Port
-    sshConfig.ExecTimeout = 5
-    sshConfig.AuthType = hostModel.AuthType
-    var password string
-    var privateKey string
-    if hostModel.AuthType == ssh.HostPassword {
-        password, err = hostModel.GetPasswordByHost(hostModel.Name)
-        if err != nil {
-            return json.CommonFailure(err.Error(), err)
-        }
-        sshConfig.Password = password
-    } else {
-        privateKey, err = hostModel.GetPrivateKeyByHost(hostModel.Name)
-        if err != nil {
-            return json.CommonFailure(err.Error(), err)
-        }
-        sshConfig.PrivateKey = privateKey
-    }
-
-    _, err = ssh.Exec(sshConfig, "pwd")
-    if err != nil {
-        return json.CommonFailure("连接失败-" + err.Error(), err)
-    }
-
-    return json.Success("连接成功", nil)
-}
-
 type HostForm struct {
     Id int16
     Name string `binding:"Required;MaxSize(64)"`
     Alias string `binding:"Required;MaxSize(32)"`
-    Username string `binding:"Required;MaxSize(32)"`
     Port int `binding:"Required;Range(1-65535)"`
-    AuthType ssh.HostAuthType `binding:"Required:Range(1,2)"`
     Remark string
 }
 
@@ -129,10 +87,8 @@ func Store(ctx *macaron.Context, form HostForm) string  {
 
     hostModel.Name = form.Name
     hostModel.Alias = form.Alias
-    hostModel.Username = form.Username
     hostModel.Port = form.Port
     hostModel.Remark = form.Remark
-    hostModel.AuthType = form.AuthType
     isCreate := false
     if id > 0 {
         _, err = hostModel.UpdateBean(id)

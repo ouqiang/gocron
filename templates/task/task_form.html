@@ -39,8 +39,7 @@
             <div class="field">
                 <label>执行方式</label>
                 <select name="protocol" id="protocol">
-                    <option value="3" {{{if .Task}}} {{{if eq .Task.Protocol 3}}}selected{{{end}}} {{{end}}}>系统命令</option>
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">RPC</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
                 </select>
             </div>
@@ -49,7 +48,7 @@
             <div class="field">
                 <label>主机</label>
                 <div class="ui blue message">
-                    <pre>选择SSH协议时，需选择执行主机</pre>
+                    <pre>选择RPC协议时，需选择执行主机</pre>
                 </div>
                 <select name="host_id" id="hostId">
                     <option value="">选择主机</option>
@@ -182,9 +181,6 @@
                 break;
             case '2':
                 $('#command').attr('placeholder', '请输入shell命令');
-                break;
-            case '3':
-                $('#command').attr('placeholder', '请输入系统命令');
                 break;
         }
     }

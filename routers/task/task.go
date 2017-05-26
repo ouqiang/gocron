@@ -20,9 +20,9 @@ type TaskForm struct {
     Id int
     Name string `binding:"Required;MaxSize(32)"`
     Spec string `binding:"Required;MaxSize(64)"`
-    Protocol models.TaskProtocol `binding:"In(1,2,3)"`
+    Protocol models.TaskProtocol `binding:"In(1,2)"`
     Command string `binding:"Required;MaxSize(256)"`
-    Timeout int `binding:"Range(-1,86400)"`
+    Timeout int `binding:"Range(0,86400)"`
     Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
     HostId int16
@@ -111,11 +111,11 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("任务名称已存在")
     }
 
-    if form.Protocol == models.TaskSSH && form.HostId <= 0 {
+    if form.Protocol == models.TaskRPC && form.HostId <= 0 {
         return json.CommonFailure("请选择主机名")
     }
 
-    if form.Protocol != models.TaskHTTP {
+    if form.Protocol == models.TaskRPC {
         taskModel.HostId = form.HostId
     } else {
         taskModel.HostId = 0
@@ -142,9 +142,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         if !strings.HasPrefix(command, "http://") && !strings.HasPrefix(command, "https://") {
             return json.CommonFailure("请输入正确的URL地址")
         }
-        if taskModel.Timeout == -1 {
-            return json.CommonFailure("HTTP任务不支持后台运行")
-        }
         if taskModel.Timeout > 300 {
             return json.CommonFailure("HTTP任务超时时间不能超过300秒")
         }
@@ -154,10 +151,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("任务重试次数取值0-10")
     }
 
-
-    if taskModel.Protocol != models.TaskSSH {
-        taskModel.HostId = 0
-    }
 
     if id == 0 {
         id, err = taskModel.Create()

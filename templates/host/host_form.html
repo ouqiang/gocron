@@ -17,9 +17,15 @@
             <input type="hidden" name="id" value="{{{.Host.Id}}}">
             <div class="four fields">
                 <div class="field">
-                    <label>主机名 (域名或IP)</label>
+                    <label>主机名</label>
                     <div class="ui small input">
-                        <input type="text"  name="name" value="{{{.Host.Name}}}">
+                        <input type="text"  name="name" value="{{{.Host.Name}}}" placeholder="192.168.50.154">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>端口</label>
+                    <div class="ui small  input">
+                        <input type="text"  name="port" value="{{{.Host.Port}}}" placeholder="5921">
                     </div>
                 </div>
                 <div class="field">
@@ -27,35 +33,6 @@
                     <div class="ui small  input">
                         <input type="text" name="alias" value="{{{.Host.Alias}}}">
                     </div>
-                </div>
-            </div>
-            <div class="four fields">
-                <div class="field">
-                    <label>SSH用户名</label>
-                    <div class="ui small  input">
-                        <input type="text"  name="username" value="{{{.Host.Username}}}">
-                    </div>
-                </div>
-                <div class="field">
-                    <label>SSH端口</label>
-                    <div class="ui small  input">
-                        <input type="text"  name="port" value="{{{.Host.Port}}}">
-                    </div>
-                </div>
-            </div>
-            <div class="fields">
-                <div class="field">
-                    <div class="ui blue message">
-                        密码认证: 把密码写入文件 gocron根目录/data/ssh/password/主机名<br>
-                        例: echo '12345678'  >  data/ssh/password/127.0.0.1<br><br>
-                        公钥认证: 把私钥写入文件 gocron根目录/data/ssh/private_key/主机名<br>
-                        例: cp ~/.ssh/id_rsa   data/ssh/private_key/127.0.0.1
-                    </div>
-                    <label>认证方式</label>
-                    <select name="auth_type" id="authType">
-                            <option value="2" {{{if .Host}}} {{{if eq .Host.AuthType 2}}}selected {{{end}}} {{{end}}} data-validate-type="selectPrivateKey" data-match="private_key">公钥</option>
-                            <option value="1" {{{if .Host}}} {{{if eq .Host.AuthType 1}}}selected {{{end}}} {{{end}}} data-validate-type="selectPassword" data-match="password">密码</option>
-                    </select>
                 </div>
             </div>
             <div class="two fields">
@@ -105,19 +82,6 @@
                             {
                                 type   : 'empty',
                                 prompt : '请输入主机别名'
-                            },
-                            {
-                                type   : 'maxLength[32]',
-                                prompt : '长度不能超过32'
-                            }
-                        ]
-                    },
-                    username: {
-                        identifier  : 'username',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入SSH用户名'
                             },
                             {
                                 type   : 'maxLength[32]',

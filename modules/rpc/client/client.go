@@ -2,22 +2,24 @@ package client
 
 import (
     "google.golang.org/grpc"
-    "google.golang.org/grpc/grpclog"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "golang.org/x/net/context"
+    "fmt"
 )
 
-func Start()  {
-    conn, err := grpc.Dial("127.0.0.1:50000", grpc.WithInsecure())
+func Exec(ip string, port int, taskReq *pb.TaskRequest) (output string, err error)  {
+    addr := fmt.Sprintf("%s:%d", ip, port);
+    conn, err := grpc.Dial(addr, grpc.WithInsecure())
     if err != nil {
-        grpclog.Fatal(err)
+        return
     }
     defer conn.Close()
     c := pb.NewTaskClient(conn)
-    req := new(pb.TaskRequest)
-    resp, err := c.Run(context.Background(), req)
+    resp, err := c.Run(context.Background(), taskReq)
     if err != nil {
-        grpclog.Fatal(err)
+        return
     }
-    grpclog.Println(resp.Name)
+    output = resp.Output
+
+    return
 }

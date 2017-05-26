@@ -33,8 +33,7 @@
                 <div class="field">
                     <select name="protocol" id="protocol">
                         <option value="0">执行方式</option>
-                        <option value="3" {{{if eq .Params.Protocol 3}}}selected{{{end}}}>系统命令</option>
-                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SSH</option>
+                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">RPC</option>
                         <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
                     </select>
                 </div>
@@ -71,7 +70,7 @@
                         <td>{{{.Id}}}</td>
                         <td>{{{.Task.Name}}}</td>
                         <td>{{{.Spec}}}</td>
-                        <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SSH {{{else if eq .Protocol 3}}}本地命令{{{end}}}</td>
+                        <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} RPC {{{end}}}</td>
                         <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
                         <td>{{{.RetryTimes}}}</td>
                         <td>{{{if gt .Multi 0}}}否{{{else}}}是{{{end}}}</td>

@@ -14,6 +14,10 @@ do
     if [[ $? != 0 ]];then
         break
     fi
+    ./build_node.sh -p $i
+    if [[ $? != 0 ]];then
+        break
+    fi
 done
 
 # 身份认证

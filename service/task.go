@@ -5,14 +5,14 @@ import (
     "strconv"
     "time"
     "github.com/ouqiang/gocron/modules/logger"
-    "github.com/ouqiang/gocron/modules/ssh"
     "github.com/jakecoffman/cron"
-    "github.com/ouqiang/gocron/modules/utils"
     "errors"
     "fmt"
     "github.com/ouqiang/gocron/modules/httpclient"
     "github.com/ouqiang/gocron/modules/notify"
     "sync"
+    rpcClient "github.com/ouqiang/gocron/modules/rpc/client"
+    pb "github.com/ouqiang/gocron/modules/rpc/proto"
 )
 
 // 定时任务调度管理器
@@ -76,7 +76,6 @@ type TaskResult struct {
     Result string
     Err error
     RetryTimes int8
-    IsAsync bool
 }
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
@@ -137,38 +136,6 @@ type Handler interface {
     Run(taskModel models.TaskHost) (string, error)
 }
 
-// 本地命令
-type LocalCommandHandler struct {}
-
-// 运行本地命令
-func (h *LocalCommandHandler) Run(taskModel models.TaskHost) (string, error)  {
-    if taskModel.Command == "" {
-        return "", errors.New("invalid command")
-    }
-
-    if utils.IsWindows() {
-        return h.runOnWindows(taskModel)
-    }
-
-    return h.runOnUnix(taskModel)
-}
-
-// 执行Windows命令
-func (h *LocalCommandHandler) runOnWindows(taskModel models.TaskHost) (string, error) {
-    outputGBK, err := utils.ExecShellWithTimeout(taskModel.Timeout, "cmd", "/C", taskModel.Command)
-    // windows平台编码为gbk，需转换为utf8才能入库
-    outputUTF8, ok := utils.GBK2UTF8(outputGBK)
-    if ok {
-        return outputUTF8, err
-    }
-
-    return "命令输出转换编码失败(gbk to utf8)", err
-}
-
-// 执行Unix命令
-func (h *LocalCommandHandler) runOnUnix(taskModel models.TaskHost) (string, error)  {
-    return utils.ExecShellWithTimeout(taskModel.Timeout, "/bin/bash", "-c", taskModel.Command)
-}
 
 // HTTP任务
 type HTTPHandler struct{}
@@ -189,42 +156,20 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
     return resp.Body, err
 }
 
-// SSH-command任务
-type SSHCommandHandler struct{}
+// RPC调用执行任务
+type RPCHandler struct {}
 
-func (h *SSHCommandHandler) Run(taskModel models.TaskHost) (string, error) {
-    hostModel := new(models.Host)
-    err := hostModel.Find(int(taskModel.HostId))
-    if err != nil {
-        return "", err
-    }
-    sshConfig := ssh.SSHConfig{}
-    sshConfig.User = hostModel.Username
-    sshConfig.Host = hostModel.Name
-    sshConfig.Port = hostModel.Port
-    sshConfig.ExecTimeout = taskModel.Timeout
-    sshConfig.AuthType = hostModel.AuthType
-    var password string
-    var privateKey string
-    if hostModel.AuthType == ssh.HostPassword {
-        password, err = hostModel.GetPasswordByHost(hostModel.Name)
-        if err != nil {
-            return "", err
-        }
-        sshConfig.Password = password
-    } else {
-        privateKey, err = hostModel.GetPrivateKeyByHost(hostModel.Name)
-        if err != nil {
-            return "", err
-        }
-        sshConfig.PrivateKey = privateKey
-    }
+func (h *RPCHandler) Run(taskModel models.TaskHost) (result string, err error)  {
+    taskRequest := new(pb.TaskRequest)
+    taskRequest.Timeout = int32(taskModel.Timeout)
+    taskRequest.Command = taskModel.Command
 
-    return ssh.Exec(sshConfig, taskModel.Command)
+    return rpcClient.Exec(taskModel.Name, taskModel.Port, taskRequest)
 }
 
+
 // 创建任务日志
-func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, string, error) {
+func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
     taskLogModel.Name = taskModel.Task.Name
@@ -232,20 +177,14 @@ func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, stri
     taskLogModel.Protocol = taskModel.Protocol
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
-    if taskModel.Protocol == models.TaskSSH {
+    if taskModel.Protocol == models.TaskRPC {
         taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
     }
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = status
-    // SSH执行远程命令，后台运行
-    var notifyId string = ""
-    if taskModel.Timeout == -1 {
-        notifyId = utils.RandString(32);
-        taskLogModel.NotifyId = notifyId;
-    }
     insertId, err := taskLogModel.Create()
 
-    return insertId, notifyId, err
+    return insertId, err
 }
 
 // 更新任务日志
@@ -255,9 +194,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
     var result string = taskResult.Result
     if taskResult.Err != nil {
         status = models.Failure
-    } else if taskResult.IsAsync {
-        status = models.Background
-    } else {
+    }  else {
         status = models.Finish
     }
     return taskLogModel.Update(taskLogId, models.CommonMap{
@@ -276,7 +213,7 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
     taskFunc := func() {
         TaskNum.Add()
         defer TaskNum.Done()
-        taskLogId := beforeExecJob(&taskModel)
+        taskLogId := beforeExecJob(taskModel)
         if taskLogId <= 0 {
             return
         }
@@ -294,36 +231,25 @@ func createHandler(taskModel models.TaskHost) Handler  {
     switch taskModel.Protocol {
         case models.TaskHTTP:
             handler = new(HTTPHandler)
-        case models.TaskSSH:
-            handler = new(SSHCommandHandler)
-        case models.TaskLocalCommand:
-            handler = new(LocalCommandHandler)
+        case models.TaskRPC:
+            handler = new(RPCHandler)
     }
 
     return handler;
 }
 
-func beforeExecJob(taskModel *models.TaskHost) (taskLogId int64)  {
+func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
     if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
-        createTaskLog(*taskModel, models.Cancel)
+        createTaskLog(taskModel, models.Cancel)
         return
     }
     if taskModel.Multi == 0 {
         runInstance.add(taskModel.Id)
     }
-    taskLogId, notifyId, err := createTaskLog(*taskModel, models.Running)
+    taskLogId, err := createTaskLog(taskModel, models.Running)
     if err != nil {
         logger.Error("任务开始执行#写入任务日志失败-", err)
         return
-    }
-    // 设置notifyId到环境变量中
-    if notifyId != "" {
-        envName := "GOCRON_TASK_ID"
-        if taskModel.Protocol == models.TaskSSH {
-            taskModel.Command = fmt.Sprintf("%s%s", utils.FormatUnixEnv(envName, notifyId), taskModel.Command)
-        } else {
-            taskModel.Command = fmt.Sprintf("%s%s", utils.FormatEnv(envName, notifyId), taskModel.Command)
-        }
     }
 
     logger.Debugf("任务命令-%s", taskModel.Command)
@@ -335,15 +261,9 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
     if taskResult.Err != nil {
         taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
     }
-    if taskModel.Timeout == -1 {
-        taskResult.IsAsync = true
-    }
     _, err := updateTaskLog(taskLogId, taskResult)
     if err != nil {
         logger.Error("任务结束#更新任务日志失败-", err)
-    }
-    if taskResult.IsAsync {
-        return
     }
 
     SendNotification(taskModel, taskResult)

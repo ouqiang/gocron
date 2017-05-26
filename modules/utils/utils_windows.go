@@ -7,23 +7,18 @@ import (
     "time"
     "os/exec"
     "strconv"
-    "fmt"
 )
 
 // 执行shell命令，可设置执行超时时间
-func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
-    cmd := exec.Command(command, args...)
+func ExecShellWithTimeout(timeout int, command string) (string, error)  {
+    cmd := exec.Command("cmd", "/C", command)
     // 隐藏cmd窗口
     cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-    // 后台运行
-    if timeout == -1 {
-        go cmd.CombinedOutput()
-        return "", nil
-    }
     // 不限制超时
     if timeout <= 0 {
         output ,err := cmd.CombinedOutput()
-        return string(output), err
+
+        return ConvertEncoding(string(output), err)
     }
 
     d := time.Duration(timeout) * time.Second
@@ -35,10 +30,15 @@ func ExecShellWithTimeout(timeout int, command string, args... string) (string, 
     output ,err := cmd.CombinedOutput()
     timer.Stop()
 
-    return string(output), err
+    return ConvertEncoding(string(output), err)
 }
 
-// 格式化环境变量
-func FormatEnv(key, value string) string {
-    return fmt.Sprintf("set %s=%s & ", key, value)
+func ConvertEncoding(outputGBK string, err error) (string, error) {
+    // windows平台编码为gbk，需转换为utf8才能入库
+    outputUTF8, ok := GBK2UTF8(outputGBK)
+    if ok {
+        return outputUTF8, err
+    }
+
+    return "命令输出转换编码失败(gbk to utf8)", err
 }

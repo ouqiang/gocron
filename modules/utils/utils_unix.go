@@ -6,21 +6,15 @@ import (
     "os/exec"
     "syscall"
     "time"
-    "fmt"
 )
 
 // 执行shell命令，可设置执行超时时间
-func ExecShellWithTimeout(timeout int, command string, args... string) (string, error)  {
-    cmd := exec.Command(command, args...)
+func ExecShellWithTimeout(timeout int, command string) (string, error)  {
+    cmd := exec.Command("/bin/bash", "-c", command)
     cmd.SysProcAttr = &syscall.SysProcAttr{
         Setpgid: true,
     }
 
-    // 后台运行
-    if timeout == -1 {
-        go cmd.CombinedOutput()
-        return "", nil
-    }
     // 不限制超时
     if timeout == 0 {
         output ,err := cmd.CombinedOutput()
@@ -36,9 +30,4 @@ func ExecShellWithTimeout(timeout int, command string, args... string) (string, 
     timer.Stop()
 
     return string(output), err
-}
-
-// 格式化环境变量
-func FormatEnv(key, value string) string {
-    return fmt.Sprintf("export %s=%s;", key, value)
 }

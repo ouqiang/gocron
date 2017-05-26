@@ -69,7 +69,6 @@ func Register(m *macaron.Macaron) {
     m.Group("/host", func() {
         m.Get("/create", host.Create)
         m.Get("/edit/:id", host.Edit)
-        m.Get("/ping/:id", host.Ping)
         m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
         m.Get("", host.Index)
         m.Post("/remove/:id", host.Remove)
@@ -97,7 +96,6 @@ func Register(m *macaron.Macaron) {
 
     // API
     m.Group("/api/v1", func() {
-       m.Route("/tasklog/update-status", "GET,POST", tasklog.UpdateStatus)
        m.Post("/tasklog/remove/:id", tasklog.Remove)
        m.Post("/delaytask/push", delaytask.Create)
        m.Post("/delaytask/log/remove/:id", delaytask.Remove)

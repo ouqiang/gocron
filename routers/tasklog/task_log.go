@@ -11,8 +11,6 @@ import (
     "fmt"
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
-    "github.com/ouqiang/gocron/service"
-    "errors"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -64,51 +62,6 @@ func Remove(ctx *macaron.Context) string {
     }
 
     return json.Success("删除成功", nil)
-}
-
-// 更新任务状态
-func UpdateStatus(ctx *macaron.Context) string {
-    id := ctx.QueryTrim("id")
-    status := ctx.QueryInt("status")
-    result := ctx.QueryTrim("result")
-    json := utils.JsonResponse{}
-
-    if id == "" {
-        return json.CommonFailure("任务ID不能为空")
-    }
-    if status != 1 && status != 2 {
-        return json.CommonFailure("status值错误")
-    }
-    if status == 1 {
-        status -= 1
-    }
-    taskLogModel := new(models.TaskLog)
-    affectRows, err := taskLogModel.UpdateStatus(id, models.Status(status), result)
-    if err != nil || affectRows == 0 {
-        return json.CommonFailure("更新任务状态失败")
-    }
-
-    // 发送通知
-    taskId, err := taskLogModel.GetTaskIdByNotifyId(id)
-    if err != nil || taskId <= 0 {
-        logger.Error("异步任务回调#根据notify-id获取taskId失败", err)
-        return json.Success("success", nil)
-    }
-    taskModel := new(models.Task)
-    task, err := taskModel.Detail(taskId)
-    if err != nil || task.Id <= 0 {
-        logger.Error("异步任务回调#根据获取任务详情失败", err)
-        return json.Success("success", nil)
-    }
-
-    taskResult := service.TaskResult{}
-    taskResult.Result = result
-    if status == 0 {
-        taskResult.Err = errors.New("error")
-    }
-    service.SendNotification(task, taskResult)
-
-    return json.Success("success", nil)
 }
 
 // 解析查询参数

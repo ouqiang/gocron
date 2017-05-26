@@ -6,25 +6,27 @@ import (
     "google.golang.org/grpc/grpclog"
     "google.golang.org/grpc"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
+    "github.com/ouqiang/gocron/modules/utils"
 )
 
 type Server struct {}
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error)  {
+    output, err := utils.ExecShellWithTimeout(int(req.Timeout), req.Command)
     resp := new(pb.TaskResponse)
-    resp.Name = "gRPC"
+    resp.Output = output
 
-    return resp, nil
+    return resp, err
 }
 
-func Start()  {
-    l, err := net.Listen("tcp", "127.0.0.1:50000")
+func Start(addr string)  {
+    l, err := net.Listen("tcp", addr)
     if err != nil {
         grpclog.Fatal(err)
     }
     s := grpc.NewServer()
     pb.RegisterTaskServer(s, Server{})
-    grpclog.Println("listen address ", "127.0.0.1:50000")
+    grpclog.Println("listen address ", addr)
     s.Serve(l)
 }
 
