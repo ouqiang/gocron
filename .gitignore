@@ -25,12 +25,13 @@ _testmain.go
 
 .idea
 log/*
-data/sessions/*
-data/ssh/password/*
-data/ssh/private_key/*
+data/*
 conf/install.lock
 conf/app.ini
 conf/ansible_hosts.ini
 profile/*
 public/resource/javascript/vue.js
 gocron
+gocron.exe
+gocron-node
+gocron-node.exe
