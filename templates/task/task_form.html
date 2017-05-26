@@ -47,9 +47,6 @@
         <div class="three fields" id="hostField">
             <div class="field">
                 <label>主机</label>
-                <div class="ui blue message">
-                    <pre>选择RPC协议时，需选择执行主机</pre>
-                </div>
                 <select name="host_id" id="hostId">
                     <option value="">选择主机</option>
                     {{{range $i, $v := .Hosts}}}
@@ -334,6 +331,24 @@
                             {
                                 type   : 'selectProtocol',
                                 prompt : '请选择主机'
+                            }
+                        ]
+                    },
+                    timeout: {
+                        identifier  : 'timeout',
+                        rules: [
+                            {
+                                type   : 'integer[0..86400]',
+                                prompt : '超时范围0-86400'
+                            }
+                        ]
+                    },
+                    retryTimes: {
+                        identifier  : 'retry_times',
+                        rules: [
+                            {
+                                type   : 'integer[0..10]',
+                                prompt : '重试次数0-10'
                             }
                         ]
                     },

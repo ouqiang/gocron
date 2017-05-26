@@ -5,29 +5,34 @@ package utils
 import (
     "os/exec"
     "syscall"
-    "time"
+    "golang.org/x/net/context"
+    "errors"
 )
 
+type Result struct {
+    output string
+    err error
+}
+
 // 执行shell命令，可设置执行超时时间
-func ExecShellWithTimeout(timeout int, command string) (string, error)  {
+func ExecShell(ctx context.Context, command string) (string, error)  {
     cmd := exec.Command("/bin/bash", "-c", command)
     cmd.SysProcAttr = &syscall.SysProcAttr{
         Setpgid: true,
     }
-
-    // 不限制超时
-    if timeout == 0 {
+    var resultChan chan Result = make(chan Result)
+    go func() {
         output ,err := cmd.CombinedOutput()
-        return string(output), err
+        resultChan <- Result{string(output), err}
+    }()
+    select {
+        case <- ctx.Done():
+            syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+            return "", errors.New("timeout killed")
+        case result := <- resultChan:
+            return result.output, result.err
     }
 
-    d := time.Duration(timeout) * time.Second
-    timer := time.AfterFunc(d, func() {
-        // 超时kill进程
-        syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-    })
-    output ,err := cmd.CombinedOutput()
-    timer.Stop()
 
-    return string(output), err
+    return "", nil
 }

@@ -52,7 +52,7 @@ if [[ $ARCH != '386' && $ARCH != 'amd64' ]];then
     exit 1
 fi
 
-echo '开始编译调度中心'
+echo '开始编译调度器'
 if [[ $OS = 'windows' ]];then
     GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w -H windowsgui'
 else

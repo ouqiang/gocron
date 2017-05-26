@@ -5,6 +5,7 @@ import (
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "golang.org/x/net/context"
     "fmt"
+    "time"
 )
 
 func Exec(ip string, port int, taskReq *pb.TaskRequest) (output string, err error)  {
@@ -15,7 +16,12 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (output string, err erro
     }
     defer conn.Close()
     c := pb.NewTaskClient(conn)
-    resp, err := c.Run(context.Background(), taskReq)
+    if taskReq.Timeout <= 0 || taskReq.Timeout > 86400 {
+        taskReq.Timeout = 86400
+    }
+    timeout := time.Duration(taskReq.Timeout) * time.Second
+    ctx, _ := context.WithTimeout(context.Background(), timeout)
+    resp, err := c.Run(ctx, taskReq)
     if err != nil {
         return
     }
