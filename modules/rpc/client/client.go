@@ -6,13 +6,14 @@ import (
     "golang.org/x/net/context"
     "fmt"
     "time"
+    "errors"
 )
 
-func Exec(ip string, port int, taskReq *pb.TaskRequest) (output string, err error)  {
+func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     addr := fmt.Sprintf("%s:%d", ip, port);
     conn, err := grpc.Dial(addr, grpc.WithInsecure())
     if err != nil {
-        return
+        return "", err
     }
     defer conn.Close()
     c := pb.NewTaskClient(conn)
@@ -23,9 +24,12 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (output string, err erro
     ctx, _ := context.WithTimeout(context.Background(), timeout)
     resp, err := c.Run(ctx, taskReq)
     if err != nil {
-        return
+        return "", err
     }
-    output = resp.Output
 
-    return
+    if resp.Error == "" {
+        return resp.Output, nil
+    }
+
+    return resp.Output, errors.New(resp.Error)
 }

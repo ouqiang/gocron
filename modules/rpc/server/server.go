@@ -15,8 +15,13 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
     output, err := utils.ExecShell(ctx, req.Command)
     resp := new(pb.TaskResponse)
     resp.Output = output
+    if err != nil {
+        resp.Error = err.Error()
+    } else {
+        resp.Error = ""
+    }
 
-    return resp, err
+    return resp, nil
 }
 
 func Start(addr string)  {

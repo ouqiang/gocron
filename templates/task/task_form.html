@@ -65,13 +65,13 @@
         <div class="six fields">
             <div class="field">
                 <label>任务超时时间(秒)</label>
-                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{.Task.Timeout}}}">
+                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}} 0 {{{end}}}">
             </div>
         </div>
         <div class="six fields">
             <div class="field">
                 <label>任务失败重试次数</label>
-                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{.Task.RetryTimes}}}">
+                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}} 0 {{{end}}}">
             </div>
         </div>
         <div class="three fields">

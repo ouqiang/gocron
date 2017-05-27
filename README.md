@@ -11,7 +11,7 @@
 * 任务超时设置
 * 延时任务
 * 任务执行方式
-    * RPC调用
+    * RPC调用执行远程shell命令
     * HTTP-GET请求
 * 查看任务执行日志
 * 任务执行结果通知, 支持邮件、Slack
@@ -32,7 +32,7 @@
     * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-linux-amd64.tar.gz)
     * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
     * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
-* 任务执行器(安装在远程主机上, RPC调用需安装)
+* 任务执行器(安装在远程主机上)
      * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-linux-amd64.tar.gz)
      * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-darwin-amd64.tar.gz)
      * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-windows-amd64.zip)

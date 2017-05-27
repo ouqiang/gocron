@@ -10,7 +10,7 @@ import (
     "github.com/ouqiang/gocron/cmd"
 )
 
-const AppVersion = "0.3"
+const AppVersion = "0.4"
 
 func main() {
     app := cli.NewApp()

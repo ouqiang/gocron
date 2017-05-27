@@ -12,5 +12,6 @@ message TaskRequest {
 }
 
 message TaskResponse {
-    string output = 1; // 命令输出
+    string output = 1; // 命令标准输出
+    string error = 2;  // 命令错误
 }
