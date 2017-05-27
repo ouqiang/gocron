@@ -2,10 +2,13 @@
     <div class="verticalMenu">
         <div class="ui vertical pointing menu fluid">
             <a class="{{{if eq .URI "/task"}}}active teal{{{end}}}  item" href="/task">
-                <i class="tasks icon"></i> 任务列表
+                <i class="tasks icon"></i> 定时任务列表
             </a>
             <a class="item {{{if eq .URI "/task/log"}}}active teal{{{end}}} " href="/task/log">
-                <i class="bar chart icon"></i> 任务日志
+                <i class="bar chart icon"></i> 定时任务日志
+            </a>
+            <a class="item {{{if eq .URI "/delaytask"}}}active teal{{{end}}} " href="/delaytask">
+                <i class="bar chart icon"></i> 延时任务日志
             </a>
         </div>
     </div>
