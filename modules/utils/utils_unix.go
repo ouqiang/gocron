@@ -32,7 +32,4 @@ func ExecShell(ctx context.Context, command string) (string, error)  {
         case result := <- resultChan:
             return result.output, result.err
     }
-
-
-    return "", nil
 }

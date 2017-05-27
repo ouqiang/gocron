@@ -55,7 +55,7 @@ func WritePid()  {
     pidStr := strconv.Itoa(pid)
     err := ioutil.WriteFile(PidFile, []byte(pidStr), 0644)
     if err != nil {
-        logger.Fatalf("写入pid文件失败", err)
+        logger.Fatal("写入pid文件失败", err)
     }
 }
 

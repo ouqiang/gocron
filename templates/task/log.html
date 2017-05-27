@@ -55,7 +55,6 @@
                 <th>任务名称</th>
                 <th>cron表达式</th>
                 <th>协议</th>
-                <th>超时时间</th>
                 <th>重试次数</th>
                 <th>主机</th>
                 <th>执行时长</th>
@@ -70,7 +69,6 @@
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} RPC {{{end}}}</td>
-                <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
                 <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>

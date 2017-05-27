@@ -27,8 +27,8 @@ type TaskForm struct {
     RetryTimes int8
     HostId int16
     Remark string
-    NotifyStatus int8 `binding:In(1,2,3)`
-    NotifyType int8 `binding:In(1,2)`
+    NotifyStatus int8 `binding:"In(1,2,3)"`
+    NotifyType int8 `binding:"In(1,2)"`
     NotifyReceiverId string
 }
 
@@ -153,12 +153,20 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
 
 
     if id == 0 {
+        // 任务添加后开始调度执行
+        taskModel.Status = models.Running
         id, err = taskModel.Create()
     } else {
         _, err = taskModel.UpdateBean(id)
     }
+
     if err != nil {
         return json.CommonFailure("保存失败", err)
+    }
+
+    status, err := taskModel.GetStatus(id)
+    if status == models.Enabled {
+        addTaskToTimer(id)
     }
 
     return json.Success("保存成功", nil)
@@ -237,7 +245,7 @@ func addTaskToTimer(id int)  {
     }
 
     taskService := service.Task{}
-    taskService.Add(task)
+    taskService.Add(&task)
 }
 
 // 解析查询参数

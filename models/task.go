@@ -3,6 +3,7 @@ package models
 import (
     "time"
     "github.com/go-xorm/xorm"
+    "errors"
 )
 
 type TaskProtocol int8
@@ -124,6 +125,18 @@ func (task *Task) NameExist(name string, id int) (bool, error)  {
     count, err := Db.Where("name = ? AND status = ?", name, Enabled).Count(task);
 
     return count > 0, err
+}
+
+func (task *Task) GetStatus(id int) (Status, error) {
+    exist, err := Db.Id(id).Get(task)
+    if err != nil {
+        return 0, err
+    }
+    if !exist {
+        return 0, errors.New("not exist")
+    }
+
+    return task.Status, nil
 }
 
 func(task *Task) Detail(id int) (TaskHost, error)  {

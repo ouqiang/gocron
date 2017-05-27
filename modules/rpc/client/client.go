@@ -21,7 +21,8 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
         taskReq.Timeout = 86400
     }
     timeout := time.Duration(taskReq.Timeout) * time.Second
-    ctx, _ := context.WithTimeout(context.Background(), timeout)
+    ctx, cancel := context.WithTimeout(context.Background(), timeout)
+    defer cancel()
     resp, err := c.Run(ctx, taskReq)
     if err != nil {
         return "", err

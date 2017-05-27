@@ -101,12 +101,12 @@ func (task *Task) Initialize() {
 // 批量添加任务
 func (task *Task) BatchAdd(tasks []models.TaskHost)  {
     for _, item := range tasks {
-        task.Add(item)
+        task.Add(&item)
     }
 }
 
 // 添加任务
-func (task *Task) Add(taskModel models.TaskHost) {
+func (task *Task) Add(taskModel *models.TaskHost) {
     taskFunc := createJob(taskModel)
     if taskFunc == nil {
         logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
@@ -129,11 +129,11 @@ func (task *Task) StopAll()  {
 
 // 直接运行任务
 func (task *Task) Run(taskModel models.TaskHost)  {
-    go createJob(taskModel)()
+    go createJob(&taskModel)()
 }
 
 type Handler interface {
-    Run(taskModel models.TaskHost) (string, error)
+    Run(taskModel *models.TaskHost) (string, error)
 }
 
 
@@ -143,7 +143,7 @@ type HTTPHandler struct{}
 // http任务执行时间不超过300秒
 const HttpExecTimeout = 300
 
-func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) {
+func (h *HTTPHandler) Run(taskModel *models.TaskHost) (result string, err error) {
     if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
         taskModel.Timeout = HttpExecTimeout
     }
@@ -159,7 +159,7 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
 // RPC调用执行任务
 type RPCHandler struct {}
 
-func (h *RPCHandler) Run(taskModel models.TaskHost) (result string, err error)  {
+func (h *RPCHandler) Run(taskModel *models.TaskHost) (result string, err error)  {
     taskRequest := new(pb.TaskRequest)
     taskRequest.Timeout = int32(taskModel.Timeout)
     taskRequest.Command = taskModel.Command
@@ -169,7 +169,7 @@ func (h *RPCHandler) Run(taskModel models.TaskHost) (result string, err error)  
 
 
 // 创建任务日志
-func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, error) {
+func createTaskLog(taskModel *models.TaskHost, status models.Status) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
     taskLogModel.Name = taskModel.Task.Name
@@ -205,7 +205,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
 
 }
 
-func createJob(taskModel models.TaskHost) cron.FuncJob {
+func createJob(taskModel *models.TaskHost) cron.FuncJob {
     var handler Handler = createHandler(taskModel)
     if handler == nil {
         return nil
@@ -226,7 +226,7 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
     return taskFunc
 }
 
-func createHandler(taskModel models.TaskHost) Handler  {
+func createHandler(taskModel *models.TaskHost) Handler  {
     var handler Handler = nil
     switch taskModel.Protocol {
         case models.TaskHTTP:
@@ -238,7 +238,7 @@ func createHandler(taskModel models.TaskHost) Handler  {
     return handler;
 }
 
-func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
+func beforeExecJob(taskModel *models.TaskHost) (taskLogId int64)  {
     if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
         createTaskLog(taskModel, models.Cancel)
         return
@@ -257,7 +257,7 @@ func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
     return taskLogId
 }
 
-func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId int64)  {
+func afterExecJob(taskModel *models.TaskHost, taskResult TaskResult, taskLogId int64)  {
     if taskResult.Err != nil {
         taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
     }
@@ -270,7 +270,7 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
 }
 
 // 发送任务结果通知
-func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
+func SendNotification(taskModel *models.TaskHost, taskResult TaskResult)  {
     var statusName string
     // 未开启通知
     if taskModel.NotifyStatus == 0 {
@@ -301,7 +301,7 @@ func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
 }
 
 // 执行具体任务
-func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
+func execJob(handler Handler, taskModel *models.TaskHost) TaskResult  {
     if taskModel.Multi == 0 {
         defer runInstance.done(taskModel.Id)
     }
