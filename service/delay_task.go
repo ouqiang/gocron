@@ -8,6 +8,8 @@ import (
     "github.com/ouqiang/gocron/modules/httpclient"
     "strings"
     "github.com/ouqiang/timewheel"
+    "fmt"
+    "github.com/ouqiang/gocron/modules/app"
 )
 
 var tw  *timewheel.TimeWheel
@@ -97,8 +99,10 @@ func (task *DelayTask) Run(data []interface{})  {
         }
         i++
         if i < tryTimes {
-            logger.Errorf("延迟任务执行失败#重试第%d次#任务Id-%d#HTTP状态码-%d#HTTP-BODY-%s",
-            i,id,response.StatusCode,response.Body)
+            msg := fmt.Sprintf("延迟任务执行失败#重试第%d次#任务Id-%d#HTTP状态码-%d#HTTP-BODY-%s",
+                i,id,response.StatusCode,response.Body)
+            logger.Error(msg)
+            FailureNotify(msg)
             time.Sleep(30 * time.Second)
         }
     }
@@ -117,4 +121,13 @@ func (task *DelayTask) Run(data []interface{})  {
 
 func (task *DelayTask) Stop()  {
     tw.Stop()
+}
+
+func FailureNotify(message string)  {
+    notifyUrl := app.Setting.Key("delay.task.failure.notify.url").String()
+    notifyUrl = strings.TrimSpace(notifyUrl)
+    if notifyUrl != "" {
+        params := fmt.Sprintf("error=%s", message)
+        httpclient.PostParams(notifyUrl, params, 60)
+    }
 }
