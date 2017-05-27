@@ -48,15 +48,15 @@
         * Windows:  `gocron.exe web`            
         * Linux、Mac OS:  `./gocron web`
     * 任务执行器启动
-        * Windows:  `gocron-node.exe ip:port`            
-        * Linux、Mac OS:  `./gocron-node ip:port`   
+        * Windows:  `gocron-node.exe ip:port (默认0.0.0.0:5921)`            
+        * Linux、Mac OS:  `./gocron-node ip:port (默认0.0.0.0:5921)`   
 4. 浏览器访问 http://localhost:5920
 ### 源码安装
 1. `go`语言版本1.7+
 2. `go get -d github.com/ouqiang/gocron`
 3. 编译 
-    * 调度器 `go build -tags gocron`
-    * 任务执行器 `go build -tags node`
+    * 调度器 `go build -tags gocron -o gocron`
+    * 任务执行器 `go build -tags node -o gocron-node`
 4. 启动、访问方式同上
 
 ### 命令
