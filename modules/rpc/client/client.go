@@ -1,21 +1,23 @@
 package client
 
 import (
-    "google.golang.org/grpc"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "golang.org/x/net/context"
     "fmt"
     "time"
     "errors"
+    "github.com/ouqiang/gocron/modules/rpc/grpcpool"
 )
 
 func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     addr := fmt.Sprintf("%s:%d", ip, port);
-    conn, err := grpc.Dial(addr, grpc.WithInsecure())
+    conn, err := grpcpool.Pool.Get(addr)
     if err != nil {
         return "", err
     }
-    defer conn.Close()
+    defer func() {
+        grpcpool.Pool.Put(addr, conn)
+    }()
     c := pb.NewTaskClient(conn)
     if taskReq.Timeout <= 0 || taskReq.Timeout > 86400 {
         taskReq.Timeout = 86400

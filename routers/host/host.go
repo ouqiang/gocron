@@ -12,6 +12,8 @@ import (
     "html/template"
     "github.com/ouqiang/gocron/routers/base"
     "github.com/go-macaron/binding"
+    "github.com/ouqiang/gocron/modules/rpc/grpcpool"
+    "strings"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -85,11 +87,17 @@ func Store(ctx *macaron.Context, form HostForm) string  {
         return json.CommonFailure("主机名已存在")
     }
 
-    hostModel.Name = form.Name
-    hostModel.Alias = form.Alias
+    hostModel.Name = strings.TrimSpace(form.Name)
+    hostModel.Alias = strings.TrimSpace(form.Alias)
     hostModel.Port = form.Port
-    hostModel.Remark = form.Remark
+    hostModel.Remark = strings.TrimSpace(form.Remark)
     isCreate := false
+    oldHostModel := new(models.Host)
+    err = oldHostModel.Find(int(id))
+    if err != nil {
+        return json.CommonFailure("主机不存在")
+    }
+
     if id > 0 {
         _, err = hostModel.UpdateBean(id)
     } else {
@@ -100,12 +108,18 @@ func Store(ctx *macaron.Context, form HostForm) string  {
         return json.CommonFailure("保存失败", err)
     }
 
-    taskModel := new(models.TaskHost)
-    tasks, err := taskModel.ActiveListByHostId(id)
-    if  err != nil {
-        return json.CommonFailure("刷新任务主机信息失败", err)
-    }
-    if !isCreate && len(tasks) > 0 {
+    if !isCreate {
+        oldAddr := fmt.Sprintf("%s:%d", oldHostModel.Name, oldHostModel.Port)
+        newAddr := fmt.Sprintf("%s:%d", hostModel.Name, hostModel.Port)
+        if oldAddr != newAddr {
+            grpcpool.Pool.Release(oldAddr)
+        }
+
+        taskModel := new(models.TaskHost)
+        tasks, err := taskModel.ActiveListByHostId(id)
+        if  err != nil {
+            return json.CommonFailure("刷新任务主机信息失败", err)
+        }
         serviceTask := new(service.Task)
         serviceTask.BatchAdd(tasks)
     }
@@ -129,10 +143,19 @@ func Remove(ctx *macaron.Context) string  {
     }
 
     hostModel := new(models.Host)
+    err = hostModel.Find(int(id))
+    if err != nil {
+        return json.CommonFailure("主机不存在")
+    }
+
     _, err =hostModel.Delete(id)
     if err != nil {
         return json.CommonFailure("操作失败", err)
     }
+
+    addr := fmt.Sprintf("%s:%d", hostModel.Name, hostModel.Port)
+    grpcpool.Pool.Release(addr)
+
 
     return json.Success("操作成功", nil)
 }

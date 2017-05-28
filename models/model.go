@@ -7,7 +7,6 @@ import (
     "github.com/go-xorm/xorm"
     "gopkg.in/macaron.v1"
     "strings"
-    "time"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/app"
 )
@@ -82,8 +81,6 @@ func CreateDb() *xorm.Engine {
         engine.Logger().SetLevel(core.LOG_DEBUG)
     }
 
-    go keepDbAlived(engine)
-
     return engine
 }
 
@@ -112,14 +109,6 @@ func getDbEngineDSN(engine string, config map[string]string) string {
     return dsn
 }
 
-// 定时ping, 防止因数据库超时设置连接被断开
-func keepDbAlived(engine *xorm.Engine)  {
-    t := time.Tick(180 * time.Second)
-    for {
-        <- t
-        engine.Ping()
-    }
-}
 
 // 获取数据库配置
 func getDbConfig() map[string]string {

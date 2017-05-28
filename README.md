@@ -10,9 +10,11 @@
 * 任务执行失败重试设置
 * 任务超时设置
 * 延时任务
-* 任务执行方式
-    * RPC调用执行远程shell命令
-    * HTTP-GET请求
+* 任务类型
+    * shell任务
+    > 在远程服务器上执行shell命令, 调度器与任务执行器保持长连接  
+    * HTTP任务
+    > 访问指定的URL地址
 * 查看任务执行日志
 * 任务执行结果通知, 支持邮件、Slack
 
@@ -32,7 +34,7 @@
     * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-linux-amd64.tar.gz)
     * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-darwin-amd64.tar.gz)
     * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-windows-amd64.zip)
-* 任务执行器(安装在远程主机上)
+* 任务执行器(安装在远程主机上, 执行shell命令需安装)
      * [Linux-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-linux-amd64.tar.gz)
      * [Mac OS-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-darwin-amd64.tar.gz)
      * [Windows-64位](http://opns468ov.bkt.clouddn.com/gocron/gocron-node-windows-amd64.zip)
@@ -76,6 +78,7 @@
 * ORM [Xorm](https://github.com/go-xorm/xorm)
 * UI框架 [Semantic UI](https://semantic-ui.com/)
 * 依赖管理(所有依赖包放入vendor目录) [Govendor](https://github.com/kardianos/govendor)
+* RPC框架 [gRPC](https://github.com/grpc/grpc)
 
 ## 反馈
 提交[issue](https://github.com/ouqiang/gocron/issues/new)

@@ -30,7 +30,7 @@
                 <div class="field">
                     <select name="protocol" id="protocol">
                         <option value="0">执行方式</option>
-                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">RPC</option>
+                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
                         <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
                     </select>
                 </div>
@@ -68,7 +68,7 @@
                 <td><a href="/task?id={{{.TaskId}}}">{{{.TaskId}}}</a></td>
                 <td>{{{.Name}}}</td>
                 <td>{{{.Spec}}}</td>
-                <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} RPC {{{end}}}</td>
+                <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
                 <td>{{{.RetryTimes}}}</td>
                 <td>{{{.Hostname}}}</td>
                 <td>

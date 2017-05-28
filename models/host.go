@@ -36,7 +36,7 @@ func (host *Host) Update(id int, data CommonMap) (int64, error) {
 
 // 删除
 func (host *Host) Delete(id int) (int64, error) {
-    return Db.Id(id).Delete(host)
+    return Db.Id(id).Delete(new(Host))
 }
 
 func (host *Host) Find(id int) error {

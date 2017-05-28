@@ -149,6 +149,12 @@
 			"revisionTime": "2017-05-14T12:16:09Z"
 		},
 		{
+			"checksumSHA1": "cVGA2CJTJsCAVa5VKTM8k/ma/BU=",
+			"path": "github.com/silenceper/pool",
+			"revision": "e4c4536403d9765c8ea74cda2ee49dcb0848bc7a",
+			"revisionTime": "2016-11-14T14:21:55Z"
+		},
+		{
 			"checksumSHA1": "1keN4Q9F8uHk/Gt5YXG0oCEecKM=",
 			"path": "github.com/urfave/cli",
 			"revision": "2526b57c56f30b50466c96c4133b1a4ad0f0191f",
