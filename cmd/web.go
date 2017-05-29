@@ -18,6 +18,7 @@ import (
     "path/filepath"
     "os/exec"
     "github.com/ouqiang/gocron/modules/utils"
+    "github.com/ouqiang/gocron/modules/rpc/grpcpool"
 )
 
 // web服务器默认端口
@@ -220,6 +221,9 @@ func shutdown()  {
         serviceDelayTask := new(service.DelayTask)
         serviceDelayTask.Stop()
     }
+    // 释放gRPC连接池
+    grpcpool.Pool.ReleaseAll()
+
     taskNumInRunning := service.TaskNum.Num()
     logger.Infof("正在运行的任务有%d个", taskNumInRunning)
     if taskNumInRunning > 0 {

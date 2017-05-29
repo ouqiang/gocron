@@ -28,7 +28,7 @@ type TaskForm struct {
     HostId int16
     Remark string
     NotifyStatus int8 `binding:"In(1,2,3)"`
-    NotifyType int8 `binding:"In(1,2)"`
+    NotifyType int8 `binding:"In(1,2,3)"`
     NotifyReceiverId string
 }
 
@@ -245,7 +245,7 @@ func addTaskToTimer(id int)  {
     }
 
     taskService := service.Task{}
-    taskService.Add(&task)
+    taskService.Add(task)
 }
 
 // 解析查询参数

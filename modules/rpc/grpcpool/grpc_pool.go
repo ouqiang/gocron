@@ -74,6 +74,15 @@ func (p *GRPCPool) Release(addr string) {
     delete(p.conns, addr)
 }
 
+// 释放所有连接池
+func (p *GRPCPool) ReleaseAll()  {
+    p.Lock()
+    defer p.Unlock()
+    for _, pool := range(p.conns) {
+        pool.Release()
+    }
+}
+
 // 初始化底层连接池
 func (p *GRPCPool) newCommonPool(addr string) (error) {
     p.Lock()
