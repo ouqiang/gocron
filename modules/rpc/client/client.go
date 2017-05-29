@@ -9,9 +9,15 @@ import (
     "github.com/ouqiang/gocron/modules/rpc/grpcpool"
     "google.golang.org/grpc/codes"
     "google.golang.org/grpc"
+    "github.com/ouqiang/gocron/modules/logger"
 )
 
 func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
+    defer func() {
+       if err := recover(); err != nil {
+           logger.Error("panic#rpc/client.go:Exec#", err)
+       }
+    } ()
     addr := fmt.Sprintf("%s:%d", ip, port)
     conn, err := grpcpool.Pool.Get(addr)
     if err != nil {

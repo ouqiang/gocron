@@ -302,6 +302,11 @@ func SendNotification(taskModel *models.TaskHost, taskResult TaskResult)  {
 
 // 执行具体任务
 func execJob(handler Handler, taskModel *models.TaskHost) TaskResult  {
+    defer func() {
+       if err := recover(); err != nil {
+           logger.Error("panic#service/task.go:execJob#", err)
+       }
+    } ()
     if taskModel.Multi == 0 {
         defer runInstance.done(taskModel.Id)
     }

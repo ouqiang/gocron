@@ -89,7 +89,10 @@ func becomeDaemon(ctx *cli.Context) {
     cmd.Stdin = os.Stdin
     cmd.Stdout = os.Stdout
     cmd.Stderr = os.Stderr
-    cmd.Start()
+    err := cmd.Start()
+    if err != nil {
+        logger.Fatal("创建守护进程失败", err)
+    }
 
     // 父进程退出, 子进程由init-1号进程收养
     os.Exit(0)
