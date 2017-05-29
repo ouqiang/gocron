@@ -12,6 +12,11 @@ import (
 type Server struct {}
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error)  {
+    defer func() {
+        if err := recover(); err != nil {
+            grpclog.Println(err)
+        }
+    } ()
     output, err := utils.ExecShell(ctx, req.Command)
     resp := new(pb.TaskResponse)
     resp.Output = output

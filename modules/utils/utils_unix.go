@@ -27,7 +27,9 @@ func ExecShell(ctx context.Context, command string) (string, error)  {
     }()
     select {
         case <- ctx.Done():
-            syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+            if cmd.Process.Pid > 0 {
+                syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+            }
             return "", errors.New("timeout killed")
         case result := <- resultChan:
             return result.output, result.err
