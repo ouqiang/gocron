@@ -12,7 +12,26 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
 )
 
+var (
+    errUnavailable = errors.New("无法连接远程服务器")
+)
+
 func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
+    tryTimes := 60
+    i := 0
+    for i < tryTimes {
+        output, err := exec(ip, port, taskReq)
+        if err != errUnavailable {
+            return output, err
+        }
+        i++
+        time.Sleep(2 * time.Second)
+    }
+
+    return "", errUnavailable
+}
+
+func exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     defer func() {
        if err := recover(); err != nil {
            logger.Error("panic#rpc/client.go:Exec#", err)
@@ -53,7 +72,7 @@ func parseGRPCError(err error, conn *grpc.ClientConn, connClosed *bool) (string,
         case codes.Unavailable:
             conn.Close()
             *connClosed = true
-            return "", errors.New("无法连接远程服务器")
+            return "", errUnavailable
         case codes.DeadlineExceeded:
             return "", errors.New("执行超时, 强制结束")
     }

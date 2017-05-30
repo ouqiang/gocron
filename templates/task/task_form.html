@@ -78,8 +78,8 @@
             <div class="field">
                 <label>允许多实例同时运行</label>
                 <select name="multi">
-                    <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                     <option value="2" {{{if .Task}}} {{{if eq .Task.Multi 0}}}selected{{{end}}} {{{end}}}>否</option>
+                    <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                 </select>
             </div>
         </div>

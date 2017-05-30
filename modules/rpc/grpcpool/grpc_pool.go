@@ -104,7 +104,7 @@ func (p *GRPCPool) newCommonPool(addr string) (error) {
             }
             return ErrInvalidConn
         },
-        IdleTimeout: 5 * time.Minute,
+        IdleTimeout: 3 * time.Minute,
     }
 
     commonPool, err := pool.NewChannelPool(poolConfig)
