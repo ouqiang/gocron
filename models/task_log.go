@@ -74,6 +74,7 @@ func (taskLog *TaskLog) Remove(id int) (int64, error) {
 
 func (taskLog *TaskLog) Total(params CommonMap) (int64, error) {
     session := Db.NewSession()
+    defer session.Close()
     taskLog.parseWhere(session, params)
     return session.Count(taskLog)
 }

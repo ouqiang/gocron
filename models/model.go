@@ -9,6 +9,7 @@ import (
     "strings"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/app"
+    "strconv"
 )
 
 type Status int8
@@ -69,6 +70,17 @@ func CreateDb() *xorm.Engine {
     if err != nil {
         logger.Fatal("创建xorm引擎失败", err)
     }
+    maxIdleConns, err := strconv.Atoi(config["max_idle_conns"])
+    maxOpenConns, err := strconv.Atoi(config["max_open_conns"])
+    if maxIdleConns <= 0 {
+        maxIdleConns = 30
+    }
+    if maxOpenConns <= 0 {
+        maxOpenConns = 100
+    }
+    engine.SetMaxIdleConns(maxIdleConns)
+    engine.SetMaxOpenConns(maxOpenConns)
+
     if config["prefix"] != "" {
         // 设置表前缀
         TablePrefix = config["prefix"]
@@ -80,6 +92,7 @@ func CreateDb() *xorm.Engine {
         engine.ShowSQL(true)
         engine.Logger().SetLevel(core.LOG_DEBUG)
     }
+
 
     return engine
 }
@@ -121,6 +134,8 @@ func getDbConfig() map[string]string {
     db["charset"] = app.Setting.Key("db.charset").String()
     db["prefix"] = app.Setting.Key("db.prefix").String()
     db["engine"] = app.Setting.Key("db.engine").String()
+    db["max_idle_conns"] = app.Setting.Key("db.max.idle.conns").String()
+    db["max_open_conns"] = app.Setting.Key("db.max.open.conns").String()
 
     return db
 }

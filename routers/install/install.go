@@ -111,6 +111,8 @@ func writeConfig(form InstallForm) error {
         "db.database", form.DbName,
         "db.prefix",   form.DbTablePrefix,
         "db.charset",  "utf8",
+        "db.max.idle.conns", "30",
+        "db.max.open.conns", "100",
         "allow_ips", "",
         "app.name", "定时任务管理系统", // 应用名称
         "delay.task.enable", "false", // 是否开启延时任务
