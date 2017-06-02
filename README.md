@@ -12,13 +12,14 @@
 * 延时任务
 * 任务类型
     * shell任务
-    > 在远程服务器上执行shell命令, 调度器与任务执行器保持长连接  
+    > 在远程服务器上执行shell命令
     * HTTP任务
     > 访问指定的URL地址
 * 查看任务执行日志
 * 任务执行结果通知, 支持邮件、Slack
 
 ### 截图
+![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/scheduler.png)
 ![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot_task.png)
 ![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot_slack.png)
     
