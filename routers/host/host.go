@@ -14,6 +14,8 @@ import (
     "github.com/go-macaron/binding"
     "github.com/ouqiang/gocron/modules/rpc/grpcpool"
     "strings"
+    "github.com/ouqiang/gocron/modules/rpc/client"
+    "github.com/ouqiang/gocron/modules/rpc/proto"
 )
 
 func Index(ctx *macaron.Context)  {
@@ -158,6 +160,27 @@ func Remove(ctx *macaron.Context) string  {
 
 
     return json.Success("操作成功", nil)
+}
+
+func Ping(ctx *macaron.Context) string  {
+    id := ctx.ParamsInt(":id")
+    hostModel := new(models.Host)
+    err := hostModel.Find(id)
+    json := utils.JsonResponse{}
+    if err != nil || hostModel.Id <= 0{
+        return json.CommonFailure("主机不存在", err)
+    }
+
+
+    taskReq := &rpc.TaskRequest{}
+    taskReq.Command = "echo hello"
+    taskReq.Timeout = 10
+    output, err := client.Exec(hostModel.Name, hostModel.Port, taskReq)
+    if err != nil {
+        return json.CommonFailure("连接失败-" + err.Error() + " " + output, err)
+    }
+
+    return json.Success("连接成功", nil)
 }
 
 // 解析查询参数

@@ -176,7 +176,7 @@ func (h *RPCHandler) Run(taskModel models.TaskHost) (result string, err error)  
     taskRequest.Timeout = int32(taskModel.Timeout)
     taskRequest.Command = taskModel.Command
 
-    return rpcClient.Exec(taskModel.Name, taskModel.Port, taskRequest)
+    return rpcClient.ExecWithRetry(taskModel.Name, taskModel.Port, taskRequest)
 }
 
 

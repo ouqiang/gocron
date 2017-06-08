@@ -16,11 +16,11 @@ var (
     errUnavailable = errors.New("无法连接远程服务器")
 )
 
-func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
+func ExecWithRetry(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     tryTimes := 60
     i := 0
     for i < tryTimes {
-        output, err := exec(ip, port, taskReq)
+        output, err := Exec(ip, port, taskReq)
         if err != errUnavailable {
             return output, err
         }
@@ -31,7 +31,7 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     return "", errUnavailable
 }
 
-func exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
+func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
     defer func() {
        if err := recover(); err != nil {
            logger.Error("panic#rpc/client.go:Exec#", err)
@@ -69,7 +69,7 @@ func exec(ip string, port int, taskReq *pb.TaskRequest) (string, error)  {
 
 func parseGRPCError(err error, conn *grpc.ClientConn, connClosed *bool) (string, error) {
     switch grpc.Code(err) {
-        case codes.Unavailable:
+        case codes.Unavailable, codes.Internal:
             conn.Close()
             *connClosed = true
             return "", errUnavailable

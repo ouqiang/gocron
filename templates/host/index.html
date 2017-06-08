@@ -53,6 +53,7 @@
                     <button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button><br>
                     <div style="margin-top: 5px;">
                         <a class="ui twitter button" href="/task?host_id={{{.Id}}}">查看任务</a>
+                        <button class="ui blue button" @click="ping({{{.Id}}})">连接测试</button>
                     </div>
                 </td>
             </tr>
@@ -62,5 +63,24 @@
         {{{ template "common/pagination" .}}}
     </div>
 </div>
+
+<script type="text/javascript">
+    var Vue = new Vue({
+        el: '.ui.striped.table',
+        methods: {
+            ping: function(id) {
+                swal({
+                    title: '',
+                    text: "连接中.......",
+                    type: 'info',
+                    showConfirmButton: false
+                });
+                util.get("/host/ping/" + id, function(code, message) {
+                    swal('操作成功', '连接成功', 'success');
+                })
+            }
+        }
+    });
+</script>
 
 {{{ template "common/footer" . }}}
