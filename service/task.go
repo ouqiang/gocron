@@ -13,6 +13,7 @@ import (
     "sync"
     rpcClient "github.com/ouqiang/gocron/modules/rpc/client"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
+    "strings"
 )
 
 // 定时任务调度管理器
@@ -47,13 +48,16 @@ func (c *TaskCount) Num() int  {
     return c.num
 }
 
-// 任务ID作为Key, 不会出现并发写, 不加锁
+// 任务ID作为Key
 type Instance struct {
     Status map[int]bool
+    sync.RWMutex
 }
 
 // 是否有任务处于运行中
 func (i *Instance) has(key int) bool {
+    i.RLock()
+    defer i.RUnlock()
     running, ok := i.Status[key]
     if ok && running {
         return true
@@ -63,11 +67,15 @@ func (i *Instance) has(key int) bool {
 }
 
 func (i *Instance) add(key int)  {
+    i.Lock()
+    defer i.Unlock()
     i.Status[key] = true
 }
 
 func (i *Instance) done(key int)  {
-    i.Status[key] = false
+    i.Lock()
+    defer i.Unlock()
+    delete(i.Status, key)
 }
 
 type Task struct{}
@@ -82,7 +90,7 @@ type TaskResult struct {
 func (task *Task) Initialize() {
     Cron = cron.New()
     Cron.Start()
-    runInstance = Instance{make(map[int]bool)}
+    runInstance = Instance{make(map[int]bool), sync.RWMutex{}}
     TaskNum = TaskCount{0, sync.RWMutex{}}
 
     taskModel := new(models.Task)
@@ -107,6 +115,10 @@ func (task *Task) BatchAdd(tasks []models.TaskHost)  {
 
 // 添加任务
 func (task *Task) Add(taskModel models.TaskHost) {
+    if taskModel.Level == models.TaskLevelChild {
+        logger.Errorf("添加任务失败#不允许添加子任务到调度器#任务Id-%d", taskModel.Id);
+        return
+    }
     taskFunc := createJob(taskModel)
     if taskFunc == nil {
         logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
@@ -239,6 +251,7 @@ func createHandler(taskModel models.TaskHost) Handler  {
     return handler;
 }
 
+// 任务前置操作
 func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
     if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
         createTaskLog(taskModel, models.Cancel)
@@ -258,6 +271,7 @@ func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
     return taskLogId
 }
 
+// 任务执行后置操作
 func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId int64)  {
     if taskResult.Err != nil {
         taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
@@ -267,7 +281,47 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
         logger.Error("任务结束#更新任务日志失败-", err)
     }
 
-    SendNotification(taskModel, taskResult)
+    // 发送邮件
+    go SendNotification(taskModel, taskResult)
+    // 执行依赖任务
+    go execDependencyTask(taskModel, taskResult)
+}
+
+// 执行依赖任务, 多个任务并发执行
+func execDependencyTask(taskModel models.TaskHost, taskResult TaskResult)  {
+    // 父任务才能执行子任务
+    if taskModel.Level != models.TaskLevelParent {
+        return
+    }
+
+    // 是否存在子任务
+    dependencyTaskId := strings.TrimSpace(taskModel.DependencyTaskId)
+    if dependencyTaskId == "" {
+        return
+    }
+
+    // 父子任务关系为强依赖, 父任务执行失败, 不执行依赖任务
+    if taskModel.DependencyStatus == models.TaskDependencyStatusStrong && taskResult.Err != nil {
+        logger.Infof("父子任务为强依赖关系, 父任务执行失败, 不运行依赖任务#主任务ID-%d", taskModel.Id)
+        return
+    }
+
+    // 获取子任务
+    model := new(models.Task)
+    tasks , err := model.GetDependencyTaskList(dependencyTaskId)
+    if err != nil {
+        logger.Errorf("获取依赖任务失败#主任务ID-%d#%s", taskModel.Id, err.Error())
+        return
+    }
+    if len(tasks) == 0 {
+        logger.Errorf("依赖任务列表为空#主任务ID-%d", taskModel.Id)
+    }
+
+    serviceTask := new(Task)
+    for _, task := range tasks {
+        task.Spec = fmt.Sprintf("依赖任务(主任务ID-%d)", taskModel.Id)
+        serviceTask.Run(task)
+    }
 }
 
 // 发送任务结果通知

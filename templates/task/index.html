@@ -54,6 +54,7 @@
             <tr>
                 <th>任务ID</th>
                 <th>任务名称</th>
+                <th>任务类型</th>
                 <th>cron表达式</th>
                 <th>执行方式</th>
                 <th>超时时间</th>
@@ -69,20 +70,27 @@
                     <tr>
                         <td>{{{.Id}}}</td>
                         <td>{{{.Task.Name}}}</td>
+                        <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
                         <td>{{{.Spec}}}</td>
                         <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
                         <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
                         <td>{{{.RetryTimes}}}</td>
                         <td>{{{if gt .Multi 0}}}否{{{else}}}是{{{end}}}</td>
                         <td>{{{.Alias}}}-{{{.Name}}}</td>
-                        <td>{{{if eq .Status 1}}}<span style="color: green;">激活</span>{{{else}}}<span style="color: red;">停止<span>{{{end}}}</td>
+                        <td>
+                            {{{if eq .Level 1}}}
+                                {{{if eq .Status 1}}}<span style="color: green;">激活</span>{{{else}}}<span style="color: red;">停止<span>{{{end}}}
+                            {{{end}}}
+                        </td>
                         <td>
                             <div class="ui buttons operation">
                                 <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
-                                {{{if eq .Status 1}}}
-                                <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">停止</button>
-                                {{{else}}}
-                                <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                                {{{if eq .Level 1}}}
+                                    {{{if eq .Status 1}}}
+                                    <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">停止</button>
+                                    {{{else}}}
+                                    <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                                    {{{end}}}
                                 {{{end}}}
                                 <button class="ui positive button" @click="remove({{{.Id}}})">删除</button> <br>
                                 <button class="ui twitter button" @click="run({{{.Id}}})">手动运行</button>
@@ -96,7 +104,6 @@
     {{{ template "common/pagination" .}}}
     </div>
 </div>
-
 
 <script type="text/javascript">
     $('.ui.checkbox').checkbox();

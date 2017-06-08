@@ -4,6 +4,7 @@ import (
     "time"
     "github.com/go-xorm/xorm"
     "errors"
+    "strings"
 )
 
 type TaskProtocol int8
@@ -13,22 +14,39 @@ const (
     TaskRPC  // RPC方式执行命令
 )
 
+type TaskLevel int8
+
+const (
+    TaskLevelParent TaskLevel = 1 // 父任务
+    TaskLevelChild  TaskLevel = 2 // 子任务(依赖任务)
+)
+
+type TaskDependencyStatus int8
+
+const (
+    TaskDependencyStatusStrong TaskDependencyStatus = 1 // 强依赖
+    TaskDependencyStatusWeak   TaskDependencyStatus = 2 // 弱依赖
+)
+
 // 任务
 type Task struct {
     Id       int       `xorm:"int pk autoincr"`
     Name     string    `xorm:"varchar(32) notnull"`              // 任务名称
+    Level    TaskLevel     `xorm:"smallint notnull index default 1"`     // 任务等级 1: 主任务 2: 依赖任务
+    DependencyTaskId string `xorm:"varchar(64) notnull default ''"` // 依赖任务ID,多个ID逗号分隔
+    DependencyStatus TaskDependencyStatus  `xorm:"smallint notnull default 1"`   // 依赖关系 1:强依赖 主任务执行成功, 依赖任务才会被执行 2:弱依赖
     Spec     string    `xorm:"varchar(64) notnull"`              // crontab
-    Protocol TaskProtocol  `xorm:"tinyint notnull"`              // 协议 1:http 2:系统命令
+    Protocol TaskProtocol  `xorm:"tinyint notnull index"`              // 协议 1:http 2:系统命令
     Command  string    `xorm:"varchar(256) notnull"`             // URL地址或shell命令
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     Multi    int8      `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
-    HostId   int16    `xorm:"smallint notnull default 0"`        // RPC host id，
+    HostId   int16    `xorm:"smallint notnull index default 0"`        // RPC host id，
     NotifyStatus int8  `xorm:"smallint notnull default 1"`       // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
     NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
     NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
     Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
-    Status   Status    `xorm:"tinyint notnull default 0"`        // 状态 1:正常 0:停止
+    Status   Status    `xorm:"tinyint notnull index default 0"`        // 状态 1:正常 0:停止
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
     BaseModel `xorm:"-"`
@@ -59,6 +77,7 @@ func (task *Task) Create() (insertId int, err error) {
 func (task *Task) CreateTestTask() {
     // HTTP任务
     task.Name = "测试HTTP任务"
+    task.Level = TaskLevelParent
     task.Protocol = TaskHTTP
     task.Spec = "*/30 * * * * *"
     // 查询IP地址区域信息
@@ -68,7 +87,9 @@ func (task *Task) CreateTestTask() {
 }
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
-    return Db.ID(id).Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,notify_status,notify_type,notify_receiver_id").Update(task)
+    return Db.ID(id).
+    Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,notify_status,notify_type,notify_receiver_id, dependency_task_id, dependency_status").
+    Update(task)
 }
 
 // 更新
@@ -95,7 +116,11 @@ func (task *Task) Enable(id int) (int64, error) {
 func (task *Task) ActiveList() ([]TaskHost, error) {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.port"
-    err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ?", Enabled).Cols(fields).Find(&list)
+    err := Db.Alias("t").
+            Join("LEFT", hostTableName(), "t.host_id=host.id").
+            Where("t.status = ? AND t.level = ?", Enabled, TaskLevelParent).
+            Cols(fields).
+            Find(&list)
 
     return list, err
 }
@@ -104,7 +129,11 @@ func (task *Task) ActiveList() ([]TaskHost, error) {
 func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error) {
     list := make([]TaskHost, 0)
     fields := "t.*, host.alias,host.name,host.port"
-    err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.status = ? AND t.host_id = ?", Enabled, hostId).Cols(fields).Find(&list)
+    err := Db.Alias("t").
+        Join("LEFT", hostTableName(), "t.host_id=host.id").
+        Where("t.status = ? AND t.host_id = ? AND t.level = ?", Enabled, hostId, TaskLevelParent).
+        Cols(fields).
+        Find(&list)
 
     return list, err
 }
@@ -154,6 +183,28 @@ func (task *Task) List(params CommonMap) ([]TaskHost, error) {
     session := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id")
     task.parseWhere(session, params)
     err := session.Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+
+    return list, err
+}
+
+// 获取依赖任务列表
+func (task *Task) GetDependencyTaskList(ids string) ([]TaskHost, error) {
+    list := make([]TaskHost, 0)
+    if ids == "" {
+        return list, nil
+    }
+    idList := strings.Split(ids, ",")
+    taskIds := make([]interface{}, len(idList))
+    for i,  v := range idList {
+        taskIds[i] = v
+    }
+    fields := "t.*, host.alias,host.name,host.port"
+    err := Db.Alias("t").
+            Join("LEFT", hostTableName(), "t.host_id=host.id").
+            Where("t.level = ?", TaskLevelChild).
+            In("t.id", taskIds).
+            Cols(fields).
+            Find(&list)
 
     return list, err
 }

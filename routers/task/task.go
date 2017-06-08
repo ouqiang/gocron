@@ -18,8 +18,11 @@ import (
 
 type TaskForm struct {
     Id int
+    Level models.TaskLevel `binding:"Required;In(1,2)"`
+    DependencyStatus models.TaskDependencyStatus
+    DependencyTaskId string
     Name string `binding:"Required;MaxSize(32)"`
-    Spec string `binding:"Required;MaxSize(64)"`
+    Spec string
     Protocol models.TaskProtocol `binding:"In(1,2)"`
     Command string `binding:"Required;MaxSize(256)"`
     Timeout int `binding:"Range(0,86400)"`
@@ -99,10 +102,6 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     json := utils.JsonResponse{}
     taskModel := models.Task{}
     var id int = form.Id
-    _, err := cron.Parse(form.Spec)
-    if err != nil {
-        return json.CommonFailure("crontab表达式解析失败", err)
-    }
     nameExists, err := taskModel.NameExist(form.Name, form.Id)
     if err != nil {
         return json.CommonFailure(utils.FailureContent, err)
@@ -134,8 +133,11 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.NotifyType = form.NotifyType - 1
     taskModel.NotifyReceiverId = form.NotifyReceiverId
     taskModel.Spec = form.Spec
+    taskModel.Level = form.Level
+    taskModel.DependencyStatus = form.DependencyStatus
+    taskModel.DependencyTaskId = strings.TrimSpace(form.DependencyTaskId)
     if taskModel.NotifyStatus > 0 && taskModel.NotifyReceiverId == "" {
-        return json.CommonFailure("请至少选择一个接收者")
+        return json.CommonFailure("至少选择一个通知接收者")
     }
     if taskModel.Protocol == models.TaskHTTP {
         command := strings.ToLower(taskModel.Command)
@@ -151,6 +153,27 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("任务重试次数取值0-10")
     }
 
+    if (taskModel.DependencyStatus != models.TaskDependencyStatusStrong &&
+        taskModel.DependencyStatus != models.TaskDependencyStatusWeak) {
+        return json.CommonFailure("请选择依赖关系")
+    }
+
+    if taskModel.Level == models.TaskLevelParent {
+        _, err = cron.Parse(form.Spec)
+        if err != nil {
+            return json.CommonFailure("crontab表达式解析失败", err)
+        }
+    } else {
+        taskModel.DependencyTaskId = ""
+        taskModel.Spec = ""
+    }
+
+    if id > 0 && taskModel.DependencyTaskId != "" {
+        dependencyTaskIds := strings.Split(taskModel.DependencyTaskId, ",")
+        if utils.InStringSlice(dependencyTaskIds, strconv.Itoa(id)) {
+            return json.CommonFailure("不允许设置当前任务为子任务")
+        }
+    }
 
     if id == 0 {
         // 任务添加后开始调度执行
@@ -165,7 +188,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     }
 
     status, err := taskModel.GetStatus(id)
-    if status == models.Enabled {
+    if status == models.Enabled && taskModel.Level == models.TaskLevelParent {
         addTaskToTimer(id)
     }
 

@@ -10,6 +10,7 @@ import (
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/app"
     "strconv"
+    "time"
 )
 
 type Status int8
@@ -93,6 +94,7 @@ func CreateDb() *xorm.Engine {
         engine.Logger().SetLevel(core.LOG_DEBUG)
     }
 
+    go keepDbAlived(engine)
 
     return engine
 }
@@ -138,4 +140,12 @@ func getDbConfig() map[string]string {
     db["max_open_conns"] = app.Setting.Key("db.max.open.conns").String()
 
     return db
+}
+
+func keepDbAlived(engine *xorm.Engine)  {
+    t := time.Tick(180 * time.Second)
+    for {
+        <- t
+        engine.Ping()
+    }
 }

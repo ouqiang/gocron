@@ -31,6 +31,11 @@ var CmdWeb = cli.Command{
     Usage:  "run web server",
     Action: runWeb,
     Flags: []cli.Flag{
+        cli.StringFlag{
+            Name: "host",
+            Value: "0.0.0.0",
+            Usage: "bind host",
+        },
         cli.IntFlag{
             Name:  "port,p",
             Value: DefaultPort,
@@ -66,9 +71,10 @@ func runWeb(ctx *cli.Context) {
     routers.Register(m)
     // 注册中间件.
     routers.RegisterMiddleware(m)
+    host := parseHost(ctx)
     port := parsePort(ctx)
     fmt.Println("server start")
-    m.Run(port)
+    m.Run(host, port)
 }
 
 func becomeDaemon(ctx *cli.Context) {
@@ -149,6 +155,14 @@ func parsePort(ctx *cli.Context) int {
     }
 
     return port
+}
+
+func parseHost(ctx *cli.Context) string  {
+    if ctx.IsSet("host") {
+        return ctx.String("host")
+    }
+
+    return "0.0.0.0"
 }
 
 func setEnvironment(ctx *cli.Context)  {

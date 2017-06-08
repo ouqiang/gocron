@@ -19,19 +19,65 @@
                     <div class="content">任务名称</div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="name" value="{{{.Task.Task.Name}}}">
+                    <input type="text" name="name" placeholder="订单量统计" value="{{{.Task.Task.Name}}}">
                 </div>
             </div>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>
-                    <div class="content">
-                        crontab表达式
+                    <div class="content">任务类型</div>
+                    <div class="ui message">
+                        主任务可以配置多个子任务, 当主任务执行完成后，自动执行子任务<br>
+                        任务类型新增后不能变更
                     </div>
                 </label>
-                <div class="ui small input">
-                    <input type="text" name="spec" value="{{{.Task.Spec}}}" placeholder="秒 分 时 天 月 周"/>
+                <select name="level" id="level" {{{if .Task}}}disabled="disabled"{{{end}}}>
+                    <option value="1" {{{if .Task}}} {{{if eq .Task.Level 1}}}selected{{{end}}} {{{end}}}>主任务</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.Level 2}}}selected{{{end}}} {{{end}}}>子任务</option>
+                </select>
+            </div>
+        </div>
+        <div id="parent-task">
+            <div class="two fields">
+                <div class="field">
+                    <label>
+                        <div class="content">依赖关系</div>
+                        <div class="ui message">
+                            强依赖: 主任务执行成功，才会运行子任务 <br>
+                            弱依赖: 无论主任务执行是否成功，都会运行子任务
+                        </div>
+                    </label>
+                    <select name="dependency_status" id="dependency_status">
+                        <option value="1" {{{if .Task}}} {{{if eq .Task.DependencyStatus 1}}}selected{{{end}}} {{{end}}}>强依赖</option>
+                        <option value="2" {{{if .Task}}} {{{if eq .Task.DependencyStatus 2}}}selected{{{end}}} {{{end}}}>弱依赖</option>
+                    </select>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>
+                        <div class="content">子任务ID</div>
+                        <div class="ui message">
+                            多个任务ID逗号分隔 <br>
+                            子任务并发执行
+                        </div>
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="dependency_task_id" placeholder="可选" value="{{{.Task.DependencyTaskId}}}">
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
+                    <label>
+                        <div class="content">
+                            crontab表达式
+                        </div>
+                    </label>
+                    <div class="ui small input">
+                        <input type="text" name="spec" value="{{{.Task.Spec}}}" placeholder="秒 分 时 天 月 周"/>
+                    </div>
                 </div>
             </div>
         </div>
@@ -46,7 +92,7 @@
         </div>
         <div class="three fields" id="hostField">
             <div class="field">
-                <label>主机</label>
+                <label>任务执行器</label>
                 <select name="host_id" id="hostId">
                     <option value="">选择主机</option>
                     {{{range $i, $v := .Hosts}}}
@@ -64,13 +110,13 @@
         </div>
         <div class="six fields">
             <div class="field">
-                <label>任务超时时间(秒)</label>
+                <label>任务超时时间(秒, 0-86400)</label>
                 <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}} 0 {{{end}}}">
             </div>
         </div>
         <div class="six fields">
             <div class="field">
-                <label>任务失败重试次数</label>
+                <label>任务失败重试次数 (0-10)</label>
                 <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}} 0 {{{end}}}">
             </div>
         </div>
@@ -107,7 +153,7 @@
         <div class="two fields">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark">{{{.Task.Remark}}}</textarea>
+                <textarea rows="5" name="remark" placeholder="统计昨天的订单量">{{{.Task.Remark}}}</textarea>
             </div>
         </div>
         <div class="ui primary submit button">保存</div>   <a class="ui button" onclick="location.href='/task';">取消</a>
@@ -144,6 +190,7 @@
 <script type="text/javascript">
     $(function() {
         changeCommandPlaceholder();
+        changeLevel();
         changeProtocol();
         showNotify();
     });
@@ -153,7 +200,9 @@
         changeProtocol();
     });
 
-
+    $('#level').change(function() {
+        changeLevel();
+    });
 
     $('#task-status').change(function() {
         var selected = $(this).val();
@@ -269,6 +318,19 @@
         return receivers.join(",");
     }
 
+    function changeLevel() {
+        var selected = $('#level').val();
+        if (selected == 1) {
+            // 主任务
+            $('#parent-task').show();
+            $('#child-task').hide();
+        } else {
+            // 子任务
+            $('#parent-task').hide();
+            $('#child-task').show();
+        }
+    }
+
     var $uiForm = $('.ui.form');
     registerSelectFormValidation("selectProtocol", $uiForm, $('#protocol'), 'protocol');
     $($uiForm).form(
@@ -296,19 +358,6 @@
                             {
                                 type : 'maxLength[32]',
                                 prompt : '长度不能超过32'
-                            }
-                        ]
-                    },
-                    spec: {
-                        identifier  : 'spec',
-                        rules: [
-                            {
-                                type   : 'empty',
-                                prompt : '请输入crontab格式表达式'
-                            },
-                            {
-                                type : 'maxLength[64]',
-                                prompt : '长度不能超过64'
                             }
                         ]
                     },
