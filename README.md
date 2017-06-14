@@ -47,9 +47,9 @@
 ###  二进制安装
 1. 解压压缩包    
 2. `cd 解压目录`   
-3. 启动
+3. 启动 (Windows平台默认后台运行)
     * 调度器启动
-        * Windows:  `gocron.exe web`            
+        * Windows:  `gocron.exe web` 
         * Linux、Mac OS:  `./gocron web`
     * 任务执行器启动
         * Windows:  `gocron-node.exe ip:port (默认0.0.0.0:5921)`            
