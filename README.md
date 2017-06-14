@@ -49,12 +49,12 @@
 1. 解压压缩包   
 2. `cd 解压目录`   
 3. 启动        
-    * 调度器启动      
-        * Windows: `gocron.exe web`    
-        * Linux、Mac OS:  `./gocron web`
-    * 任务执行器启动
-        * Windows:  `gocron-node.exe ip:port (默认0.0.0.0:5921)`            
-        * Linux、Mac OS:  `./gocron-node ip:port (默认0.0.0.0:5921)`   
+* 调度器启动        
+  * Windows: `gocron.exe web`   
+  * Linux、Mac OS:  `./gocron web`
+* 任务执行器启动
+  * Windows:  `gocron-node.exe ip:port (默认0.0.0.0:5921)`            
+  * Linux、Mac OS:  `./gocron-node ip:port (默认0.0.0.0:5921)`   
 4. 浏览器访问 http://localhost:5920
 ### 源码安装
 1. `go`语言版本1.7+
