@@ -121,27 +121,6 @@ func initModule()  {
     // 初始化定时任务
     serviceTask := new(service.Task)
     serviceTask.Initialize()
-
-    // 初始化延时任务
-    delayTaskEnabled, err := config.Key("delay.task.enable").Bool()
-    if err != nil {
-        return
-    }
-    if !delayTaskEnabled {
-        return
-    }
-    delayTaskSlots, err := config.Key("delay.task.slots").Int()
-    if err != nil {
-        return
-    }
-    delayTaskTick := config.Key("delay.task.tick").String()
-    tick, err := time.ParseDuration(delayTaskTick)
-    if err != nil {
-        return
-    }
-
-    serviceDelayTask := new(service.DelayTask)
-    serviceDelayTask.Initialize(tick, delayTaskSlots)
 }
 
 // 解析端口
@@ -229,12 +208,6 @@ func shutdown()  {
     // 停止所有任务调度
     logger.Info("停止定时任务调度")
     serviceTask.StopAll()
-    delayTaskEnable, _ := app.Setting.Key("delay.task.enable").Bool()
-    if delayTaskEnable {
-        logger.Info("停止延时任务调度")
-        serviceDelayTask := new(service.DelayTask)
-        serviceDelayTask.Stop()
-    }
     // 释放gRPC连接池
     grpcpool.Pool.ReleaseAll()
 

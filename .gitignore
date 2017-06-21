@@ -35,3 +35,6 @@ gocron
 gocron.exe
 gocron-node
 gocron-node.exe
+
+node_modules
+package.json

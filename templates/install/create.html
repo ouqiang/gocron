@@ -90,12 +90,6 @@
     $('.ui.form').form(
             {
                 onSuccess: function(event, fields) {
-                    swal({
-                        title: '',
-                        text: "系统安装中.......",
-                        type: 'info',
-                        showConfirmButton: false
-                    });
                     util.post('/install/store', fields, function(code, message) {
                         swal('安装成功');
                         setTimeout(function() {

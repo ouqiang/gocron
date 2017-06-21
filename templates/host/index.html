@@ -69,12 +69,6 @@
         el: '.ui.striped.table',
         methods: {
             ping: function(id) {
-                swal({
-                    title: '',
-                    text: "连接中.......",
-                    type: 'info',
-                    showConfirmButton: false
-                });
                 util.get("/host/ping/" + id, function(code, message) {
                     swal('操作成功', '连接成功', 'success');
                 })

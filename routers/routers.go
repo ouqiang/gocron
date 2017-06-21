@@ -17,7 +17,6 @@ import (
     "github.com/go-macaron/gzip"
     "github.com/ouqiang/gocron/routers/manage"
     "github.com/ouqiang/gocron/routers/loginlog"
-    "github.com/ouqiang/gocron/routers/delaytask"
     "time"
     "strconv"
 )
@@ -60,11 +59,6 @@ func Register(m *macaron.Macaron) {
         m.Get("/run/:id", task.Run)
     })
 
-    // 延时任务
-    m.Group("/delaytask", func() {
-        m.Get("", delaytask.Index)
-    })
-
     // 主机
     m.Group("/host", func() {
         m.Get("/create", host.Create)
@@ -98,8 +92,6 @@ func Register(m *macaron.Macaron) {
     // API
     m.Group("/api/v1", func() {
        m.Post("/tasklog/remove/:id", tasklog.Remove)
-       m.Post("/delaytask/push", delaytask.Create)
-       m.Post("/delaytask/log/remove/:id", delaytask.Remove)
     }, apiAuth);
 
     // 404错误

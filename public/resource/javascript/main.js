@@ -26,7 +26,7 @@ function Util() {
     // ajax错误处理
     util.ajaxFailure = function() {
         // todo 错误处理
-        swal(FAILURE_MESSAGE, '未知错误', 'error');
+        swal(FAILURE_MESSAGE, '操作失败', 'error');
     };
     // get请求
     util.get = function(url, callback) {

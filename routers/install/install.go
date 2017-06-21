@@ -115,9 +115,6 @@ func writeConfig(form InstallForm) error {
         "db.max.open.conns", "100",
         "allow_ips", "",
         "app.name", "定时任务管理系统", // 应用名称
-        "delay.task.enable", "false", // 是否开启延时任务
-        "delay.task.slots", "3600", // 时间轮槽数量
-        "delay.task.tick", "1s", // 时间轮每次转动的时间
         "api.key", "",
         "api.secret", "",
     }
