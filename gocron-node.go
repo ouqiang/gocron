@@ -15,5 +15,7 @@ func main()  {
 	} else {
         addr = os.Args[1]
     }
-	server.Start(addr)
+	for {
+		server.Start(addr)
+	}
 }

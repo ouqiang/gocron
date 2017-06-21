@@ -53,8 +53,6 @@
                         <option value="2" {{{if .Task}}} {{{if eq .Task.DependencyStatus 2}}}selected{{{end}}} {{{end}}}>弱依赖</option>
                     </select>
                 </div>
-            </div>
-            <div class="two fields">
                 <div class="field">
                     <label>
                         <div class="content">子任务ID</div>
@@ -108,19 +106,15 @@
                 <textarea rows="5" name="command" placeholder="请输入系统命令" id="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="six fields">
+        <div class="three fields">
             <div class="field">
                 <label>任务超时时间(秒, 0-86400)</label>
                 <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}} 0 {{{end}}}">
             </div>
-        </div>
-        <div class="six fields">
             <div class="field">
                 <label>任务失败重试次数 (0-10)</label>
                 <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}} 0 {{{end}}}">
             </div>
-        </div>
-        <div class="three fields">
             <div class="field">
                 <label>允许多实例同时运行</label>
                 <select name="multi">
@@ -128,6 +122,7 @@
                     <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                 </select>
             </div>
+
         </div>
         <div class="three fields">
             <div class="field">

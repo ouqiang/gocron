@@ -30,6 +30,11 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
 }
 
 func Start(addr string)  {
+    defer func() {
+       if err := recover(); err != nil {
+           grpclog.Println("panic", err)
+       }
+    } ()
     l, err := net.Listen("tcp", addr)
     if err != nil {
         grpclog.Fatal(err)

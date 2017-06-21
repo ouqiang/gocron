@@ -143,12 +143,6 @@
 			"revisionTime": "2016-03-02T07:53:16Z"
 		},
 		{
-			"checksumSHA1": "kIFW+u9fHefC8sWE4W9pYIfJv5k=",
-			"path": "github.com/ouqiang/timewheel",
-			"revision": "c28ec761087c32fd75ad7514db2a4988d5c872d9",
-			"revisionTime": "2017-05-14T12:16:09Z"
-		},
-		{
 			"checksumSHA1": "cVGA2CJTJsCAVa5VKTM8k/ma/BU=",
 			"path": "github.com/silenceper/pool",
 			"revision": "e4c4536403d9765c8ea74cda2ee49dcb0848bc7a",
