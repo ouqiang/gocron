@@ -32,7 +32,7 @@ type GRPCPool struct {
 
 func (p *GRPCPool) Get(addr string) (*grpc.ClientConn, error)  {
     p.RLock()
-    p.RUnlock()
+    defer p.RUnlock()
     pool, ok := p.conns[addr]
     if !ok {
         err := p.newCommonPool(addr)
