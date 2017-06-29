@@ -2,7 +2,9 @@
 # gocron - 定时任务管理系统
 
 # 项目简介
-使用Go语言开发的定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
+使用Go语言开发的定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)  
+
+原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)  
 
 ## 功能特性
 * Web界面管理定时任务, 支持动态添加、删除、编辑任务
