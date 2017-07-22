@@ -41,7 +41,7 @@ func Start(addr string)  {
     }
     s := grpc.NewServer()
     pb.RegisterTaskServer(s, Server{})
-    grpclog.Println("listen address ", addr)
+    grpclog.Println("listen ", addr)
     err = s.Serve(l)
     if err != nil {
         grpclog.Fatal(err)

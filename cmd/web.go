@@ -13,18 +13,12 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/ouqiang/gocron/modules/setting"
     "time"
-    "io"
-    "fmt"
-    "path/filepath"
-    "os/exec"
-    "github.com/ouqiang/gocron/modules/utils"
     "github.com/ouqiang/gocron/modules/rpc/grpcpool"
 )
 
 // web服务器默认端口
 const DefaultPort = 5920
 
-const InitProcess = 1
 
 var CmdWeb = cli.Command{
     Name:   "web",
@@ -54,18 +48,15 @@ var CmdWeb = cli.Command{
 }
 
 func runWeb(ctx *cli.Context) {
-    // 设置守护进程
-    becomeDaemon(ctx)
     // 设置运行环境
     setEnvironment(ctx)
     // 初始化应用
     app.InitEnv()
-    app.WritePid()
     // 初始化模块 DB、定时任务等
     initModule()
     // 捕捉信号,配置热更新等
     go catchSignal()
-    m := macaron.NewWithLogger(getWebLogWriter())
+    m := macaron.Classic()
 
     // 注册路由
     routers.Register(m)
@@ -73,36 +64,7 @@ func runWeb(ctx *cli.Context) {
     routers.RegisterMiddleware(m)
     host := parseHost(ctx)
     port := parsePort(ctx)
-    fmt.Println("server start")
     m.Run(host, port)
-}
-
-func becomeDaemon(ctx *cli.Context) {
-    // 不支持windows
-    if utils.IsWindows() {
-        return
-    }
-    if !ctx.IsSet("d") {
-        return
-    }
-
-    if os.Getppid() == InitProcess {
-        // 子进程不再处理
-        return
-    }
-
-    filePath, _:= filepath.Abs(os.Args[0])
-    cmd := exec.Command(filePath, os.Args[1:]...)
-    cmd.Stdin = os.Stdin
-    cmd.Stdout = os.Stdout
-    cmd.Stderr = os.Stderr
-    err := cmd.Start()
-    if err != nil {
-        logger.Fatal("创建守护进程失败", err)
-    }
-
-    // 父进程退出, 子进程由init-1号进程收养
-    os.Exit(0)
 }
 
 func initModule()  {
@@ -177,25 +139,10 @@ func catchSignal()  {
     }
 }
 
-func getWebLogWriter() io.Writer  {
-    if macaron.Env == macaron.DEV {
-        return os.Stdout
-    }
-    logFile := app.LogDir + "/access.log"
-    var err error
-    w, err := os.OpenFile(logFile, os.O_RDWR|os.O_CREATE|os.O_APPEND ,0666)
-    if err != nil {
-        fmt.Printf("日志文件[%s]打开失败", logFile)
-        panic(err)
-    }
-
-    return w
-}
 
 // 应用退出
 func shutdown()  {
     defer func() {
-        app.RemovePid()
         logger.Info("已退出")
         os.Exit(0)
     }()
