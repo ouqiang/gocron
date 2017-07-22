@@ -90,13 +90,13 @@
         </div>
         <div class="three fields" id="hostField">
             <div class="field">
-                <label>任务执行器</label>
+                <label>任务节点</label>
                 <select name="host_id" id="hostId">
-                    <option value="">选择主机</option>
+                    <option value="">选择节点</option>
                     {{{range $i, $v := .Hosts}}}
                      <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
                     {{{end}}}
-                 </select> &nbsp; <a class="ui blue button" href="/host/create" target="_blank">添加主机</a>
+                 </select> &nbsp; <a class="ui blue button" href="/host/create" target="_blank">添加节点</a>
 
             </div>
         </div>

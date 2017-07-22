@@ -24,7 +24,7 @@
                 </div>
                 <div class="field">
                     <select name="host_id" id="hostId">
-                        <option value="">选择主机</option>
+                        <option value="">选择节点</option>
                         {{{range $i, $v := .Hosts}}}
                         <option value="{{{.Id}}}" {{{if eq $.Params.HostId .Id }}} selected {{{end}}} >{{{.Alias}}}-{{{.Name}}}</option>
                         {{{end}}}
@@ -60,7 +60,7 @@
                 <th>超时时间</th>
                 <th>重试次数</th>
                 <th>单实例运行</th>
-                <th>主机</th>
+                <th>任务节点</th>
                 <th>状态</th>
                 <th>操作</th>
             </tr>
