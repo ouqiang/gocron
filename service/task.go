@@ -14,6 +14,8 @@ import (
     rpcClient "github.com/ouqiang/gocron/modules/rpc/client"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "strings"
+    "text/template"
+    "bytes"
 )
 
 // 定时任务调度管理器
@@ -316,12 +318,39 @@ func execDependencyTask(taskModel models.TaskHost, taskResult TaskResult)  {
     if len(tasks) == 0 {
         logger.Errorf("依赖任务列表为空#主任务ID-%d", taskModel.Id)
     }
-
     serviceTask := new(Task)
     for _, task := range tasks {
+        task.Command = appendResultToCommand(task.Command, taskResult)
         task.Spec = fmt.Sprintf("依赖任务(主任务ID-%d)", taskModel.Id)
         serviceTask.Run(task)
     }
+}
+
+/**
+ * 添加主任务执行结果到子任务命令中, 占位符{{.Code}} {{.Message}}
+ */
+func appendResultToCommand(command string, taskResult TaskResult) string {
+    var code int8 = 0
+    if taskResult.Err != nil {
+        code = 1
+    }
+    data := map[string]interface{} {
+        "Code": code,
+        "Message": taskResult.Result,
+    }
+    var buf *bytes.Buffer = new(bytes.Buffer)
+    tmpl, err := template.New("command").Parse(command)
+    if err != nil {
+        logger.Errorf("替换子任务命令占位符失败#%s", err.Error())
+        return command
+    }
+    err = tmpl.Execute(buf, data)
+    if err != nil {
+        logger.Errorf("替换子任务命令占位符失败#%s", err.Error())
+        return command
+    }
+
+    return buf.String()
 }
 
 // 发送任务结果通知
