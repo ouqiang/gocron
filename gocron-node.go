@@ -5,15 +5,33 @@ package main
 
 import (
 	"github.com/ouqiang/gocron/modules/rpc/server"
-	"os"
+    "flag"
+    "runtime"
+    "os"
+    "fmt"
 )
 
+const AppVersion = "1.1"
+
 func main()  {
-	var addr string
-	if (len(os.Args) < 2) {
-		addr = "0.0.0.0:5921"
-	} else {
-        addr = os.Args[1]
+	var serverAddr string
+    var allowRoot bool
+    var version bool
+    flag.BoolVar(&allowRoot, "allow-root", false, "./gocron-node -allow-root")
+    flag.StringVar(&serverAddr, "s", "0.0.0.0:5921", "./gocron-node -s ip:port")
+    flag.BoolVar(&version, "v", false, "./gocron-node -v")
+    flag.Parse()
+
+    if version {
+        fmt.Println(AppVersion)
+        os.Exit(0)
     }
-	server.Start(addr)
+
+    if runtime.GOOS != "windows" && os.Getuid() == 0 && !allowRoot   {
+        fmt.Println("Do not run gocron-node as root user")
+        os.Exit(1)
+    }
+
+
+	server.Start(serverAddr)
 }
