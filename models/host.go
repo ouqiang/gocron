@@ -12,6 +12,7 @@ type Host struct {
     Port      int       `xorm:"notnull default 22"`               // 主机端口
     Remark    string    `xorm:"varchar(100) notnull default '' "` // 备注
     BaseModel       `xorm:"-"`
+    Selected bool   `xorm:"-"`
 }
 
 // 新增

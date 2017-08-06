@@ -54,7 +54,7 @@
                 <th>任务ID</th>
                 <th>任务名称</th>
                 <th>cron表达式</th>
-                <th>协议</th>
+                <th>执行方式</th>
                 <th>重试次数</th>
                 <th>任务节点</th>
                 <th>执行时长</th>
@@ -70,7 +70,7 @@
                 <td>{{{.Spec}}}</td>
                 <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
                 <td>{{{.RetryTimes}}}</td>
-                <td>{{{.Hostname}}}</td>
+                <td>{{{unescape .Hostname}}}</td>
                 <td>
                     {{{if and (ne .Status 3) (ne .Status 4)}}}
                     {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>

@@ -28,7 +28,7 @@ type TaskForm struct {
     Timeout int `binding:"Range(0,86400)"`
     Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
-    HostId int16
+    HostId string
     Remark string
     NotifyStatus int8 `binding:"In(1,2,3)"`
     NotifyType int8 `binding:"In(1,2,3)"`
@@ -91,9 +91,22 @@ func Edit(ctx *macaron.Context)  {
         logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
         ctx.Redirect("/task")
     }
+    hostModel := new(models.Host)
+    hostModel.PageSize = -1
+    hosts, err := hostModel.List(models.CommonMap{})
+    if err != nil {
+        logger.Error(err)
+    } else {
+        for i, host := range(hosts) {
+            if inHosts(task.Hosts, host.Id) {
+                hosts[i].Selected = true
+            }
+        }
+    }
+
     ctx.Data["Task"]  = task
+    ctx.Data["Hosts"] = hosts
     ctx.Data["Title"] = "编辑"
-    setHostsToTemplate(ctx)
     ctx.HTML(200, "task/task_form")
 }
 
@@ -110,15 +123,10 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("任务名称已存在")
     }
 
-    if form.Protocol == models.TaskRPC && form.HostId <= 0 {
+    if form.Protocol == models.TaskRPC && form.HostId == "" {
         return json.CommonFailure("请选择主机名")
     }
 
-    if form.Protocol == models.TaskRPC {
-        taskModel.HostId = form.HostId
-    } else {
-        taskModel.HostId = 0
-    }
     taskModel.Name = form.Name
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
@@ -187,6 +195,18 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
         return json.CommonFailure("保存失败", err)
     }
 
+    taskHostModel := new(models.TaskHost)
+    if form.Protocol == models.TaskRPC {
+        hostIdStrList := strings.Split(form.HostId, ",")
+        hostIds := make([]int, len(hostIdStrList))
+        for i, hostIdStr := range hostIdStrList {
+            hostIds[i], _ = strconv.Atoi(hostIdStr)
+        }
+        taskHostModel.Add(id, hostIds)
+    } else {
+        taskHostModel.Remove(id)
+    }
+
     status, err := taskModel.GetStatus(id)
     if status == models.Enabled && taskModel.Level == models.TaskLevelParent {
         addTaskToTimer(id)
@@ -204,6 +224,9 @@ func Remove(ctx *macaron.Context) string {
     if err != nil {
         return json.CommonFailure(utils.FailureContent, err)
     }
+
+    taskHostModel := new(models.TaskHost)
+    taskHostModel.Remove(id)
 
     service.Cron.RemoveJob(strconv.Itoa(id))
 
@@ -290,9 +313,20 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
 
 func setHostsToTemplate(ctx *macaron.Context)  {
     hostModel := new(models.Host)
+    hostModel.PageSize = -1
     hosts, err := hostModel.List(models.CommonMap{})
     if err != nil {
         logger.Error(err)
     }
     ctx.Data["Hosts"] = hosts
+}
+
+func inHosts(slice []models.TaskHostDetail, element int16) bool {
+    for _, v := range slice {
+        if v.HostId == element {
+            return true
+        }
+    }
+
+    return false
 }

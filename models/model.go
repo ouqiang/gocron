@@ -54,8 +54,8 @@ func (model *BaseModel) parsePageAndPageSize(params CommonMap) {
     if model.Page <= 0 {
         model.Page = Page
     }
-    if model.PageSize <= 0 || model.PageSize > MaxPageSize {
-        model.PageSize = PageSize
+    if model.PageSize <= 0  {
+        model.PageSize = MaxPageSize
     }
 }
 

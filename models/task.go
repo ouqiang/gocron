@@ -41,7 +41,6 @@ type Task struct {
     Timeout  int       `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
     Multi    int8      `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
     RetryTimes int8    `xorm:"tinyint notnull default 0"`         // 重试次数
-    HostId   int16    `xorm:"smallint notnull index default 0"`        // RPC host id，
     NotifyStatus int8  `xorm:"smallint notnull default 1"`       // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
     NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
     NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
@@ -50,17 +49,11 @@ type Task struct {
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
     Deleted  time.Time `xorm:"datetime deleted"`                 // 删除时间
     BaseModel `xorm:"-"`
+    Hosts []TaskHostDetail `xorm:"-"`
 }
 
-type TaskHost struct {
-    Task `xorm:"extends"`
-    Name string
-    Port int
-    Alias string
-}
-
-func (TaskHost) TableName() string  {
-    return TablePrefix + "task"
+func taskHostTableName() []string {
+    return []string{TablePrefix + "task_host", "th"}
 }
 
 // 新增
@@ -88,7 +81,7 @@ func (task *Task) CreateTestTask() {
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
     return Db.ID(id).
-    Cols("name,spec,protocol,command,timeout,multi,retry_times,host_id,remark,notify_status,notify_type,notify_receiver_id, dependency_task_id, dependency_status").
+    Cols("name,spec,protocol,command,timeout,multi,retry_times,remark,notify_status,notify_type,notify_receiver_id, dependency_task_id, dependency_status").
     Update(task)
 }
 
@@ -113,36 +106,48 @@ func (task *Task) Enable(id int) (int64, error) {
 }
 
 // 获取所有激活任务
-func (task *Task) ActiveList() ([]TaskHost, error) {
-    list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.port"
-    err := Db.Alias("t").
-            Join("LEFT", hostTableName(), "t.host_id=host.id").
-            Where("t.status = ? AND t.level = ?", Enabled, TaskLevelParent).
-            Cols(fields).
+func (task *Task) ActiveList() ([]Task, error) {
+    list := make([]Task, 0)
+    err := Db.Where("status = ? AND level = ?", Enabled, TaskLevelParent).
             Find(&list)
 
-    return list, err
+    if err != nil {
+        return list, err
+    }
+
+    return task.setHostsForTasks(list)
 }
 
 // 获取某个主机下的所有激活任务
-func (task *Task) ActiveListByHostId(hostId int16) ([]TaskHost, error) {
-    list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name,host.port"
-    err := Db.Alias("t").
-        Join("LEFT", hostTableName(), "t.host_id=host.id").
-        Where("t.status = ? AND t.host_id = ? AND t.level = ?", Enabled, hostId, TaskLevelParent).
-        Cols(fields).
+func (task *Task) ActiveListByHostId(hostId int16) ([]Task, error) {
+    taskHostModel := new(TaskHost)
+    taskIds, err := taskHostModel.GetTaskIdsByHostId(hostId)
+    if err != nil {
+        return nil, err
+    }
+    list := make([]Task, 0)
+    err = Db.Where("status = ?  AND level = ?", Enabled, TaskLevelParent).
+        In("id", taskIds...).
         Find(&list)
+    if err != nil {
+        return list, err
+    }
 
-    return list, err
+    return task.setHostsForTasks(list)
 }
 
-// 判断主机id是否有引用
-func (task *Task) HostIdExist(hostId int16) (bool, error) {
-    count, err := Db.Where("host_id = ?", hostId).Count(task);
+func (task *Task) setHostsForTasks(tasks []Task) ([]Task, error) {
+    taskHostModel := new(TaskHost)
+    var err error
+    for i, value := range tasks {
+        taskHostDetails, err := taskHostModel.GetHostIdsByTaskId(value.Id)
+        if err != nil {
+            return nil, err
+        }
+        tasks[i].Hosts = taskHostDetails
+    }
 
-    return count > 0, err
+    return tasks, err
 }
 
 // 判断任务名称是否存在
@@ -168,28 +173,37 @@ func (task *Task) GetStatus(id int) (Status, error) {
     return task.Status, nil
 }
 
-func(task *Task) Detail(id int) (TaskHost, error)  {
-    taskHost := TaskHost{}
-    fields := "t.*, host.alias,host.name,host.port"
-    _, err := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id").Where("t.id=?", id).Cols(fields).Get(&taskHost)
+func(task *Task) Detail(id int) (Task, error)  {
+    t := Task{}
+    _, err := Db.Where("id=?", id).Get(&t)
 
-    return taskHost, err
+    if err != nil {
+        return t, err
+    }
+
+    taskHostModel := new(TaskHost)
+    t.Hosts, err = taskHostModel.GetHostIdsByTaskId(id)
+
+    return t, err
 }
 
-func (task *Task) List(params CommonMap) ([]TaskHost, error) {
+func (task *Task) List(params CommonMap) ([]Task, error) {
     task.parsePageAndPageSize(params)
-    list := make([]TaskHost, 0)
-    fields := "t.*, host.alias,host.name"
-    session := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id")
+    list := make([]Task, 0)
+    session := Db.Alias("t").Join("LEFT", taskHostTableName(), "t.id = th.task_id")
     task.parseWhere(session, params)
-    err := session.Cols(fields).Desc("t.id").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
+    err := session.GroupBy("t.id").Desc("t.id").Cols("t.*").Limit(task.PageSize, task.pageLimitOffset()).Find(&list)
 
-    return list, err
+    if err != nil {
+        return nil, err
+    }
+
+    return task.setHostsForTasks(list)
 }
 
 // 获取依赖任务列表
-func (task *Task) GetDependencyTaskList(ids string) ([]TaskHost, error) {
-    list := make([]TaskHost, 0)
+func (task *Task) GetDependencyTaskList(ids string) ([]Task, error) {
+    list := make([]Task, 0)
     if ids == "" {
         return list, nil
     }
@@ -198,21 +212,24 @@ func (task *Task) GetDependencyTaskList(ids string) ([]TaskHost, error) {
     for i,  v := range idList {
         taskIds[i] = v
     }
-    fields := "t.*, host.alias,host.name,host.port"
+    fields := "t.*"
     err := Db.Alias("t").
-            Join("LEFT", hostTableName(), "t.host_id=host.id").
             Where("t.level = ?", TaskLevelChild).
             In("t.id", taskIds).
             Cols(fields).
             Find(&list)
 
-    return list, err
+    if err != nil {
+        return list, err
+    }
+
+    return task.setHostsForTasks(list)
 }
 
 func (task *Task) Total(params CommonMap) (int64, error) {
-    session := Db.Alias("t").Join("LEFT", hostTableName(), "t.host_id=host.id")
+    session := Db.Alias("t").Join("LEFT", taskHostTableName(), "t.id = th.task_id")
     task.parseWhere(session, params)
-    return session.Count(task)
+    return session.GroupBy("t.id").Count(task)
 }
 
 // 解析where
@@ -226,7 +243,7 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     }
     hostId, ok := params["HostId"]
     if ok && hostId.(int) > 0 {
-        session.And("host_id = ?", hostId)
+        session.And("th.host_id = ?", hostId)
     }
     name, ok := params["Name"]
     if ok && name.(string) != "" {
@@ -242,6 +259,3 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     }
 }
 
-func hostTableName() []string {
-    return []string{TablePrefix + "host", "host"}
-}

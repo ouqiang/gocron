@@ -109,14 +109,14 @@ func (task *Task) Initialize() {
 }
 
 // 批量添加任务
-func (task *Task) BatchAdd(tasks []models.TaskHost)  {
+func (task *Task) BatchAdd(tasks []models.Task)  {
     for _, item := range tasks {
         task.Add(item)
     }
 }
 
 // 添加任务
-func (task *Task) Add(taskModel models.TaskHost) {
+func (task *Task) Add(taskModel models.Task) {
     if taskModel.Level == models.TaskLevelChild {
         logger.Errorf("添加任务失败#不允许添加子任务到调度器#任务Id-%d", taskModel.Id);
         return
@@ -142,12 +142,12 @@ func (task *Task) StopAll()  {
 }
 
 // 直接运行任务
-func (task *Task) Run(taskModel models.TaskHost)  {
+func (task *Task) Run(taskModel models.Task)  {
     go createJob(taskModel)()
 }
 
 type Handler interface {
-    Run(taskModel models.TaskHost) (string, error)
+    Run(taskModel models.Task) (string, error)
 }
 
 
@@ -157,7 +157,7 @@ type HTTPHandler struct{}
 // http任务执行时间不超过300秒
 const HttpExecTimeout = 300
 
-func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) {
+func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
     if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
         taskModel.Timeout = HttpExecTimeout
     }
@@ -173,26 +173,54 @@ func (h *HTTPHandler) Run(taskModel models.TaskHost) (result string, err error) 
 // RPC调用执行任务
 type RPCHandler struct {}
 
-func (h *RPCHandler) Run(taskModel models.TaskHost) (result string, err error)  {
+func (h *RPCHandler) Run(taskModel models.Task) (result string, err error)  {
     taskRequest := new(pb.TaskRequest)
     taskRequest.Timeout = int32(taskModel.Timeout)
     taskRequest.Command = taskModel.Command
+    var resultChan chan TaskResult = make(chan TaskResult, len(taskModel.Hosts))
+    for _, taskHost := range taskModel.Hosts {
+        go func(th models.TaskHostDetail) {
+            output, err := rpcClient.ExecWithRetry(th.Name, th.Port, taskRequest)
+            var errorMessage string = ""
+            if err != nil {
+                errorMessage = err.Error()
+            }
+            outputMessage := fmt.Sprintf("主机: [%s-%s]\n%s\n%s\n\n",
+                th.Alias, th.Name, errorMessage, output,
+            )
+            resultChan <- TaskResult{Err:err, Result: outputMessage}
+        }(taskHost)
+    }
 
-    return rpcClient.ExecWithRetry(taskModel.Name, taskModel.Port, taskRequest)
+    var aggregationErr error = nil
+    var aggregationResult string = ""
+    for i := 0; i < len(taskModel.Hosts); i++ {
+        taskResult := <- resultChan
+        aggregationResult += taskResult.Result
+        if taskResult.Err != nil {
+            aggregationErr = taskResult.Err
+        }
+    }
+
+    return aggregationResult, aggregationErr
 }
 
 
 // 创建任务日志
-func createTaskLog(taskModel models.TaskHost, status models.Status) (int64, error) {
+func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
     taskLogModel := new(models.TaskLog)
     taskLogModel.TaskId = taskModel.Id
-    taskLogModel.Name = taskModel.Task.Name
+    taskLogModel.Name = taskModel.Name
     taskLogModel.Spec = taskModel.Spec
     taskLogModel.Protocol = taskModel.Protocol
     taskLogModel.Command = taskModel.Command
     taskLogModel.Timeout = taskModel.Timeout
     if taskModel.Protocol == models.TaskRPC {
-        taskLogModel.Hostname = taskModel.Alias + "-" + taskModel.Name
+        var aggregationHost string = ""
+        for _, host := range taskModel.Hosts {
+            aggregationHost += fmt.Sprintf("%s-%s<br>", host.Alias, host.Name)
+        }
+        taskLogModel.Hostname = aggregationHost
     }
     taskLogModel.StartTime = time.Now()
     taskLogModel.Status = status
@@ -219,7 +247,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
 
 }
 
-func createJob(taskModel models.TaskHost) cron.FuncJob {
+func createJob(taskModel models.Task) cron.FuncJob {
     var handler Handler = createHandler(taskModel)
     if handler == nil {
         return nil
@@ -231,16 +259,16 @@ func createJob(taskModel models.TaskHost) cron.FuncJob {
         if taskLogId <= 0 {
             return
         }
-        logger.Infof("开始执行任务#%s#命令-%s", taskModel.Task.Name, taskModel.Command)
+        logger.Infof("开始执行任务#%s#命令-%s", taskModel.Name, taskModel.Command)
         taskResult := execJob(handler, taskModel)
-        logger.Infof("任务完成#%s#命令-%s", taskModel.Task.Name, taskModel.Command)
+        logger.Infof("任务完成#%s#命令-%s", taskModel.Name, taskModel.Command)
         afterExecJob(taskModel, taskResult, taskLogId)
     }
 
     return taskFunc
 }
 
-func createHandler(taskModel models.TaskHost) Handler  {
+func createHandler(taskModel models.Task) Handler  {
     var handler Handler = nil
     switch taskModel.Protocol {
         case models.TaskHTTP:
@@ -254,7 +282,7 @@ func createHandler(taskModel models.TaskHost) Handler  {
 }
 
 // 任务前置操作
-func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
+func beforeExecJob(taskModel models.Task) (taskLogId int64)  {
     if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
         createTaskLog(taskModel, models.Cancel)
         return
@@ -274,7 +302,7 @@ func beforeExecJob(taskModel models.TaskHost) (taskLogId int64)  {
 }
 
 // 任务执行后置操作
-func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId int64)  {
+func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64)  {
     if taskResult.Err != nil {
         taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
     }
@@ -290,7 +318,7 @@ func afterExecJob(taskModel models.TaskHost, taskResult TaskResult, taskLogId in
 }
 
 // 执行依赖任务, 多个任务并发执行
-func execDependencyTask(taskModel models.TaskHost, taskResult TaskResult)  {
+func execDependencyTask(taskModel models.Task, taskResult TaskResult)  {
     // 父任务才能执行子任务
     if taskModel.Level != models.TaskLevelParent {
         return
@@ -354,7 +382,7 @@ func appendResultToCommand(command string, taskResult TaskResult) string {
 }
 
 // 发送任务结果通知
-func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
+func SendNotification(taskModel models.Task, taskResult TaskResult)  {
     var statusName string
     // 未开启通知
     if taskModel.NotifyStatus == 0 {
@@ -376,7 +404,7 @@ func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
     msg := notify.Message{
         "task_type": taskModel.NotifyType,
         "task_receiver_id": taskModel.NotifyReceiverId,
-        "name": taskModel.Task.Name,
+        "name": taskModel.Name,
         "output": taskResult.Result,
         "status": statusName,
         "taskId": taskModel.Id,
@@ -385,7 +413,7 @@ func SendNotification(taskModel models.TaskHost, taskResult TaskResult)  {
 }
 
 // 执行具体任务
-func execJob(handler Handler, taskModel models.TaskHost) TaskResult  {
+func execJob(handler Handler, taskModel models.Task) TaskResult  {
     defer func() {
        if err := recover(); err != nil {
            logger.Error("panic#service/task.go:execJob#", err)

@@ -40,10 +40,6 @@ var CmdWeb = cli.Command{
             Value: "prod",
             Usage: "runtime environment, dev|test|prod",
         },
-        cli.BoolFlag{
-            Name: "d",
-            Usage: "-d=true, run as daemon process",
-        },
     },
 }
 
@@ -155,8 +151,6 @@ func shutdown()  {
     // 停止所有任务调度
     logger.Info("停止定时任务调度")
     serviceTask.StopAll()
-    // 释放gRPC连接池
-    grpcpool.Pool.ReleaseAll()
 
     taskNumInRunning := service.TaskNum.Num()
     logger.Infof("正在运行的任务有%d个", taskNumInRunning)
@@ -170,4 +164,7 @@ func shutdown()  {
         time.Sleep(3 * time.Second)
         taskNumInRunning = service.TaskNum.Num()
     }
+
+    // 释放gRPC连接池
+    grpcpool.Pool.ReleaseAll()
 }

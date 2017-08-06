@@ -19,7 +19,7 @@
                     <div class="content">任务名称</div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="name" placeholder="订单量统计" value="{{{.Task.Task.Name}}}">
+                    <input type="text" name="name" placeholder="订单量统计" value="{{{.Task.Name}}}">
                 </div>
             </div>
         </div>
@@ -83,20 +83,23 @@
             <div class="field">
                 <label>执行方式</label>
                 <select name="protocol" id="protocol">
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}}
+                            data-validate-type="selectProtocol">SHELL</option>
                     <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
                 </select>
             </div>
         </div>
-        <div class="three fields" id="hostField">
+        <div class="fields" id="hostField">
             <div class="field">
-                <label>任务节点</label>
-                <select name="host_id" id="hostId">
-                    <option value="">选择节点</option>
+                <label>选择任务节点</label>
+                <div id="hostId">
                     {{{range $i, $v := .Hosts}}}
-                     <option value="{{{.Id}}}" {{{if $.Task}}}{{{if eq $.Task.HostId .Id }}} selected {{{end}}} {{{end}}}>{{{.Alias}}}-{{{.Name}}}</option>
+                        <label>
+                            <input type="checkbox" value="{{{.Id}}}" {{{if $.Task}}}{{{if $v.Selected}}} checked {{{end}}}{{{end}}}  style="width:25px;height: 25px;">{{{.Alias}}}-{{{.Name}}}
+                            {{{if  (HostFormat $i) }}}<br>{{{end}}}
+                        </label>
                     {{{end}}}
-                 </select> &nbsp; <a class="ui blue button" href="/host/create" target="_blank">添加节点</a>
+                 </div> &nbsp; <br> <a class="ui blue button" href="/host/create" target="_blank">添加节点</a>
 
             </div>
         </div>
@@ -109,11 +112,11 @@
         <div class="three fields">
             <div class="field">
                 <label>任务超时时间(秒, 0-86400)</label>
-                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}} 0 {{{end}}}">
+                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}}0{{{end}}}">
             </div>
             <div class="field">
                 <label>任务失败重试次数 (0-10)</label>
-                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}} 0 {{{end}}}">
+                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}}0{{{end}}}">
             </div>
             <div class="field">
                 <label>允许多实例同时运行</label>
@@ -313,6 +316,15 @@
         return receivers.join(",");
     }
 
+    function parseHostId() {
+        var hostIds = [];
+        $('#hostId input:checked').each(function () {
+           hostIds.push($(this).val());
+        });
+
+        return hostIds.join(",");
+    }
+
     function changeLevel() {
         var selected = $('#level').val();
         if (selected == 1) {
@@ -336,6 +348,12 @@
                         return false;
                     }
                     fields.notify_receiver_id = parseNotifyReceiver();
+                    fields.host_id = parseHostId();
+                    if (fields.protocol == 2 && fields.host_id == "") {
+                        swal('错误提示', '请选择任务节点');
+                        return false;
+                    }
+
                     util.post('/task/store', fields, function(code, message) {
                         location.href = "/task"
                     });

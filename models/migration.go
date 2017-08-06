@@ -15,7 +15,7 @@ func (migration *Migration) Exec(dbName string) error {
     setting := new(Setting)
     task := new(Task)
     tables := []interface{}{
-        &User{}, task, &TaskLog{}, &Host{}, setting,&LoginLog{},
+        &User{}, task, &TaskLog{}, &Host{}, setting,&LoginLog{},&TaskHost{},
     }
     for _, table := range tables {
         exist, err:= Db.IsTableExist(table)

@@ -69,14 +69,18 @@
                 {{{range $i, $v := .Tasks}}}
                     <tr>
                         <td>{{{.Id}}}</td>
-                        <td>{{{.Task.Name}}}</td>
+                        <td>{{{.Name}}}</td>
                         <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
                         <td>{{{.Spec}}}</td>
                         <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
                         <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
                         <td>{{{.RetryTimes}}}</td>
                         <td>{{{if gt .Multi 0}}}否{{{else}}}是{{{end}}}</td>
-                        <td>{{{.Alias}}}-{{{.Name}}}</td>
+                        <td>
+                            {{{range $k, $h := .Hosts}}}
+                                {{{$h.Alias}}}<br>
+                            {{{end}}}
+                        </td>
                         <td>
                             {{{if eq .Level 1}}}
                                 {{{if eq .Status 1}}}<span style="color: green;">激活</span>{{{else}}}<span style="color: red;">停止<span>{{{end}}}

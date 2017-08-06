@@ -19,6 +19,7 @@ import (
     "github.com/ouqiang/gocron/routers/loginlog"
     "time"
     "strconv"
+    "html/template"
 )
 
 // 静态文件目录
@@ -138,6 +139,14 @@ func RegisterMiddleware(m *macaron.Macaron) {
         IndentJSON: true,
         // 渲染具有缩进格式的 XML，默认为不缩进
         IndentXML: true,
+        Funcs: []template.FuncMap{map[string]interface{} {
+            "HostFormat": func(index int) bool {
+                return (index + 1) % 3 == 0
+            },
+            "unescape": func(str string) template.HTML {
+                return template.HTML(str)
+            },
+        }},
     }))
     m.Use(session.Sessioner(session.Options{
         Provider:       "file",

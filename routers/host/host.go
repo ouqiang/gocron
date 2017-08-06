@@ -117,7 +117,7 @@ func Store(ctx *macaron.Context, form HostForm) string  {
             grpcpool.Pool.Release(oldAddr)
         }
 
-        taskModel := new(models.TaskHost)
+        taskModel := new(models.Task)
         tasks, err := taskModel.ActiveListByHostId(id)
         if  err != nil {
             return json.CommonFailure("刷新任务主机信息失败", err)
@@ -135,8 +135,8 @@ func Remove(ctx *macaron.Context) string  {
     if err != nil {
         return json.CommonFailure("参数错误", err)
     }
-    taskModel := new(models.Task)
-    exist,err := taskModel.HostIdExist(int16(id))
+    taskHostModel := new(models.TaskHost)
+    exist,err := taskHostModel.HostIdExist(int16(id))
     if err != nil {
         return json.CommonFailure("操作失败", err)
     }

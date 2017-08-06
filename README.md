@@ -14,7 +14,7 @@
 * 任务依赖配置
 * 任务类型
     * shell任务
-    > 在任务节点上执行shell命令
+    > 在任务节点上执行shell命令, 支持任务同时在多个节点上运行
     * HTTP任务
     > 访问指定的URL地址, 由调度器直接执行, 不依赖任务节点
 * 查看任务执行日志
@@ -33,7 +33,7 @@
 
 
 ## 下载
-[v1.0](https://github.com/ouqiang/gocron/releases/tag/v1.0)
+[v1.1](https://github.com/ouqiang/gocron/releases/tag/v1.1)
 
 
 ## 安装
@@ -45,9 +45,9 @@
 * 调度器启动        
   * Windows: `gocron.exe web`   
   * Linux、Mac OS:  `./gocron web`
-* 任务节点启动
-  * Windows:  `gocron-node.exe ip:port (默认0.0.0.0:5921)`            
-  * Linux、Mac OS:  `./gocron-node ip:port (默认0.0.0.0:5921)`   
+* 任务节点启动, 默认监听0.0.0.0:5921
+  * Windows:  `gocron-node.exe`
+  * Linux、Mac OS:  `./gocron-node`
 4. 浏览器访问 http://localhost:5920
 
 ### 源码安装
@@ -64,12 +64,13 @@
     * --host 默认0.0.0.0
     * -p 端口, 指定端口, 默认5920
     * -e 指定运行环境, dev|test|prod, dev模式下可查看更多日志信息, 默认prod
-    * -d 后台运行
     * -h 查看帮助
-* gocron-node ip:port, 默认0.0.0.0:5921 
+* gocron-node
+    *  -allow-root *nix平台允许以root用户运行
+    * -s ip:port 监听地址
 
 ## 程序使用的组件
-* web框架 [Macaron](http://go-macaron.com/)
+* Web框架 [Macaron](http://go-macaron.com/)
 * 定时任务调度 [Cron](https://github.com/robfig/cron)
 * ORM [Xorm](https://github.com/go-xorm/xorm)
 * UI框架 [Semantic UI](https://semantic-ui.com/)
@@ -78,3 +79,14 @@
 
 ## 反馈
 提交[issue](https://github.com/ouqiang/gocron/issues/new)
+
+## ChangeLog
+
+v1.1
+--------
+
+* 任务可同时在多个节点上运行
+* *nix平台默认禁止以root用户运行任务节点
+* 子任务命令中增加预定义占位符, 子任务可根据主任务运行结果执行相应操作
+* 删除守护进程模块
+* Web访问日志输出到终端
