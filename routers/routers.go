@@ -20,6 +20,8 @@ import (
     "time"
     "strconv"
     "html/template"
+    "github.com/go-macaron/cache"
+    "github.com/go-macaron/captcha"
 )
 
 // 静态文件目录
@@ -148,6 +150,8 @@ func RegisterMiddleware(m *macaron.Macaron) {
             },
         }},
     }))
+    m.Use(cache.Cacher())
+    m.Use(captcha.Captchaer())
     m.Use(session.Sessioner(session.Options{
         Provider:       "file",
         ProviderConfig: app.DataDir + "/sessions",

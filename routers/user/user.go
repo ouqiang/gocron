@@ -6,6 +6,7 @@ import (
     "github.com/ouqiang/gocron/models"
     "github.com/go-macaron/session"
     "github.com/ouqiang/gocron/modules/logger"
+    "github.com/go-macaron/captcha"
 )
 
 // @author qiang.ou<qingqianludao@gmail.com>
@@ -47,7 +48,7 @@ func UpdatePassword(ctx *macaron.Context, sess session.Store) string  {
     return json.Success("修改成功", nil)
 }
 
-func ValidateLogin(ctx *macaron.Context, sess session.Store) string {
+func ValidateLogin(ctx *macaron.Context, sess session.Store, cpt *captcha.Captcha) string {
     username := ctx.QueryTrim("username")
     password := ctx.QueryTrim("password")
     json := utils.JsonResponse{}
@@ -57,6 +58,9 @@ func ValidateLogin(ctx *macaron.Context, sess session.Store) string {
     userModel := new (models.User)
     if !userModel.Match(username, password) {
         return json.CommonFailure("用户名或密码错误")
+    }
+    if !cpt.VerifyReq(ctx.Req) {
+        return json.Failure(utils.CaptchaError, "验证码错误")
     }
 
     loginLogModel := new(models.LoginLog)

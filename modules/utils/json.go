@@ -20,6 +20,7 @@ const ResponseFailure = 1
 const NotFound = 2
 const AuthError = 3
 const ServerError = 4
+const CaptchaError = 5
 
 const SuccessContent = "操作成功"
 const FailureContent = "操作失败"

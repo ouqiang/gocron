@@ -10,13 +10,16 @@ function Util() {
         swal("操作成功", '保存成功', 'success');
     };
     // ajax成功处理
-    util.ajaxSuccess = function(response, callback) {
+    util.ajaxSuccess = function(response, callback, failureCallback) {
         if (response.code === undefined) {
             swal(FAILURE_MESSAGE, '服务端返回值无法解析', 'error');
             return;
         }
         if (response.code != SUCCESS) {
             swal(FAILURE_MESSAGE, response.message ,'error');
+            if (failureCallback !== undefined) {
+                failureCallback(response.code, response.message);
+            }
             return;
         }
         if (callback !== undefined) {
@@ -39,12 +42,12 @@ function Util() {
         ).error(util.ajaxFailure);
     };
     // post请求
-    util.post = function(url, params, callback) {
+    util.post = function(url, params, callback, failureCallback) {
         $.post(
             url,
             util.objectTrim(params),
             function(response) {
-                util.ajaxSuccess(response, callback);
+                util.ajaxSuccess(response, callback, failureCallback);
             },
             'json'
         ).error(util.ajaxFailure);
