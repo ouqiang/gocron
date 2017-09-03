@@ -69,13 +69,14 @@
     *  -allow-root *nix平台允许以root用户运行
     * -s ip:port 监听地址
 
-## TO DO List
+## To Do List
 - [ ] 版本升级
 - [ ] 任务分组
 - [ ] 多用户
 - [ ] 权限控制
 - [ ] 批量开启、关闭、删除任务
 - [ ] 调度器与任务节点通信支持https
+- [ ] 新增任务API接口
 
 ## 程序使用的组件
 * Web框架 [Macaron](http://go-macaron.com/)
