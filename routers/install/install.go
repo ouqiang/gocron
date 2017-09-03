@@ -75,7 +75,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     models.Db = models.CreateDb()
     // 创建数据库表
     migration := new(models.Migration)
-    err = migration.Exec(form.DbName)
+    err = migration.Install(form.DbName)
     if err != nil {
         return json.CommonFailure(fmt.Sprintf("创建数据库表失败-%s", err.Error()), err)
     }
@@ -91,6 +91,9 @@ func Store(ctx *macaron.Context, form InstallForm) string {
     if err != nil {
         return json.CommonFailure("创建文件安装锁失败", err)
     }
+
+    // 更新版本号文件
+    app.UpdateVersionFile()
 
     app.Installed = true
     // 初始化定时任务

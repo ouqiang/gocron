@@ -47,7 +47,7 @@ func runWeb(ctx *cli.Context) {
     // 设置运行环境
     setEnvironment(ctx)
     // 初始化应用
-    app.InitEnv()
+    app.InitEnv(ctx.App.Version)
     // 初始化模块 DB、定时任务等
     initModule()
     // 捕捉信号,配置热更新等
@@ -74,7 +74,11 @@ func initModule()  {
     }
     app.Setting = config
 
+    // 初始化DB
     models.Db = models.CreateDb()
+
+    // 版本升级
+    upgradeIfNeed()
 
     // 初始化定时任务
     serviceTask := new(service.Task)
@@ -167,4 +171,20 @@ func shutdown()  {
 
     // 释放gRPC连接池
     grpcpool.Pool.ReleaseAll()
+}
+
+// 判断应用是否需要升级, 当版本号文件版本小于app.VersionId时升级
+func upgradeIfNeed()  {
+    currentVersionId := app.GetCurrentVersionId()
+    if currentVersionId >= app.VersionId {
+        return
+    }
+
+    migration := new(models.Migration)
+    logger.Infof("版本升级开始, 当前版本号%d", currentVersionId)
+
+    migration.Upgrade(currentVersionId)
+    app.UpdateVersionFile()
+
+    logger.Infof("已升级到最新版本%d", app.VersionId)
 }

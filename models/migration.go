@@ -4,11 +4,11 @@ import (
     "errors"
 )
 
-// 创建数据库表
 
 type Migration struct{}
 
-func (migration *Migration) Exec(dbName string) error {
+// 首次安装, 创建数据库表
+func (migration *Migration) Install(dbName string) error {
     if !isDatabaseExist(dbName) {
         return errors.New("数据库不存在")
     }
@@ -36,9 +36,29 @@ func (migration *Migration) Exec(dbName string) error {
     return nil
 }
 
-// 创建数据库
+// 判断数据库是否存在
 func isDatabaseExist(name string) bool {
     _, err := Db.Exec("use ?", name)
 
     return err != nil
+}
+
+// 迭代升级数据库, 新建表、新增字段等
+func (migration *Migration) Upgrade(oldVersionId int)  {
+    versionIds   := []int{}
+    upgradeFuncs := []func(){}
+
+    startIndex := 0
+    for i, value := range versionIds {
+        if oldVersionId == value {
+            startIndex = i + 1
+            break;
+        }
+    }
+
+    length := len(versionIds)
+    for startIndex < length {
+        upgradeFuncs[startIndex]()
+        startIndex++
+    }
 }

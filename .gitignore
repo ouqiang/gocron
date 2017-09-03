@@ -26,9 +26,7 @@ _testmain.go
 .idea
 log/*
 data/*
-conf/install.lock
-conf/app.ini
-conf/ansible_hosts.ini
+conf/*
 profile/*
 public/resource/javascript/vue.js
 gocron

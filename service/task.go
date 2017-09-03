@@ -16,6 +16,7 @@ import (
     "strings"
     "text/template"
     "bytes"
+    "encoding/base64"
 )
 
 // 定时任务调度管理器
@@ -364,7 +365,7 @@ func appendResultToCommand(command string, taskResult TaskResult) string {
     }
     data := map[string]interface{} {
         "Code": code,
-        "Message": taskResult.Result,
+        "Message": base64.StdEncoding.EncodeToString([]byte(taskResult.Result)),
     }
     var buf *bytes.Buffer = new(bytes.Buffer)
     tmpl, err := template.New("command").Parse(command)
