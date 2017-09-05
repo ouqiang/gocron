@@ -19,7 +19,7 @@
                 <div class="field">
                     <label>主机名</label>
                     <div class="ui small input">
-                        <input type="text"  name="name" value="{{{.Host.Name}}}" placeholder="192.168.50.154">
+                        <input type="text"  name="name" value="{{{.Host.Name}}}" placeholder="127.0.0.1">
                     </div>
                 </div>
                 <div class="field">
@@ -31,7 +31,8 @@
                 <div class="field">
                     <label>节点名称</label>
                     <div class="ui small  input">
-                        <input type="text" name="alias" value="{{{.Host.Alias}}}">
+                        <input type="text" name="alias" value="{{{.Host.Alias}}}"
+                        placeholder="节点名称如web">
                     </div>
                 </div>
             </div>

@@ -76,8 +76,7 @@ func UpdateVersionFile()   {
 // 获取应用当前版本号, 从版本号文件中读取
 func GetCurrentVersionId() int {
     if !utils.FileExist(VersionFile) {
-        // 默认版本号110, 从v1.1版本开始支持升级
-        return 110;
+        return 0;
     }
 
     bytes, err := ioutil.ReadFile(VersionFile)
@@ -85,7 +84,7 @@ func GetCurrentVersionId() int {
         logger.Fatal(err)
     }
 
-    versionId, err := strconv.Atoi(string(bytes))
+    versionId, err := strconv.Atoi(strings.TrimSpace(string(bytes)))
     if err != nil {
         logger.Fatal(err)
     }
@@ -95,7 +94,6 @@ func GetCurrentVersionId() int {
 
 // 把字符串版本号a.b.c转换为整数版本号abc
 func ToNumberVersion(versionString string) int  {
-    versionString = strings.TrimSpace(versionString)
     v := strings.Replace(versionString, ".", "", -1)
     if len(v) < 3 {
         v += "0"

@@ -173,9 +173,13 @@ func shutdown()  {
     grpcpool.Pool.ReleaseAll()
 }
 
-// 判断应用是否需要升级, 当版本号文件版本小于app.VersionId时升级
+// 判断应用是否需要升级, 当存在版本号文件且版本小于app.VersionId时升级
 func upgradeIfNeed()  {
     currentVersionId := app.GetCurrentVersionId()
+    // 没有版本号文件
+    if currentVersionId == 0 {
+        return;
+    }
     if currentVersionId >= app.VersionId {
         return
     }

@@ -19,7 +19,7 @@
                     <div class="content">任务名称</div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="name" placeholder="订单量统计" value="{{{.Task.Name}}}">
+                    <input type="text" name="name" placeholder="任务名称" value="{{{.Task.Name}}}">
                 </div>
             </div>
         </div>
@@ -151,7 +151,7 @@
         <div class="two fields">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark" placeholder="统计昨天的订单量">{{{.Task.Remark}}}</textarea>
+                <textarea rows="5" name="remark" placeholder="任务备注信息">{{{.Task.Remark}}}</textarea>
             </div>
         </div>
         <div class="ui primary submit button">保存</div>   <a class="ui button" onclick="location.href='/task';">取消</a>
