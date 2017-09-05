@@ -49,9 +49,21 @@
                 </div>
             </div>
         </form>
+        <div class="field">
+            <select id="batch-operation">
+                <option value="0">批量操作</option>
+                <option value="1">激活</option>
+                <option value="2">停止</option>
+                <option value="3">删除</option>
+            </select>
+        </div>
+        <br>
         <table class="ui celled table task-list">
             <thead>
             <tr>
+                <th>
+                    <input type="checkbox" onclick="checkAll(this)" style="width:25px;height: 25px;">
+                </th>
                 <th>任务ID</th>
                 <th>任务名称</th>
                 <th>任务类型</th>
@@ -68,6 +80,12 @@
             <tbody>
                 {{{range $i, $v := .Tasks}}}
                     <tr>
+                        <td>
+                            <input type="checkbox"
+                                   class="sub-check"
+                                   data-id="{{{.Id}}}"
+                                   style="width:25px;height: 25px;">
+                        </td>
                         <td>{{{.Id}}}</td>
                         <td>{{{.Name}}}</td>
                         <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
@@ -112,25 +130,51 @@
 <script type="text/javascript">
     $('.ui.checkbox').checkbox();
 
+    $('#batch-operation').change(function() {
+        var type = $(this).val();
+        if (type == 0) {
+            return;
+        }
+        var ids = [];
+        $('.sub-check:checked').each(function() {
+           ids.push($(this).data('id'));
+        });
+        if (ids.length == 0) {
+            swal('错误提示', '至少选择一个任务', 'warning');
+            return;
+        }
+
+        util.confirm("确定要执行此操作吗", function () {
+            $.ajaxSetup({
+                async: false
+            });
+            switch (type) {
+                case "1":
+                    for (i in ids) {
+                        changeStatus(ids[i], false, true);
+                    }
+                    break;
+                case "2":
+                    for (i in ids) {
+                        changeStatus(ids[i], true, true);
+                    }
+                    break;
+                case "3":
+                    for (i in ids) {
+                        remove(ids[i], true);
+                    }
+                    break;
+            }
+            location.reload();
+        });
+    });
+
     var vue = new Vue(
             {
                 el: '.task-list',
                 methods: {
-                    changeStatus: function (id ,status) {
-                        var url = '';
-                        if (status) {
-                            url = '/task/disable';
-                        } else {
-                            url = '/task/enable';
-                        }
-                        url += '/' + id;
-                        util.post(url,{}, function() {
-                            location.reload();
-                        });
-                    },
-                    remove: function(id) {
-                        util.removeConfirm('/task/remove/' + id);
-                    },
+                    changeStatus: changeStatus,
+                    remove: remove,
                     run: function(id) {
                         util.get("/task/run/" + id, function(code, message) {
                             swal('操作成功', message, 'success');
@@ -140,9 +184,36 @@
             }
     );
 
+    function checkAll(ele) {
+        if ($(ele).is(":checked")) {
+            $('.sub-check').prop("checked", true);
+        } else {
+            $('.sub-check').prop("checked", false);
+        }
+    }
 
+    function remove(id, stopReload) {
+        util.post('/task/remove/' + id, {}, function () {
+            if (stopReload === undefined) {
+                location.reload();
+            }
+        });
+    }
 
-
+    function changeStatus(id ,status, stopReload) {
+        var url = '';
+        if (status) {
+            url = '/task/disable';
+        } else {
+            url = '/task/enable';
+        }
+        url += '/' + id;
+        util.post(url,{}, function() {
+            if (stopReload === undefined) {
+                location.reload();
+            }
+        });
+    }
 </script>
 
 {{{ template "common/footer" . }}}

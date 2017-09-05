@@ -60,7 +60,7 @@ function Util() {
                 type: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#3085d6',
-                confirmButtonText: '删除',
+                confirmButtonText: '确定',
                 cancelButtonColor: '#d33',
                 cancelButtonText: "取消",
                 closeOnConfirm: false,
