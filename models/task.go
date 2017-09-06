@@ -229,7 +229,11 @@ func (task *Task) GetDependencyTaskList(ids string) ([]Task, error) {
 func (task *Task) Total(params CommonMap) (int64, error) {
     session := Db.Alias("t").Join("LEFT", taskHostTableName(), "t.id = th.task_id")
     task.parseWhere(session, params)
-    return session.GroupBy("t.id").Count(task)
+    list := make([]Task, 0)
+
+    err := session.GroupBy("t.id").Find(&list)
+
+    return int64(len(list)), err
 }
 
 // 解析where
