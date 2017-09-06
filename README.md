@@ -33,7 +33,7 @@
 
 
 ## 下载
-[v1.2](https://github.com/ouqiang/gocron/releases/tag/v1.2)  
+[v1.2.1](https://github.com/ouqiang/gocron/releases/tag/v1.2.1)  
 
 [版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
 
