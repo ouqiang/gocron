@@ -7,6 +7,7 @@ import (
     "google.golang.org/grpc"
     "errors"
     "google.golang.org/grpc/credentials"
+    "golang.org/x/net/context"
     "strings"
 )
 
@@ -32,12 +33,12 @@ type GRPCPool struct {
     sync.RWMutex
 }
 
-func (p *GRPCPool) Get(addr, certFile string) (*grpc.ClientConn, error)  {
+func (p *GRPCPool) Get(addr, certFile, token string) (*grpc.ClientConn, error)  {
     p.RLock()
     pool, ok := p.conns[addr]
     p.RUnlock()
     if !ok {
-        err := p.newCommonPool(addr, certFile)
+        err := p.newCommonPool(addr, certFile, token)
         if err != nil {
             return nil, err
         }
@@ -88,7 +89,7 @@ func (p *GRPCPool) ReleaseAll()  {
 }
 
 // 初始化底层连接池
-func (p *GRPCPool) newCommonPool(addr, certFile string) (error) {
+func (p *GRPCPool) newCommonPool(addr, certFile, token string) (error) {
     p.Lock()
     defer p.Unlock()
     commonPool, ok := p.conns[addr]
@@ -109,7 +110,13 @@ func (p *GRPCPool) newCommonPool(addr, certFile string) (error) {
                 return nil, err
             }
 
-            return grpc.Dial(addr, grpc.WithTransportCredentials(creds))
+            customCredential := &CustomCredential{Token: token}
+
+
+            return grpc.Dial(addr,
+                grpc.WithTransportCredentials(creds),
+                grpc.WithPerRPCCredentials(customCredential),
+            )
         },
         Close: func(v interface{}) error {
             conn, ok := v.(*grpc.ClientConn)
@@ -129,4 +136,19 @@ func (p *GRPCPool) newCommonPool(addr, certFile string) (error) {
     p.conns[addr] = commonPool
 
     return nil
+}
+
+type CustomCredential struct
+{
+    Token string
+}
+
+func (c CustomCredential) GetRequestMetadata(ctx context.Context, uri ...string) (map[string]string, error) {
+    return map[string]string{
+        "token": c.Token,
+    }, nil
+}
+
+func (c CustomCredential) RequireTransportSecurity() bool {
+    return true
 }

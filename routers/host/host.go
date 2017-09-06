@@ -65,6 +65,7 @@ type HostForm struct {
     Alias string `binding:"Required;MaxSize(32)"`
     Port int `binding:"Required;Range(1-65535)"`
     CertFile string
+    Token string
     Remark string
 }
 
@@ -95,6 +96,7 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.Port = form.Port
     hostModel.Remark = strings.TrimSpace(form.Remark)
     hostModel.CertFile = strings.TrimSpace(form.CertFile)
+    hostModel.Token = strings.TrimSpace(form.Token)
 
     if hostModel.CertFile != "" && !utils.FileExist(hostModel.CertFile) {
         return json.CommonFailure("证书文件不存在或无权限访问")
@@ -180,7 +182,11 @@ func Ping(ctx *macaron.Context) string  {
     taskReq := &rpc.TaskRequest{}
     taskReq.Command = "echo hello"
     taskReq.Timeout = 10
-    output, err := client.Exec(hostModel.Name, hostModel.Port, hostModel.CertFile, taskReq)
+    output, err := client.Exec(hostModel.Name,
+        hostModel.Port,
+        hostModel.CertFile,
+        hostModel.Token,
+        taskReq)
     if err != nil {
         return json.CommonFailure("连接失败-" + err.Error() + " " + output, err)
     }

@@ -13,6 +13,7 @@ type TaskHostDetail struct {
     Port int
     Alias string
     CertFile string
+    Token string
 }
 
 func (TaskHostDetail) TableName() string  {
@@ -49,7 +50,7 @@ func (th *TaskHost) Add(taskId int, hostIds []int) error {
 
 func (th *TaskHost) GetHostIdsByTaskId(taskId int) ([]TaskHostDetail, error) {
     list := make([]TaskHostDetail, 0)
-    fields := "th.id,th.host_id,h.alias,h.name,h.port,h.cert_file"
+    fields := "th.id,th.host_id,h.alias,h.name,h.port,h.cert_file,h.token"
     err := Db.Alias("th").
         Join("LEFT", hostTableName(), "th.host_id=h.id").
         Where("th.task_id = ?", taskId).

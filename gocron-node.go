@@ -20,10 +20,12 @@ func main()  {
     var version bool
     var keyFile string
     var certFile string
+    var token string
     flag.BoolVar(&allowRoot, "allow-root", false, "./gocron-node -allow-root")
     flag.StringVar(&serverAddr, "s", "0.0.0.0:5921", "./gocron-node -s ip:port")
     flag.StringVar(&certFile, "cert-file", "", "./gocron-node -cert-file path")
     flag.StringVar(&keyFile, "key-file", "", "./gocron-node -key-file path")
+    flag.StringVar(&token, "token", "", "./gocron-node -token")
     flag.BoolVar(&version, "v", false, "./gocron-node -v")
     flag.Parse()
 
@@ -52,5 +54,5 @@ func main()  {
 
 
 
-	server.Start(serverAddr, certFile, keyFile)
+	server.Start(serverAddr, certFile, keyFile, token)
 }

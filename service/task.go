@@ -181,7 +181,11 @@ func (h *RPCHandler) Run(taskModel models.Task) (result string, err error)  {
     var resultChan chan TaskResult = make(chan TaskResult, len(taskModel.Hosts))
     for _, taskHost := range taskModel.Hosts {
         go func(th models.TaskHostDetail) {
-            output, err := rpcClient.ExecWithRetry(th.Name, th.Port, th.CertFile, taskRequest)
+            output, err := rpcClient.ExecWithRetry(th.Name,
+                th.Port,
+                th.CertFile,
+                th.Token,
+                taskRequest)
             var errorMessage string = ""
             if err != nil {
                 errorMessage = err.Error()

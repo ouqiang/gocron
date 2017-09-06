@@ -8,9 +8,32 @@ import (
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "github.com/ouqiang/gocron/modules/utils"
     "google.golang.org/grpc/credentials"
+    "google.golang.org/grpc/metadata"
+    "errors"
 )
 
-type Server struct {}
+type Server struct
+{
+    Token string
+}
+
+func (s Server) auth(ctx context.Context) error  {
+    // 验证token是否有效
+    meta, ok := metadata.FromContext(ctx)
+    if !ok {
+        return errors.New("missing metadata")
+    }
+
+    token, ok := meta["token"]
+    if !ok {
+        return errors.New("missing param token")
+    }
+    if token[0] != s.Token {
+        return errors.New("invalid token")
+    }
+
+    return nil
+}
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error)  {
     defer func() {
@@ -18,6 +41,15 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
             grpclog.Println(err)
         }
     } ()
+
+
+    if s.Token != "" {
+        err := s.auth(ctx)
+        if err != nil {
+            return nil, err
+        }
+    }
+
     output, err := utils.ExecShell(ctx, req.Command)
     resp := new(pb.TaskResponse)
     resp.Output = output
@@ -30,7 +62,7 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
     return resp, nil
 }
 
-func Start(addr, certFile, keyFile string)  {
+func Start(addr, certFile, keyFile, token string)  {
     defer func() {
        if err := recover(); err != nil {
            grpclog.Println("panic", err)
@@ -42,6 +74,7 @@ func Start(addr, certFile, keyFile string)  {
     }
 
     var s *grpc.Server
+    server := Server{Token: token}
     if certFile != "" {
         // TLS认证
         creds, err := credentials.NewServerTLSFromFile(certFile, keyFile)
@@ -50,11 +83,11 @@ func Start(addr, certFile, keyFile string)  {
         }
 
         s = grpc.NewServer(grpc.Creds(creds))
-        pb.RegisterTaskServer(s, Server{})
+        pb.RegisterTaskServer(s, server)
         grpclog.Printf("listen %s with TLS", addr)
     } else {
         s = grpc.NewServer()
-        pb.RegisterTaskServer(s, Server{})
+        pb.RegisterTaskServer(s, server)
         grpclog.Println("listen ", addr)
     }
     err = s.Serve(l)

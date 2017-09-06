@@ -143,6 +143,11 @@ func (migration *Migration) upgradeFor120(session *xorm.Session) error {
     // host表增加cert_file字段
     tableName := TablePrefix + "host"
     _, err := session.Exec(fmt.Sprintf("ALTER TABLE %s Add COLUMN cert_file VARCHAR(64) NOT NULL DEFAULT ''", tableName))
+    if err != nil {
+        return err
+    }
+
+    _, err = session.Exec(fmt.Sprintf("ALTER TABLE %s Add COLUMN token VARCHAR(64) NOT NULL DEFAULT ''", tableName))
 
     return err
 }
