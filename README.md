@@ -33,8 +33,9 @@
 
 
 ## 下载
-[v1.1](https://github.com/ouqiang/gocron/releases/tag/v1.1)
+[v1.2](https://github.com/ouqiang/gocron/releases/tag/v1.2)  
 
+[版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
 
 ## 安装
 
@@ -60,22 +61,29 @@
 
 ### 命令
 
+* gocron
+    * -v 查看版本
+
 * gocron web
     * --host 默认0.0.0.0
     * -p 端口, 指定端口, 默认5920
     * -e 指定运行环境, dev|test|prod, dev模式下可查看更多日志信息, 默认prod
     * -h 查看帮助
 * gocron-node
-    *  -allow-root *nix平台允许以root用户运行
+    * -allow-root *nix平台允许以root用户运行
     * -s ip:port 监听地址
+    * -cert-file 证书文件
+    * -key-file  私钥文件
+    * -h 查看帮助
+    * -v 查看版本
 
 ## To Do List
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
+- [x] 调度器与任务节点通信支持https
 - [ ] 任务分组
 - [ ] 多用户
 - [ ] 权限控制
-- [ ] 调度器与任务节点通信支持https
 - [ ] 新增任务API接口
 
 ## 程序使用的组件
@@ -90,6 +98,16 @@
 提交[issue](https://github.com/ouqiang/gocron/issues/new)
 
 ## ChangeLog
+
+v1.2
+--------
+* 用户登录页增加图形验证码
+* 支持从旧版本升级
+* 任务批量开启、关闭、删除
+* 调度器与任务节点支持HTTPS通信
+* 修复任务列表页总记录数显示错误
+
+
 
 v1.1
 --------
