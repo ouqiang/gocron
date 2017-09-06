@@ -38,6 +38,15 @@
             </div>
             <div class="two fields">
                 <div class="field">
+                    <label>证书路径</label>
+                    <div class="ui small  input">
+                        <input type="text" name="cert_file" value="{{{.Host.CertFile}}}"
+                               placeholder="data/certs/server.pem">
+                    </div>
+                </div>
+            </div>
+            <div class="two fields">
+                <div class="field">
                     <label>备注</label>
                     <div class="ui small  input">
                         <textarea rows="7" name="remark" >{{{.Host.Remark}}}</textarea>

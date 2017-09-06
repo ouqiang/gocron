@@ -64,6 +64,7 @@ type HostForm struct {
     Name string `binding:"Required;MaxSize(64)"`
     Alias string `binding:"Required;MaxSize(32)"`
     Port int `binding:"Required;Range(1-65535)"`
+    CertFile string
     Remark string
 }
 
@@ -93,12 +94,19 @@ func Store(ctx *macaron.Context, form HostForm) string  {
     hostModel.Alias = strings.TrimSpace(form.Alias)
     hostModel.Port = form.Port
     hostModel.Remark = strings.TrimSpace(form.Remark)
+    hostModel.CertFile = strings.TrimSpace(form.CertFile)
+
+    if hostModel.CertFile != "" && !utils.FileExist(hostModel.CertFile) {
+        return json.CommonFailure("证书文件不存在或无权限访问")
+    }
+
     isCreate := false
     oldHostModel := new(models.Host)
     err = oldHostModel.Find(int(id))
     if err != nil {
         return json.CommonFailure("主机不存在")
     }
+
 
     if id > 0 {
         _, err = hostModel.UpdateBean(id)
@@ -112,10 +120,7 @@ func Store(ctx *macaron.Context, form HostForm) string  {
 
     if !isCreate {
         oldAddr := fmt.Sprintf("%s:%d", oldHostModel.Name, oldHostModel.Port)
-        newAddr := fmt.Sprintf("%s:%d", hostModel.Name, hostModel.Port)
-        if oldAddr != newAddr {
-            grpcpool.Pool.Release(oldAddr)
-        }
+        grpcpool.Pool.Release(oldAddr)
 
         taskModel := new(models.Task)
         tasks, err := taskModel.ActiveListByHostId(id)
@@ -175,7 +180,7 @@ func Ping(ctx *macaron.Context) string  {
     taskReq := &rpc.TaskRequest{}
     taskReq.Command = "echo hello"
     taskReq.Timeout = 10
-    output, err := client.Exec(hostModel.Name, hostModel.Port, taskReq)
+    output, err := client.Exec(hostModel.Name, hostModel.Port, hostModel.CertFile, taskReq)
     if err != nil {
         return json.CommonFailure("连接失败-" + err.Error() + " " + output, err)
     }

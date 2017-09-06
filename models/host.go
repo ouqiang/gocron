@@ -10,6 +10,7 @@ type Host struct {
     Name      string    `xorm:"varchar(64) notnull"`             // 主机名称
     Alias     string    `xorm:"varchar(32) notnull default '' "`  // 主机别名
     Port      int       `xorm:"notnull default 22"`               // 主机端口
+    CertFile  string    `xorm:"varchar(64) notnull default '' "`
     Remark    string    `xorm:"varchar(100) notnull default '' "` // 备注
     BaseModel       `xorm:"-"`
     Selected bool   `xorm:"-"`
@@ -26,7 +27,7 @@ func (host *Host) Create() (insertId int16, err error) {
 }
 
 func (host *Host) UpdateBean(id int16) (int64, error)  {
-    return Db.ID(id).Cols("name,alias,port,remark").Update(host)
+    return Db.ID(id).Cols("name,alias,port,cert_file,remark").Update(host)
 }
 
 
