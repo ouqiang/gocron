@@ -6,6 +6,9 @@ import (
     "time"
     "google.golang.org/grpc"
     "errors"
+    "github.com/ouqiang/gocron/modules/rpc/auth"
+    "github.com/ouqiang/gocron/modules/app"
+    "strings"
 )
 
 
@@ -97,7 +100,25 @@ func (p *GRPCPool) newCommonPool(addr string) (error) {
         InitialCap: 1,
         MaxCap: 30,
         Factory: func() (interface{}, error) {
-            return grpc.Dial(addr, grpc.WithInsecure())
+            if !app.Setting.EnableTLS {
+                return grpc.Dial(addr, grpc.WithInsecure())
+            }
+
+            server := strings.Split(addr, ":")
+
+            certificate := auth.Certificate{
+                CAFile: app.Setting.CAFile,
+                CertFile: app.Setting.CertFile,
+                KeyFile: app.Setting.KeyFile,
+                ServerName: server[0],
+            }
+
+            transportCreds, err := certificate.GetTransportCredsForClient()
+            if err != nil {
+                return nil, err
+            }
+
+            return grpc.Dial(addr, grpc.WithTransportCredentials(transportCreds))
         },
         Close: func(v interface{}) error {
             conn, ok := v.(*grpc.ClientConn)

@@ -139,14 +139,14 @@ func createAdminUser(form InstallForm) error {
 
 // 测试数据库连接
 func testDbConnection(form InstallForm) error {
-    var dbConfig map[string]string = make(map[string]string)
-    dbConfig["engine"] = form.DbType
-    dbConfig["host"] = form.DbHost
-    dbConfig["port"] = strconv.Itoa(form.DbPort)
-    dbConfig["user"] = form.DbUsername
-    dbConfig["password"] = form.DbPassword
-    dbConfig["charset"] = "utf8"
-    db, err := models.CreateTmpDb(dbConfig)
+    var s setting.Setting
+    s.Db.Engine = form.DbType
+    s.Db.Host = form.DbHost
+    s.Db.Port = form.DbPort
+    s.Db.User = form.DbUsername
+    s.Db.Password = form.DbPassword
+    s.Db.Charset = "utf8"
+    db, err := models.CreateTmpDb(&s)
     if err != nil {
         return err
     }

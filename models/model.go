@@ -9,8 +9,8 @@ import (
     "strings"
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/app"
-    "strconv"
     "time"
+    "github.com/ouqiang/gocron/modules/setting"
 )
 
 type Status int8
@@ -65,27 +65,18 @@ func (model *BaseModel) pageLimitOffset() int {
 
 // 创建Db
 func CreateDb() *xorm.Engine {
-    config := getDbConfig()
-    dsn := getDbEngineDSN(config["engine"], config)
-    engine, err := xorm.NewEngine(config["engine"], dsn)
+    dsn := getDbEngineDSN(app.Setting)
+    engine, err := xorm.NewEngine(app.Setting.Db.Engine, dsn)
     if err != nil {
         logger.Fatal("创建xorm引擎失败", err)
     }
-    maxIdleConns, err := strconv.Atoi(config["max_idle_conns"])
-    maxOpenConns, err := strconv.Atoi(config["max_open_conns"])
-    if maxIdleConns <= 0 {
-        maxIdleConns = 30
-    }
-    if maxOpenConns <= 0 {
-        maxOpenConns = 100
-    }
-    engine.SetMaxIdleConns(maxIdleConns)
-    engine.SetMaxOpenConns(maxOpenConns)
+    engine.SetMaxIdleConns(app.Setting.Db.MaxIdleConns)
+    engine.SetMaxOpenConns(app.Setting.Db.MaxOpenConns)
 
-    if config["prefix"] != "" {
+    if app.Setting.Db.Prefix != "" {
         // 设置表前缀
-        TablePrefix = config["prefix"]
-        mapper := core.NewPrefixMapper(core.SnakeMapper{}, config["prefix"])
+        TablePrefix = app.Setting.Db.Prefix
+        mapper := core.NewPrefixMapper(core.SnakeMapper{}, app.Setting.Db.Prefix)
         engine.SetTableMapper(mapper)
     }
     // 本地环境开启日志
@@ -100,46 +91,28 @@ func CreateDb() *xorm.Engine {
 }
 
 // 创建临时数据库连接
-func CreateTmpDb(config map[string]string) (*xorm.Engine, error)  {
-    dsn := getDbEngineDSN(config["engine"], config)
+func CreateTmpDb(setting *setting.Setting) (*xorm.Engine, error)  {
+    dsn := getDbEngineDSN(setting)
 
-    return xorm.NewEngine(config["engine"], dsn)
+    return xorm.NewEngine(setting.Db.Engine, dsn)
 }
 
 // 获取数据库引擎DSN  mysql,sqlite
-func getDbEngineDSN(engine string, config map[string]string) string {
-    engine = strings.ToLower(engine)
+func getDbEngineDSN(setting *setting.Setting) string {
+    engine := strings.ToLower(setting.Db.Engine)
     var dsn string = ""
     switch engine {
     case "mysql":
-        dsn = fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s",
-            config["user"],
-            config["password"],
-            config["host"],
-            config["port"],
-            config["database"],
-            config["charset"])
+        dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s",
+            setting.Db.User,
+            setting.Db.Password,
+            setting.Db.Host,
+            setting.Db.Port    ,
+            setting.Db.Database,
+            setting.Db.Charset)
     }
 
     return dsn
-}
-
-
-// 获取数据库配置
-func getDbConfig() map[string]string {
-    var db map[string]string = make(map[string]string)
-    db["user"] = app.Setting.Key("db.user").String()
-    db["password"] = app.Setting.Key("db.password").String()
-    db["host"] = app.Setting.Key("db.host").String()
-    db["port"] = app.Setting.Key("db.port").String()
-    db["database"] = app.Setting.Key("db.database").String()
-    db["charset"] = app.Setting.Key("db.charset").String()
-    db["prefix"] = app.Setting.Key("db.prefix").String()
-    db["engine"] = app.Setting.Key("db.engine").String()
-    db["max_idle_conns"] = app.Setting.Key("db.max.idle.conns").String()
-    db["max_open_conns"] = app.Setting.Key("db.max.open.conns").String()
-
-    return db
 }
 
 func keepDbAlived(engine *xorm.Engine)  {

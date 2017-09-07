@@ -7,6 +7,8 @@ import (
     "google.golang.org/grpc"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "github.com/ouqiang/gocron/modules/utils"
+    "github.com/ouqiang/gocron/modules/rpc/auth"
+    "google.golang.org/grpc/credentials"
 )
 
 type Server struct {}
@@ -29,22 +31,35 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
     return resp, nil
 }
 
-func Start(addr string)  {
+func Start(addr string, enableTLS bool, certificate auth.Certificate)  {
     defer func() {
        if err := recover(); err != nil {
            grpclog.Println("panic", err)
        }
     } ()
+
     l, err := net.Listen("tcp", addr)
     if err != nil {
         grpclog.Fatal(err)
     }
-    s := grpc.NewServer()
-    pb.RegisterTaskServer(s, Server{})
-    grpclog.Println("listen ", addr)
-    err = s.Serve(l)
-    if err != nil {
-        grpclog.Fatal(err)
+
+    var s *grpc.Server
+    if enableTLS {
+        tlsConfig, err := certificate.GetTLSConfigForServer()
+        if err != nil {
+            grpclog.Fatal(err)
+        }
+        opt := grpc.Creds(credentials.NewTLS(tlsConfig))
+        s = grpc.NewServer(opt)
+        pb.RegisterTaskServer(s, Server{})
+        grpclog.Printf("listen %s with TLS", addr)
+    } else {
+        s = grpc.NewServer()
+        pb.RegisterTaskServer(s, Server{})
+        grpclog.Printf("listen %s", addr)
     }
+
+    err = s.Serve(l)
+    grpclog.Fatal(err)
 }
 

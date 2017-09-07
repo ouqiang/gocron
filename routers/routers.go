@@ -184,7 +184,7 @@ func checkAppInstall(m *macaron.Macaron)  {
 
 // IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
 func ipAuth(ctx *macaron.Context)  {
-    allowIpsStr := app.Setting.Key("allow_ips").String()
+    allowIpsStr := app.Setting.AllowIps
     if allowIpsStr == "" {
         return
     }
@@ -230,20 +230,16 @@ func setShareData(ctx *macaron.Context, sess session.Store)  {
     }
     ctx.Data["LoginUsername"] = user.Username(sess)
     ctx.Data["LoginUid"] = user.Uid(sess)
-    ctx.Data["AppName"] = app.Setting.Key("app.name").String()
+    ctx.Data["AppName"] = app.Setting.AppName
 }
 
 /** API接口签名验证 **/
 func apiAuth(ctx *macaron.Context)  {
-    apiSignEnable := app.Setting.Key("api.sign.enable").String()
-    apiSignEnable = strings.TrimSpace(apiSignEnable)
-    if apiSignEnable == "false" {
+    if !app.Setting.ApiSignEnable {
         return
     }
-    apiKey := app.Setting.Key("api.key").String()
-    apiSecret := app.Setting.Key("api.secret").String()
-    apiKey = strings.TrimSpace(apiKey)
-    apiSecret = strings.TrimSpace(apiSecret)
+    apiKey := strings.TrimSpace(app.Setting.ApiKey)
+    apiSecret := strings.TrimSpace(app.Setting.ApiSecret)
     json := utils.JsonResponse{}
     if apiKey == "" || apiSecret == "" {
         msg := json.CommonFailure("使用API前, 请先配置密钥")

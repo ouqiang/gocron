@@ -5,10 +5,10 @@ import (
 
     "github.com/ouqiang/gocron/modules/logger"
     "github.com/ouqiang/gocron/modules/utils"
-    "gopkg.in/ini.v1"
     "io/ioutil"
     "strconv"
     "strings"
+    "github.com/ouqiang/gocron/modules/setting"
 )
 
 var (
@@ -18,7 +18,7 @@ var (
     DataDir      string // 存放session等
     AppConfig    string // 应用配置文件
     Installed    bool   // 应用是否安装过
-    Setting      *ini.Section // 应用配置
+    Setting      *setting.Setting // 应用配置
     VersionId    int    // 版本号
     VersionFile  string // 版本号文件
 )
