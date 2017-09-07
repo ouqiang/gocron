@@ -16,11 +16,11 @@ var (
     errUnavailable = errors.New("无法连接远程服务器")
 )
 
-func ExecWithRetry(ip string, port int, certFile string, token string, taskReq *pb.TaskRequest) (string, error)  {
+func ExecWithRetry(ip string, port int, certFile string,taskReq *pb.TaskRequest) (string, error)  {
     tryTimes := 15
     i := 0
     for i < tryTimes {
-        output, err := Exec(ip, port, certFile, token, taskReq)
+        output, err := Exec(ip, port, certFile, taskReq)
         if err != errUnavailable {
             return output, err
         }
@@ -31,14 +31,14 @@ func ExecWithRetry(ip string, port int, certFile string, token string, taskReq *
     return "", errUnavailable
 }
 
-func Exec(ip string, port int, certFile string, token string, taskReq *pb.TaskRequest) (string, error)  {
+func Exec(ip string, port int, certFile string, taskReq *pb.TaskRequest) (string, error)  {
     defer func() {
        if err := recover(); err != nil {
            logger.Error("panic#rpc/client.go:Exec#", err)
        }
     } ()
     addr := fmt.Sprintf("%s:%d", ip, port)
-    conn, err := grpcpool.Pool.Get(addr, certFile, token)
+    conn, err := grpcpool.Pool.Get(addr, certFile)
     if err != nil {
         return "", err
     }

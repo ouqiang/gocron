@@ -74,7 +74,6 @@
     * -s ip:port 监听地址
     * -cert-file 证书文件
     * -key-file  私钥文件
-    * -token 
     * -h 查看帮助
     * -v 查看版本
 
