@@ -49,19 +49,28 @@ func isDatabaseExist(name string) bool {
 
 // 迭代升级数据库, 新建表、新增字段等
 func (migration *Migration) Upgrade(oldVersionId int)  {
-    versionIds   := []int{110}
-    upgradeFuncs := []func(*xorm.Session) error {
-        migration.upgradeFor110,
+    // v1.2版本不支持升级
+    if oldVersionId == 120 {
+        return
     }
 
-    // 默认当前版本为v1.0
-    startIndex := 0
+    versionIds   := []int{110, 122}
+    upgradeFuncs := []func(*xorm.Session) error {
+        migration.upgradeFor110,
+        migration.upgradeFor122,
+    }
+
+    startIndex := -1
     // 从当前版本的下一版本开始升级
     for i, value := range versionIds {
-        if oldVersionId == value {
-            startIndex = i + 1
+        if value > oldVersionId  {
+            startIndex = i
             break;
         }
+    }
+
+    if startIndex == -1 {
+        return
     }
 
     length := len(versionIds)
@@ -132,6 +141,19 @@ func (migration *Migration) upgradeFor110(session *xorm.Session) error {
     _, err = session.Exec(fmt.Sprintf("ALTER TABLE %s DROP COLUMN host_id", tableName))
 
     logger.Info("已升级到v1.1\n")
+
+    return err
+}
+
+// 升级到1.2.2版本
+func (migration *Migration) upgradeFor122(session *xorm.Session) error {
+    logger.Info("开始升级到v1.2.2")
+
+    tableName := TablePrefix + "task"
+    // task表增加tag字段
+    _, err := session.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN tag VARCHAR(32) NOT NULL DEFAULT '' ", tableName))
+
+    logger.Info("已升级到v1.2.2\n")
 
     return err
 }

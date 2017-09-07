@@ -29,6 +29,7 @@ type TaskForm struct {
     Multi  int8 `binding:"In(1,2)"`
     RetryTimes int8
     HostId string
+    Tag string
     Remark string
     NotifyStatus int8 `binding:"In(1,2,3)"`
     NotifyType int8 `binding:"In(1,2,3)"`
@@ -63,8 +64,8 @@ func Index(ctx *macaron.Context)  {
     if ok {
         safeNameHTML = template.HTMLEscapeString(name)
     }
-    PageParams := fmt.Sprintf("id=%d&host_id=%d&name=%s&protocol=%d&status=%d&page_size=%d",
-        queryParams["Id"], queryParams["HostId"], safeNameHTML, queryParams["Protocol"], queryParams["Status"], queryParams["PageSize"]);
+    PageParams := fmt.Sprintf("id=%d&host_id=%d&name=%s&protocol=%d&tag=%s&status=%d&page_size=%d",
+        queryParams["Id"], queryParams["HostId"], safeNameHTML, queryParams["Protocol"], queryParams["Tag"], queryParams["Status"], queryParams["PageSize"]);
     queryParams["PageParams"] = template.URL(PageParams)
     p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
     ctx.Data["Pagination"] = p
@@ -131,6 +132,7 @@ func Store(ctx *macaron.Context, form TaskForm) string  {
     taskModel.Protocol = form.Protocol
     taskModel.Command = form.Command
     taskModel.Timeout = form.Timeout
+    taskModel.Tag = form.Tag
     taskModel.Remark = form.Remark
     taskModel.Multi = form.Multi
     taskModel.RetryTimes = form.RetryTimes
@@ -301,6 +303,7 @@ func parseQueryParams(ctx *macaron.Context) (models.CommonMap) {
     params["HostId"] = ctx.QueryInt("host_id")
     params["Name"] = ctx.QueryTrim("name")
     params["Protocol"] = ctx.QueryInt("protocol")
+    params["Tag"] = ctx.QueryTrim("tag")
     status := ctx.QueryInt("status")
     if status >=0 {
         status -= 1

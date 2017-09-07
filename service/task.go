@@ -14,9 +14,6 @@ import (
     rpcClient "github.com/ouqiang/gocron/modules/rpc/client"
     pb "github.com/ouqiang/gocron/modules/rpc/proto"
     "strings"
-    "text/template"
-    "bytes"
-    "encoding/base64"
 )
 
 // 定时任务调度管理器
@@ -304,9 +301,6 @@ func beforeExecJob(taskModel models.Task) (taskLogId int64)  {
 
 // 任务执行后置操作
 func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64)  {
-    if taskResult.Err != nil {
-        taskResult.Result = taskResult.Err.Error() + "\n" + taskResult.Result
-    }
     _, err := updateTaskLog(taskLogId, taskResult)
     if err != nil {
         logger.Error("任务结束#更新任务日志失败-", err)
@@ -349,37 +343,9 @@ func execDependencyTask(taskModel models.Task, taskResult TaskResult)  {
     }
     serviceTask := new(Task)
     for _, task := range tasks {
-        task.Command = appendResultToCommand(task.Command, taskResult)
         task.Spec = fmt.Sprintf("依赖任务(主任务ID-%d)", taskModel.Id)
         serviceTask.Run(task)
     }
-}
-
-/**
- * 添加主任务执行结果到子任务命令中, 占位符{{.Code}} {{.Message}}
- */
-func appendResultToCommand(command string, taskResult TaskResult) string {
-    var code int8 = 0
-    if taskResult.Err != nil {
-        code = 1
-    }
-    data := map[string]interface{} {
-        "Code": code,
-        "Message": base64.StdEncoding.EncodeToString([]byte(taskResult.Result)),
-    }
-    var buf *bytes.Buffer = new(bytes.Buffer)
-    tmpl, err := template.New("command").Parse(command)
-    if err != nil {
-        logger.Errorf("替换子任务命令占位符失败#%s", err.Error())
-        return command
-    }
-    err = tmpl.Execute(buf, data)
-    if err != nil {
-        logger.Errorf("替换子任务命令占位符失败#%s", err.Error())
-        return command
-    }
-
-    return buf.String()
 }
 
 // 发送任务结果通知

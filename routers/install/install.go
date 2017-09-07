@@ -120,6 +120,10 @@ func writeConfig(form InstallForm) error {
         "app.name", "定时任务管理系统", // 应用名称
         "api.key", "",
         "api.secret", "",
+        "enable_tls", "false",
+        "ca_file", "",
+        "cert_file", "",
+        "key_file", "",
     }
 
     return setting.Write(dbConfig, app.AppConfig)

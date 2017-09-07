@@ -23,6 +23,11 @@
                     <input type="text" placeholder="任务名称" name="name" value="{{{.Params.Name}}}">
                 </div>
                 <div class="field">
+                    <input type="text" placeholder="标签名称" name="tag" value="{{{.Params.Tag}}}">
+                </div>
+            </div>
+            <div class="six fields search">
+                <div class="field">
                     <select name="host_id" id="hostId">
                         <option value="">选择节点</option>
                         {{{range $i, $v := .Hosts}}}
@@ -67,6 +72,7 @@
                 <th>任务ID</th>
                 <th>任务名称</th>
                 <th>任务类型</th>
+                <th>标签</th>
                 <th>cron表达式</th>
                 <th>执行方式</th>
                 <th>超时时间</th>
@@ -89,6 +95,7 @@
                         <td>{{{.Id}}}</td>
                         <td>{{{.Name}}}</td>
                         <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
+                        <td>{{{.Tag}}}</td>
                         <td>{{{.Spec}}}</td>
                         <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
                         <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>

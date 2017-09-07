@@ -44,6 +44,7 @@ type Task struct {
     NotifyStatus int8  `xorm:"smallint notnull default 1"`       // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
     NotifyType int8 `xorm:"smallint notnull default 0"`  // 通知类型 1: 邮件 2: slack
     NotifyReceiverId string `xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
+    Tag      string    `xorm:"varchar(32) notnull default ''"`
     Remark   string    `xorm:"varchar(100) notnull default ''"`  // 备注
     Status   Status    `xorm:"tinyint notnull index default 0"`        // 状态 1:正常 0:停止
     Created  time.Time `xorm:"datetime notnull created"`         // 创建时间
@@ -73,6 +74,7 @@ func (task *Task) CreateTestTask() {
     task.Level = TaskLevelParent
     task.Protocol = TaskHTTP
     task.Spec = "*/30 * * * * *"
+    task.Tag = "test-task"
     // 查询IP地址区域信息
     task.Command = "http://ip.taobao.com/service/getIpInfo.php?ip=117.27.140.253"
     task.Status = Enabled
@@ -81,7 +83,7 @@ func (task *Task) CreateTestTask() {
 
 func (task *Task) UpdateBean(id int) (int64, error)  {
     return Db.ID(id).
-    Cols("name,spec,protocol,command,timeout,multi,retry_times,remark,notify_status,notify_type,notify_receiver_id, dependency_task_id, dependency_status").
+    Cols("name,spec,protocol,command,timeout,multi,retry_times,remark,notify_status,notify_type,notify_receiver_id, dependency_task_id, dependency_status, tag").
     Update(task)
 }
 
@@ -260,6 +262,11 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap)  {
     status, ok := params["Status"]
     if ok && status.(int) > -1 {
         session.And("status = ?", status)
+    }
+
+    tag, ok := params["Tag"]
+    if ok && tag.(string) != "" {
+        session.And("tag = ? ", tag)
     }
 }
 
