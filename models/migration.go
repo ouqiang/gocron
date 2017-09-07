@@ -49,10 +49,9 @@ func isDatabaseExist(name string) bool {
 
 // 迭代升级数据库, 新建表、新增字段等
 func (migration *Migration) Upgrade(oldVersionId int)  {
-    versionIds   := []int{110, 120}
+    versionIds   := []int{110}
     upgradeFuncs := []func(*xorm.Session) error {
         migration.upgradeFor110,
-        migration.upgradeFor120,
     }
 
     // 默认当前版本为v1.0
@@ -133,16 +132,6 @@ func (migration *Migration) upgradeFor110(session *xorm.Session) error {
     _, err = session.Exec(fmt.Sprintf("ALTER TABLE %s DROP COLUMN host_id", tableName))
 
     logger.Info("已升级到v1.1\n")
-
-    return err
-}
-
-
-// 升级到v1.2版本
-func (migration *Migration) upgradeFor120(session *xorm.Session) error {
-    // host表增加cert_file字段
-    tableName := TablePrefix + "host"
-    _, err := session.Exec(fmt.Sprintf("ALTER TABLE %s Add COLUMN cert_file VARCHAR(64) NOT NULL DEFAULT ''", tableName))
 
     return err
 }
