@@ -101,22 +101,23 @@
                         </td>
                         <td>
                             {{{if eq .Level 1}}}
-                                {{{if eq .Status 1}}}<span style="color: green;">激活</span>{{{else}}}<span style="color: red;">停止<span>{{{end}}}
+                                {{{if eq .Status 1}}}<span><i class="checkmark big icon"></i></span>{{{else}}}<span><i class="minus big icon"></i><span>{{{end}}}
                             {{{end}}}
                         </td>
                         <td>
                             <div class="ui buttons operation">
-                                <a class="ui purple  button" href="/task/edit/{{{.Id}}}">编辑</a>
+
+                                <a href="/task/edit/{{{.Id}}}" ><i class="edit big  icon" title="编辑"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
                                 {{{if eq .Level 1}}}
                                     {{{if eq .Status 1}}}
-                                    <button class="ui primary button" @click="changeStatus({{{.Id}}},{{{.Status}}})">停止</button>
+                                        <a href="javascript:void(0);" @click="changeStatus({{{.Id}}},{{{.Status}}})"><i class="pause circle big  icon" title="停止"></i></a>&nbsp;&nbsp;
                                     {{{else}}}
-                                    <button class="ui blue button" @click="changeStatus({{{.Id}}},{{{.Status}}})">激活 </button>
+                                        <a href="javascript:void(0);" @click="changeStatus({{{.Id}}},{{{.Status}}})"><i class="play big  icon" title="激活"></i></a>&nbsp;&nbsp;
                                     {{{end}}}
                                 {{{end}}}
-                                <button class="ui positive button" @click="remove({{{.Id}}})">删除</button> <br>
-                                <button class="ui twitter button" @click="run({{{.Id}}})">手动运行</button>
-                                <a class="ui instagram button" href="/task/log?task_id={{{.Id}}}">查看日志</a>
+                                <a href="javascript:void(0);"  @click="remove({{{.Id}}})"><i class="remove big  icon" title="删除"></i></a>
+                                <a href="javascript:void(0);"  @click="run({{{.Id}}})"><i class="rocket big icon" title="手动执行"></i></a>&nbsp;&nbsp;
+                                <a href="/task/log?task_id={{{.Id}}}"><i class="bar chart icon big" title="查看日志"></i></a>
                             </div>
                         </td>
                     </tr>
