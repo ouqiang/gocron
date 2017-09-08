@@ -33,7 +33,7 @@
 
 
 ## 下载
-[v1.2.1](https://github.com/ouqiang/gocron/releases/tag/v1.2.1)  
+[v1.2.2](https://github.com/ouqiang/gocron/releases/tag/v1.2.2)  
 
 [版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
 
@@ -71,8 +71,10 @@
     * -h 查看帮助
 * gocron-node
     * -allow-root *nix平台允许以root用户运行
-    * -s ip:port 监听地址
-    * -cert-file 证书文件
+    * -s ip:port 监听地址  
+    * -enable-tls 开启TLS    
+    * -ca-file   CA证书文件   
+    * -cert-file 证书文件  
     * -key-file  私钥文件
     * -h 查看帮助
     * -v 查看版本
@@ -81,7 +83,7 @@
 - [x] 版本升级
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https
-- [ ] 任务分组
+- [x] 任务分组
 - [ ] 多用户
 - [ ] 权限控制
 - [ ] 新增任务API接口
@@ -99,12 +101,12 @@
 
 ## ChangeLog
 
-v1.2
+v1.2.2
 --------
 * 用户登录页增加图形验证码
 * 支持从旧版本升级
 * 任务批量开启、关闭、删除
-* 调度器与任务节点支持HTTPS通信
+* 调度器与任务节点支持HTTPS双向认证
 * 修复任务列表页总记录数显示错误
 
 
