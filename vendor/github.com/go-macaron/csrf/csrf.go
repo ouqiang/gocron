@@ -124,7 +124,7 @@ type Options struct {
 	// Cookie value used to set and get token.
 	Cookie string
 	// Cookie path.
-	CookiePath string
+	CookiePath     string
 	CookieHttpOnly bool
 	// Key used for getting the unique ID per user.
 	SessionKey string

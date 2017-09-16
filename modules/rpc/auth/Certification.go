@@ -3,16 +3,16 @@ package auth
 import (
 	"crypto/tls"
 	"crypto/x509"
-	"io/ioutil"
 	"errors"
 	"fmt"
 	"google.golang.org/grpc/credentials"
+	"io/ioutil"
 )
 
 type Certificate struct {
-	CAFile string
-	CertFile string
-	KeyFile string
+	CAFile     string
+	CertFile   string
+	KeyFile    string
 	ServerName string
 }
 
@@ -33,13 +33,11 @@ func (c Certificate) GetTLSConfigForServer() (*tls.Config, error) {
 		return nil, errors.New("failed to append client certs")
 	}
 
-
 	tlsConfig := &tls.Config{
 		ClientAuth:   tls.RequireAndVerifyClientCert,
 		Certificates: []tls.Certificate{certificate},
 		ClientCAs:    certPool,
 	}
-
 
 	return tlsConfig, nil
 }

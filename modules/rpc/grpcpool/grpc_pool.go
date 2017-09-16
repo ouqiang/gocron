@@ -1,141 +1,139 @@
 package grpcpool
 
 import (
-    "github.com/silenceper/pool"
-    "sync"
-    "time"
-    "google.golang.org/grpc"
-    "errors"
-    "github.com/ouqiang/gocron/modules/rpc/auth"
-    "github.com/ouqiang/gocron/modules/app"
-    "strings"
-)
-
-
-var (
-    Pool GRPCPool
+	"errors"
+	"github.com/ouqiang/gocron/modules/app"
+	"github.com/ouqiang/gocron/modules/rpc/auth"
+	"github.com/silenceper/pool"
+	"google.golang.org/grpc"
+	"strings"
+	"sync"
+	"time"
 )
 
 var (
-    ErrInvalidConn = errors.New("invalid connection")
+	Pool GRPCPool
 )
 
-func init()  {
-    Pool = GRPCPool{
-        make(map[string]pool.Pool),
-        sync.RWMutex{},
-    }
+var (
+	ErrInvalidConn = errors.New("invalid connection")
+)
+
+func init() {
+	Pool = GRPCPool{
+		make(map[string]pool.Pool),
+		sync.RWMutex{},
+	}
 }
 
 type GRPCPool struct {
-    // map key格式 ip:port
-    conns map[string]pool.Pool
-    sync.RWMutex
+	// map key格式 ip:port
+	conns map[string]pool.Pool
+	sync.RWMutex
 }
 
-func (p *GRPCPool) Get(addr string) (*grpc.ClientConn, error)  {
-    p.RLock()
-    pool, ok := p.conns[addr]
-    p.RUnlock()
-    if !ok {
-        err := p.newCommonPool(addr)
-        if err != nil {
-            return nil, err
-        }
-    }
+func (p *GRPCPool) Get(addr string) (*grpc.ClientConn, error) {
+	p.RLock()
+	pool, ok := p.conns[addr]
+	p.RUnlock()
+	if !ok {
+		err := p.newCommonPool(addr)
+		if err != nil {
+			return nil, err
+		}
+	}
 
-    p.RLock()
-    pool = p.conns[addr]
-    p.RUnlock()
-    conn, err := pool.Get()
-    if err != nil {
-        return nil, err
-    }
+	p.RLock()
+	pool = p.conns[addr]
+	p.RUnlock()
+	conn, err := pool.Get()
+	if err != nil {
+		return nil, err
+	}
 
-    return conn.(*grpc.ClientConn), nil
+	return conn.(*grpc.ClientConn), nil
 }
 
 func (p *GRPCPool) Put(addr string, conn *grpc.ClientConn) error {
-    p.RLock()
-    defer p.RUnlock()
-    pool, ok := p.conns[addr]
-    if ok {
-        return pool.Put(conn)
-    }
+	p.RLock()
+	defer p.RUnlock()
+	pool, ok := p.conns[addr]
+	if ok {
+		return pool.Put(conn)
+	}
 
-    return ErrInvalidConn
+	return ErrInvalidConn
 }
-
 
 // 释放连接池
 func (p *GRPCPool) Release(addr string) {
-    p.Lock()
-    defer p.Unlock()
-    pool, ok := p.conns[addr]
-    if !ok {
-        return
-    }
-    pool.Release()
-    delete(p.conns, addr)
+	p.Lock()
+	defer p.Unlock()
+	pool, ok := p.conns[addr]
+	if !ok {
+		return
+	}
+	pool.Release()
+	delete(p.conns, addr)
 }
 
 // 释放所有连接池
-func (p *GRPCPool) ReleaseAll()  {
-    p.Lock()
-    defer p.Unlock()
-    for _, pool := range(p.conns) {
-        pool.Release()
-    }
+func (p *GRPCPool) ReleaseAll() {
+	p.Lock()
+	defer p.Unlock()
+	for _, pool := range p.conns {
+		pool.Release()
+	}
 }
 
 // 初始化底层连接池
-func (p *GRPCPool) newCommonPool(addr string) (error) {
-    p.Lock()
-    defer p.Unlock()
-    commonPool, ok := p.conns[addr]
-    if ok {
-        return nil
-    }
-    poolConfig := &pool.PoolConfig{
-        InitialCap: 1,
-        MaxCap: 30,
-        Factory: func() (interface{}, error) {
-            if !app.Setting.EnableTLS {
-                return grpc.Dial(addr, grpc.WithInsecure())
-            }
+func (p *GRPCPool) newCommonPool(addr string) error {
+	p.Lock()
+	defer p.Unlock()
+	commonPool, ok := p.conns[addr]
+	if ok {
+		return nil
+	}
+	poolConfig := &pool.PoolConfig{
+		InitialCap: 1,
+		MaxCap:     30,
+		Factory: func() (interface{}, error) {
+			if !app.Setting.EnableTLS {
+				return grpc.Dial(addr, grpc.WithInsecure())
+			}
 
-            server := strings.Split(addr, ":")
+			server := strings.Split(addr, ":")
 
-            certificate := auth.Certificate{
-                CAFile: app.Setting.CAFile,
-                CertFile: app.Setting.CertFile,
-                KeyFile: app.Setting.KeyFile,
-                ServerName: server[0],
-            }
+			certificate := auth.Certificate{
+				CAFile:     app.Setting.CAFile,
+				CertFile:   app.Setting.CertFile,
+				KeyFile:    app.Setting.KeyFile,
+				ServerName: server[0],
+			}
 
-            transportCreds, err := certificate.GetTransportCredsForClient()
-            if err != nil {
-                return nil, err
-            }
+			transportCreds, err := certificate.GetTransportCredsForClient()
+			if err != nil {
+				return nil, err
+			}
 
-            return grpc.Dial(addr, grpc.WithTransportCredentials(transportCreds))
-        },
-        Close: func(v interface{}) error {
-            conn, ok := v.(*grpc.ClientConn)
-            if ok && conn != nil {
-                return conn.Close()
-            }
-            return ErrInvalidConn
-        },
-        IdleTimeout: 3 * time.Minute,
-    }
+			return grpc.Dial(addr, grpc.WithTransportCredentials(transportCreds))
+		},
+		Close: func(v interface{}) error {
+			conn, ok := v.(*grpc.ClientConn)
+			if ok && conn != nil {
+				return conn.Close()
+			}
+			return ErrInvalidConn
+		},
+		IdleTimeout: 3 * time.Minute,
+	}
 
-    commonPool, err := pool.NewChannelPool(poolConfig)
-    if err != nil {
-        return err
-    }
+	commonPool, err := pool.NewChannelPool(poolConfig)
+	if err != nil {
+		return err
+	}
 
-    p.conns[addr] = commonPool
+	p.conns[addr] = commonPool
 
-    return nil
+	return nil
 }

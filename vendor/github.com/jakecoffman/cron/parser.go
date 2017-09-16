@@ -1,12 +1,12 @@
 package cron
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"strconv"
 	"strings"
 	"time"
-	"fmt"
 )
 
 // Parse returns a new crontab schedule representing the given spec.
@@ -160,7 +160,7 @@ func all(r bounds) uint64 {
 
 // parseDescriptor returns a pre-defined schedule for the expression, or panics
 // if none matches.
-func parseDescriptor(spec string) (Schedule,error) {
+func parseDescriptor(spec string) (Schedule, error) {
 	switch spec {
 	case "@yearly", "@annually":
 		return &SpecSchedule{
@@ -217,10 +217,10 @@ func parseDescriptor(spec string) (Schedule,error) {
 	if strings.HasPrefix(spec, every) {
 		duration, err := time.ParseDuration(spec[len(every):])
 		if err != nil {
-            return nil, fmt.Errorf("Failed to parse duration %s: %s", spec, err)
-        }
-		return Every(duration),nil
+			return nil, fmt.Errorf("Failed to parse duration %s: %s", spec, err)
+		}
+		return Every(duration), nil
 	}
 
-    return nil, fmt.Errorf("Unrecognized descriptor: %s", spec)
+	return nil, fmt.Errorf("Unrecognized descriptor: %s", spec)
 }
