@@ -62,9 +62,9 @@
             <div class="right menu">
                 <a class="item {{{if or (eq .Controller "task") (eq .Controller "delaytask")}}}active{{{end}}}" href="/task"><i class="tasks icon"></i>任务</a>
                 <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>任务节点</a>
+                {{{if .IsAdmin}}}
                  <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>用户管理</a>
-                {{{if gt .LoginUid 0}}}
-                <a class="item {{{if eq .Controller "manage"}}}active{{{end}}}" href="/manage/slack/edit"><i class="settings icon"></i>管理</a>
+                <a class="item {{{if eq .Controller "manage"}}}active{{{end}}}" href="/manage/slack/edit"><i class="settings icon"></i>系统管理</a>
                 {{{end}}}
             </div>
         </div>

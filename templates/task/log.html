@@ -13,6 +13,7 @@
    {{{ template "task/menu" . }}}
 
     <div class="twelve wide column">
+        {{{if .IsAdmin}}}
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
@@ -22,6 +23,7 @@
                 </h3>
             </div>
         </div>
+        {{{end}}}
         <form class="ui form">
             <div class="six fields search">
                 <div class="field">

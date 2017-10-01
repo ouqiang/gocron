@@ -171,6 +171,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
 		if app.Installed {
 			ipAuth(ctx)
 			userAuth(ctx, sess)
+			urlAuth(ctx, sess)
 			setShareData(ctx, sess)
 		}
 	})
@@ -224,6 +225,33 @@ func userAuth(ctx *macaron.Context, sess session.Store) {
 	}
 }
 
+// URL权限验证
+func urlAuth(ctx *macaron.Context, sess session.Store)  {
+	if user.IsAdmin(sess) {
+		return
+	}
+	// 普通用户允许访问的URL地址
+	allowPaths := []string{
+		"",
+		"/task",
+		"/task/log",
+		"/host",
+		"/user/login",
+		"/user/logout",
+		"/user/editMyPassword",
+	}
+	uri := strings.TrimSpace(ctx.Req.URL.Path)
+	uri = strings.TrimRight(uri, "/")
+	for _, path := range allowPaths {
+		if path == uri {
+			return
+		}
+	}
+
+	ctx.Status(403)
+
+}
+
 /** 设置共享数据 **/
 func setShareData(ctx *macaron.Context, sess session.Store) {
 	ctx.Data["URI"] = ctx.Req.URL.Path
@@ -239,6 +267,7 @@ func setShareData(ctx *macaron.Context, sess session.Store) {
 	}
 	ctx.Data["LoginUsername"] = user.Username(sess)
 	ctx.Data["LoginUid"] = user.Uid(sess)
+	ctx.Data["IsAdmin"] = user.IsAdmin(sess)
 	ctx.Data["AppName"] = app.Setting.AppName
 }
 

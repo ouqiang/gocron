@@ -4,7 +4,8 @@
    {{{ template "host/menu" . }}}
 
     <div class="twelve wide column">
-        <div class="pageHeader">
+        {{{if .IsAdmin}}}
+            <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
                     <a href="/host/create">
@@ -16,6 +17,7 @@
                 </h3>
             </div>
         </div>
+        {{{end}}}
         <form class="ui form">
             <div class="three fields">
                 <div class="field">
@@ -49,11 +51,15 @@
                 <td>{{{.Port}}}</td>
                 <td>{{{.Remark}}}</td>
                 <td class="operation">
+                    {{{if $.IsAdmin}}}
                     <a class="ui purple button"  href="/host/edit/{{{.Id}}}">编辑</a>
                     <button class="ui positive button" onclick="util.removeConfirm('/host/remove/{{{.Id}}}')">删除</button><br>
+                    {{{end}}}
                     <div style="margin-top: 5px;">
                         <a class="ui twitter button" href="/task?host_id={{{.Id}}}">查看任务</a>
+                        {{{if $.IsAdmin}}}
                         <button class="ui blue button" @click="ping({{{.Id}}})">连接测试</button>
+                        {{{end}}}
                     </div>
                 </td>
             </tr>

@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-const AppVersion = "1.2.2"
+const AppVersion = "1.3"
 
 func main() {
 	var serverAddr string

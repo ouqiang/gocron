@@ -2,7 +2,8 @@
 <div class="ui grid">
     {{{template "task/menu" .}}}
     <div class="twelve wide column">
-        <div class="pageHeader">
+        {{{if .IsAdmin}}}
+            <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
                     <a href="/task/create">
@@ -14,6 +15,7 @@
                 </h3>
             </div>
         </div>
+        {{{end}}}
         <form class="ui form">
             <div class="six fields search">
                 <div class="one wide field">
@@ -54,21 +56,25 @@
                 </div>
             </div>
         </form>
-        <div class="field">
-            <select id="batch-operation">
-                <option value="0">批量操作</option>
-                <option value="1">激活</option>
-                <option value="2">停止</option>
-                <option value="3">删除</option>
-            </select>
-        </div>
+        {{{if .IsAdmin}}}
+            <div class="field">
+                <select id="batch-operation">
+                    <option value="0">批量操作</option>
+                    <option value="1">激活</option>
+                    <option value="2">停止</option>
+                    <option value="3">删除</option>
+                </select>
+            </div>
+        {{{end}}}
         <br>
         <table class="ui celled table task-list">
             <thead>
             <tr>
-                <th>
-                    <input type="checkbox" onclick="checkAll(this)" style="width:25px;height: 25px;">
-                </th>
+                {{{if .IsAdmin}}}
+                    <th>
+                        <input type="checkbox" onclick="checkAll(this)" style="width:25px;height: 25px;">
+                    </th>
+                {{{end}}}
                 <th>任务ID</th>
                 <th>任务名称</th>
                 <th>任务类型</th>
@@ -86,12 +92,14 @@
             <tbody>
                 {{{range $i, $v := .Tasks}}}
                     <tr>
-                        <td>
-                            <input type="checkbox"
-                                   class="sub-check"
-                                   data-id="{{{.Id}}}"
-                                   style="width:25px;height: 25px;">
-                        </td>
+                        {{{if $.IsAdmin}}}
+                            <td>
+                                <input type="checkbox"
+                                       class="sub-check"
+                                       data-id="{{{.Id}}}"
+                                       style="width:25px;height: 25px;">
+                            </td>
+                        {{{end}}}
                         <td>{{{.Id}}}</td>
                         <td>{{{.Name}}}</td>
                         <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
@@ -113,7 +121,7 @@
                         </td>
                         <td>
                             <div class="ui buttons operation">
-
+                                {{{if $.IsAdmin}}}
                                 <a href="/task/edit/{{{.Id}}}" ><i class="edit big  icon" title="编辑"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
                                 {{{if eq .Level 1}}}
                                     {{{if eq .Status 1}}}
@@ -124,6 +132,8 @@
                                 {{{end}}}
                                 <a href="javascript:void(0);"  @click="remove({{{.Id}}})"><i class="remove big  icon" title="删除"></i></a>
                                 <a href="javascript:void(0);"  @click="run({{{.Id}}})"><i class="rocket big icon" title="手动执行"></i></a>&nbsp;&nbsp;
+                                {{{end}}}
+
                                 <a href="/task/log?task_id={{{.Id}}}"><i class="bar chart icon big" title="查看日志"></i></a>
                             </div>
                         </td>
