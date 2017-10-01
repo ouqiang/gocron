@@ -48,7 +48,7 @@
                         你好，{{{.LoginUsername}}}
                         <i class="dropdown icon"></i>
                         <div class="menu">
-                            <a href="/user/editPassword" class="item"><i class="edit icon"></i>修改密码</a>
+                            <a href="/user/editMyPassword" class="item"><i class="edit icon"></i>修改密码</a>
                             <a class="item" href="/user/logout"><i class="sign out icon"></i>退出</a>
                         </div>
                     {{{end}}}
@@ -62,7 +62,7 @@
             <div class="right menu">
                 <a class="item {{{if or (eq .Controller "task") (eq .Controller "delaytask")}}}active{{{end}}}" href="/task"><i class="tasks icon"></i>任务</a>
                 <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>任务节点</a>
-                <!-- <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>账户</a> -->
+                 <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>用户管理</a>
                 {{{if gt .LoginUid 0}}}
                 <a class="item {{{if eq .Controller "manage"}}}active{{{end}}}" href="/manage/slack/edit"><i class="settings icon"></i>管理</a>
                 {{{end}}}

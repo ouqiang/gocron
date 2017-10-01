@@ -1,5 +1,8 @@
-[![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
 # gocron - 定时任务管理系统
+[![Build Status](https://travis-ci.org/ouqiang/gocron.png)](https://travis-ci.org/ouqiang/gocron)
+[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/ouqiang/gocron/releases)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ouqiang/gocron/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/ouqiang/gocron/releases)
 
 # 项目简介
 使用Go语言开发的定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)  
@@ -33,7 +36,7 @@
 
 
 ## 下载
-[v1.2.2](https://github.com/ouqiang/gocron/releases/tag/v1.2.2)  
+[releases](https://github.com/ouqiang/gocron/releases)  
 
 [版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
 
@@ -84,9 +87,8 @@
 - [x] 批量开启、关闭、删除任务
 - [x] 调度器与任务节点通信支持https
 - [x] 任务分组
-- [ ] 多用户
+- [x] 多用户
 - [ ] 权限控制
-- [ ] 新增任务API接口
 
 ## 程序使用的组件
 * Web框架 [Macaron](http://go-macaron.com/)

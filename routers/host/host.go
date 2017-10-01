@@ -18,6 +18,7 @@ import (
 	"strings"
 )
 
+// Index 主机列表
 func Index(ctx *macaron.Context) {
 	hostModel := new(models.Host)
 	queryParams := parseQueryParams(ctx)
@@ -42,11 +43,13 @@ func Index(ctx *macaron.Context) {
 	ctx.HTML(200, "host/index")
 }
 
+// Create 创建主机页面
 func Create(ctx *macaron.Context) {
 	ctx.Data["Title"] = "添加主机"
 	ctx.HTML(200, "host/host_form")
 }
 
+// Edit 修改主机页面
 func Edit(ctx *macaron.Context) {
 	ctx.Data["Title"] = "编辑主机"
 	hostModel := new(models.Host)
@@ -67,6 +70,7 @@ type HostForm struct {
 	Remark string
 }
 
+// Error 表单验证错误处理
 func (f HostForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	if len(errs) == 0 {
 		return
@@ -77,6 +81,7 @@ func (f HostForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	ctx.Resp.Write([]byte(content))
 }
 
+// Store 保存、修改主机信息
 func Store(ctx *macaron.Context, form HostForm) string {
 	json := utils.JsonResponse{}
 	hostModel := new(models.Host)
@@ -129,6 +134,7 @@ func Store(ctx *macaron.Context, form HostForm) string {
 	return json.Success("保存成功", nil)
 }
 
+// Remove 删除主机
 func Remove(ctx *macaron.Context) string {
 	id, err := strconv.Atoi(ctx.Params(":id"))
 	json := utils.JsonResponse{}
@@ -161,6 +167,7 @@ func Remove(ctx *macaron.Context) string {
 	return json.Success("操作成功", nil)
 }
 
+// Ping 测试主机是否可连接
 func Ping(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
 	hostModel := new(models.Host)

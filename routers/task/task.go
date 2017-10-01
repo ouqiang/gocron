@@ -208,7 +208,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		taskHostModel.Remove(id)
 	}
 
-	status, err := taskModel.GetStatus(id)
+	status, _ := taskModel.GetStatus(id)
 	if status == models.Enabled && taskModel.Level == models.TaskLevelParent {
 		addTaskToTimer(id)
 	}

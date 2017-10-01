@@ -41,11 +41,20 @@ func Register(m *macaron.Macaron) {
 
 	// 用户
 	m.Group("/user", func() {
+		m.Get("", user.Index)
+		m.Get("/create", user.Create)
+		m.Get("/edit/:id", user.Edit)
+		m.Post("/store", binding.Bind(user.UserForm{}), user.Store)
+		m.Post("/remove/:id", user.Remove)
 		m.Get("/login", user.Login)
 		m.Post("/login", user.ValidateLogin)
 		m.Get("/logout", user.Logout)
-		m.Get("/editPassword", user.EditPassword)
-		m.Post("/editPassword", user.UpdatePassword)
+		m.Post("/enable/:id", user.Enable)
+		m.Post("/disable/:id", user.Disable)
+		m.Get("/editMyPassword", user.EditMyPassword)
+		m.Post("/editMyPassword", user.UpdateMyPassword)
+		m.Get("/editPassword/:id", user.EditPassword)
+		m.Post("/editPassword/:id", user.UpdatePassword)
 	})
 
 	// 定时任务

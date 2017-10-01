@@ -16,7 +16,6 @@ type User struct {
 	Email     string    `xorm:"varchar(50) notnull unique default '' "` // 邮箱
 	Created   time.Time `xorm:"datetime notnull created"`
 	Updated   time.Time `xorm:"datetime updated"`
-	Deleted   time.Time `xorm:"datetime deleted"`
 	IsAdmin   int8      `xorm:"tinyint notnull default 0"` // 是否是管理员 1:管理员 0:普通用户
 	Status    Status    `xorm:"tinyint notnull default 1"` // 1: 正常 0:禁用
 	BaseModel `xorm:"-"`
@@ -65,8 +64,8 @@ func (user *User) Enable(id int) (int64, error) {
 
 // 验证用户名和密码
 func (user *User) Match(username, password string) bool {
-	where := "(name = ? OR email = ?)"
-	_, err := Db.Where(where, username, username).Get(user)
+	where := "(name = ? OR email = ?) AND status =? "
+	_, err := Db.Where(where, username, username, Enabled).Get(user)
 	if err != nil {
 		return false
 	}
@@ -78,19 +77,35 @@ func (user *User) Match(username, password string) bool {
 	return true
 }
 
+// 获取用户详情
+func (user *User) Find(id int) (error) {
+	_, err := Db.Id(id).Get(user)
+
+	return err
+}
+
 // 用户名是否存在
-func (user *User) UsernameExists(username string) (int64, error) {
+func (user *User) UsernameExists(username string, uid int) (int64, error) {
+	if uid > 0 {
+		return Db.Where("name = ? AND id != ?", username, uid).Count(user)
+	}
+
 	return Db.Where("name = ?", username).Count(user)
 }
 
 // 邮箱地址是否存在
-func (user *User) EmailExists(email string) (int64, error) {
+func (user *User) EmailExists(email string, uid int) (int64, error) {
+	if uid > 0 {
+		return Db.Where("email = ? AND id != ?", email, uid).Count(user)
+	}
+
 	return Db.Where("email = ?", email).Count(user)
 }
 
-func (user *User) List() ([]User, error) {
+func (user *User) List(params CommonMap) ([]User, error) {
+	user.parsePageAndPageSize(params)
 	list := make([]User, 0)
-	err := Db.Desc("id").Find(&list)
+	err := Db.Desc("id").Limit(user.PageSize, user.pageLimitOffset()).Find(&list)
 
 	return list, err
 }

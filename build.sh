@@ -16,6 +16,8 @@ OS=''
 ARCH=''
 # 应用名称
 APP_NAME='gocron'
+# 版本号
+VERSION=''
 # 可执行文件名
 EXEC_NAME=''
 # 压缩包名称
@@ -23,12 +25,14 @@ COMPRESS_FILE=''
 
 
 # -p 平台 -a 架构
-while getopts "p:a:" OPT;
+while getopts "p:a:v:" OPT;
 do
     case $OPT in
         p) OS=$OPTARG
         ;;
         a) ARCH=$OPTARG
+        ;;
+        v) VERSION=$OPTARG
         ;;
     esac
 done
@@ -52,6 +56,11 @@ if [[ $ARCH != '386' && $ARCH != 'amd64' ]];then
     exit 1
 fi
 
+if [[ -z $VERSION ]];then
+    echo '版本号不能为空'
+    exit 1
+fi
+
 echo '开始编译调度器'
 if [[ $OS = 'windows' ]];then
     GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w'
@@ -66,10 +75,10 @@ echo '编译完成'
 
 if [[ $OS = 'windows' ]];then
     EXEC_NAME=${APP_NAME}.exe
-    COMPRESS_FILE=${APP_NAME}-${OS}-${ARCH}.zip
+    COMPRESS_FILE=${APP_NAME}-v${VERSION}-${OS}-${ARCH}.zip
 else
     EXEC_NAME=${APP_NAME}
-    COMPRESS_FILE=${APP_NAME}-${OS}-${ARCH}.tar.gz
+    COMPRESS_FILE=${APP_NAME}-v${VERSION}-${OS}-${ARCH}.tar.gz
 fi
 
 mkdir -p $TEMP_DIR/$APP_NAME

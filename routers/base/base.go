@@ -5,6 +5,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+// ParsePageAndPageSize 解析查询参数中的页数和每页数量
 func ParsePageAndPageSize(ctx *macaron.Context, params models.CommonMap) {
 	page := ctx.QueryInt("page")
 	pageSize := ctx.QueryInt("page_size")

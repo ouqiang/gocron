@@ -1,0 +1,73 @@
+{{{ template "common/header" . }}}
+
+<div class="ui grid">
+   {{{ template "user/menu" . }}}
+
+    <div class="twelve wide column">
+        <div class="pageHeader">
+            <div class="segment">
+                <h3 class="ui dividing header">
+                    <a href="/user/create">
+                        <i class="large add icon"></i>
+                        <div class="content">
+                            添加用户
+                        </div>
+                    </a>
+                </h3>
+            </div>
+        </div>
+        <table class="ui celled table">
+            <thead>
+            <tr>
+                <th>用户ID</th>
+                <th>用户名</th>
+                <th>邮箱</th>
+                <th>角色</th>
+                <th>状态</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            {{{range $i, $v := .Users}}}
+            <tr>
+                <td>{{{.Id}}}</td>
+                <td>{{{.Name}}}</td>
+                <td>{{{.Email}}}</td>
+                <td>{{{if .IsAdmin}}}管理员{{{else}}}普通用户{{{end}}}</td>
+                <td>{{{if .Status}}}启用{{{else}}}禁用{{{end}}}</td>
+                <td class="operation">
+        <a class="ui purple button"  href="/user/edit/{{{.Id}}}">编辑</a>
+                {{{if eq .Status 1}}}
+                <button class="ui button red" onclick="changeStatus({{{.Id}}},{{{.Status}}})">禁用</button>&nbsp;&nbsp;
+                {{{else}}}
+                <button class="ui button twitter" onclick="changeStatus({{{.Id}}},{{{.Status}}})">启用</button>&nbsp;&nbsp;
+                {{{end}}}
+                    <a href="/user/editPassword/{{{.Id}}}">
+                        <button class="ui button facebook">修改密码</button>
+                    </a>
+                    <button class="ui positive button" onclick="util.removeConfirm('/user/remove/{{{.Id}}}')">删除</button>
+                </td>
+            </tr>
+            {{{end}}}
+            </tbody>
+        </table>
+        {{{ template "common/pagination" .}}}
+    </div>
+</div>
+
+<script type="text/javascript">
+    function changeStatus(id ,status) {
+        var url = '';
+        if (status) {
+            url = '/user/disable';
+        } else {
+            url = '/user/enable';
+        }
+        url += '/' + id;
+        util.post(url,{}, function() {
+                location.reload();
+        });
+    }
+</script>
+
+{{{ template "common/footer" . }}}
