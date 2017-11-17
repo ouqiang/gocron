@@ -239,6 +239,7 @@ func urlAuth(ctx *macaron.Context, sess session.Store)  {
 		"/user/login",
 		"/user/logout",
 		"/user/editMyPassword",
+		"/api",
 	}
 	uri := strings.TrimSpace(ctx.Req.URL.Path)
 	uri = strings.TrimRight(uri, "/")
