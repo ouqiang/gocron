@@ -28,6 +28,7 @@ type TaskForm struct {
 	Timeout          int                 `binding:"Range(0,86400)"`
 	Multi            int8                `binding:"In(1,2)"`
 	RetryTimes       int8
+	RetryInterval    int16
 	HostId           string
 	Tag              string
 	Remark           string
@@ -135,6 +136,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	taskModel.Remark = form.Remark
 	taskModel.Multi = form.Multi
 	taskModel.RetryTimes = form.RetryTimes
+	taskModel.RetryInterval = form.RetryInterval
 	if taskModel.Multi != 1 {
 		taskModel.Multi = 0
 	}
@@ -160,6 +162,10 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 
 	if taskModel.RetryTimes > 10 || taskModel.RetryTimes < 0 {
 		return json.CommonFailure("任务重试次数取值0-10")
+	}
+
+	if taskModel.RetryInterval > 3600 || taskModel.RetryInterval < 0 {
+		return json.CommonFailure("任务重试间隔时间取值0-3600")
 	}
 
 	if taskModel.DependencyStatus != models.TaskDependencyStatusStrong &&

@@ -53,11 +53,12 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		return
 	}
 
-	versionIds := []int{110, 122, 130}
+	versionIds := []int{110, 122, 130, 140}
 	upgradeFuncs := []func(*xorm.Session) error{
 		migration.upgradeFor110,
 		migration.upgradeFor122,
 		migration.upgradeFor130,
+		migration.upgradeFor140,
 	}
 
 	startIndex := -1
@@ -157,7 +158,7 @@ func (migration *Migration) upgradeFor122(session *xorm.Session) error {
 	return err
 }
 
-// 升级到1.2.3版本
+// 升级到v1.3版本
 func (migration *Migration) upgradeFor130(session *xorm.Session) error {
 	logger.Info("开始升级到v1.3")
 
@@ -166,6 +167,20 @@ func (migration *Migration) upgradeFor130(session *xorm.Session) error {
 	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s DROP COLUMN deleted", tableName))
 
 	logger.Info("已升级到v1.3\n")
+
+	return err
+}
+
+// 升级到v1.4版本
+func (migration *Migration) upgradeFor140(session *xorm.Session) error  {
+	logger.Info("开始升级到v1.4")
+
+	tableName := TablePrefix + "task"
+	// task表增加字段
+	// retry_interval 重试间隔时间(秒)
+	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN retry_interval SMALLINT NOT NULL DEFAULT 0", tableName))
+
+	logger.Info("已升级到v1.4\n")
 
 	return err
 }

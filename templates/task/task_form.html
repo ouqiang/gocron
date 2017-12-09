@@ -118,14 +118,10 @@
                 <textarea rows="5" name="command" placeholder="请输入系统命令" id="command">{{{.Task.Command}}}</textarea>
             </div>
         </div>
-        <div class="three fields">
+        <div class="two fields">
             <div class="field">
                 <label>任务超时时间(秒, 0-86400)</label>
                 <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}}0{{{end}}}">
-            </div>
-            <div class="field">
-                <label>任务失败重试次数 (0-10)</label>
-                <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}}0{{{end}}}">
             </div>
             <div class="field">
                 <label>允许多实例同时运行</label>
@@ -134,8 +130,19 @@
                     <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
                 </select>
             </div>
-
         </div>
+
+        <div class="two fields">
+<div class="field">
+    <label>任务失败重试次数 (0-10)</label>
+        <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}}0{{{end}}}">
+</div>
+<div class="field">
+    <label>任务失败重试间隔时间 (秒, 0-3600)</label>
+        <input type="text"  name="retry_interval" placeholder="默认0, 执行默认重试策略" value="{{{if .Task}}} {{{.Task.RetryInterval}}} {{{else}}}0{{{end}}}">
+</div>
+        </div>
+
         <div class="three fields">
             <div class="field">
                 <label>任务通知</label>
@@ -420,6 +427,15 @@
                             {
                                 type   : 'integer[0..10]',
                                 prompt : '重试次数0-10'
+                            }
+                        ]
+                    },
+                    retryInterval: {
+                        identifier  : 'retry_interval',
+                        rules: [
+                            {
+                                type   : 'integer[0..3600]',
+                                prompt : '重试间隔时间0-3600'
                             }
                         ]
                     },

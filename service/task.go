@@ -404,8 +404,12 @@ func execJob(handler Handler, taskModel models.Task) TaskResult {
 		i++
 		if i < execTimes {
 			logger.Warnf("任务执行失败#任务id-%d#重试第%d次#输出-%s#错误-%s", taskModel.Id, i, output, err.Error())
-			// 重试间隔时间，每次递增1分钟
-			time.Sleep(time.Duration(i) * time.Minute)
+			if taskModel.RetryInterval > 0 {
+				time.Sleep(time.Duration(taskModel.RetryInterval) * time.Second)
+			} else {
+				// 默认重试间隔时间，每次递增1分钟
+				time.Sleep(time.Duration(i) * time.Minute)
+			}
 		}
 	}
 
