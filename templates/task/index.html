@@ -211,7 +211,12 @@
     }
 
     function remove(id, stopReload) {
-        util.post('/task/remove/' + id, {}, function () {
+        var url = '/task/remove/' + id;
+        if (stopReload === undefined) {
+            util.removeConfirm(url);
+            return;
+        }
+        util.post(url, {}, function () {
             if (stopReload === undefined) {
                 location.reload();
             }
