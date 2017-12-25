@@ -230,6 +230,11 @@ func urlAuth(ctx *macaron.Context, sess session.Store)  {
 	if user.IsAdmin(sess) {
 		return
 	}
+	uri := strings.TrimSpace(ctx.Req.URL.Path)
+	uri = strings.TrimRight(uri, "/")
+	if (strings.HasPrefix(uri, "/api")) {
+		return
+	}
 	// 普通用户允许访问的URL地址
 	allowPaths := []string{
 		"",
@@ -239,10 +244,7 @@ func urlAuth(ctx *macaron.Context, sess session.Store)  {
 		"/user/login",
 		"/user/logout",
 		"/user/editMyPassword",
-		"/api",
 	}
-	uri := strings.TrimSpace(ctx.Req.URL.Path)
-	uri = strings.TrimRight(uri, "/")
 	for _, path := range allowPaths {
 		if path == uri {
 			return
