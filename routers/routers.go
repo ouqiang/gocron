@@ -22,6 +22,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"net/http"
 )
 
 // 静态文件目录
@@ -112,7 +113,7 @@ func Register(m *macaron.Macaron) {
 	m.NotFound(func(ctx *macaron.Context) {
 		if isGetRequest(ctx) && !isAjaxRequest(ctx) {
 			ctx.Data["Title"] = "404 - NOT FOUND"
-			ctx.HTML(404, "error/404")
+			ctx.HTML(http.StatusNotFound, "error/404")
 		} else {
 			json := utils.JsonResponse{}
 			ctx.Resp.Write([]byte(json.Failure(utils.NotFound, "您访问的地址不存在")))
@@ -123,7 +124,7 @@ func Register(m *macaron.Macaron) {
 		logger.Debug("500错误")
 		if isGetRequest(ctx) && !isAjaxRequest(ctx) {
 			ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
-			ctx.HTML(500, "error/500")
+			ctx.HTML(http.StatusInternalServerError, "error/500")
 		} else {
 			json := utils.JsonResponse{}
 			ctx.Resp.Write([]byte(json.Failure(utils.ServerError, "网站暂时无法访问,请稍后再试")))
@@ -202,7 +203,7 @@ func ipAuth(ctx *macaron.Context) {
 	allowIps := strings.Split(allowIpsStr, ",")
 	if !utils.InStringSlice(allowIps, clientIp) {
 		logger.Warnf("非法IP访问-%s", clientIp)
-		ctx.Status(403)
+		ctx.Status(http.StatusForbidden)
 	}
 }
 
@@ -251,7 +252,7 @@ func urlAuth(ctx *macaron.Context, sess session.Store)  {
 		}
 	}
 
-	ctx.Status(403)
+	ctx.Status(http.StatusUnauthorized)
 
 }
 

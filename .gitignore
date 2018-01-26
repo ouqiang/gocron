@@ -25,9 +25,9 @@ _testmain.go
 
 .DS_Store
 .idea
-log/*
-data/*
-conf/*
+log
+data
+conf
 profile/*
 public/resource/javascript/vue.js
 gocron
