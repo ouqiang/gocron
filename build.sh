@@ -87,7 +87,7 @@ if [[ $? != 0 ]]; then
 fi
 
 # 需要打包的文件
-PACKAGE_FILENAME=(conf log public data templates ${EXEC_NAME})
+PACKAGE_FILENAME=(public templates ${EXEC_NAME})
 
 echo '复制文件到临时目录'
 # 复制文件到临时目录
@@ -95,13 +95,6 @@ for i in ${PACKAGE_FILENAME[*]}
 do
     cp -r $i $TEMP_DIR/$APP_NAME
 done
-
-# 删除运行时产生的文件
-rm -rf $TEMP_DIR/$APP_NAME/conf/*
-rm -rf $TEMP_DIR/$APP_NAME/log/*
-rm -rf $TEMP_DIR/$APP_NAME/data/sessions/*
-rm -rf $TEMP_DIR/$APP_NAME/data/ssh/password/*
-rm -rf $TEMP_DIR/$APP_NAME/data/ssh/private_key/*
 
 echo '压缩文件'
 # 压缩文件
