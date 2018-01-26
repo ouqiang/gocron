@@ -4,7 +4,6 @@ import (
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/app"
 	"github.com/ouqiang/gocron/modules/logger"
-	"github.com/ouqiang/gocron/modules/rpc/grpcpool"
 	"github.com/ouqiang/gocron/modules/setting"
 	"github.com/ouqiang/gocron/routers"
 	"github.com/ouqiang/gocron/service"
@@ -13,7 +12,6 @@ import (
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
 )
 
 // web服务器默认端口
@@ -152,23 +150,7 @@ func shutdown() {
 	serviceTask := new(service.Task)
 	// 停止所有任务调度
 	logger.Info("停止定时任务调度")
-	serviceTask.StopAll()
-
-	taskNumInRunning := service.TaskNum.Num()
-	logger.Infof("正在运行的任务有%d个", taskNumInRunning)
-	if taskNumInRunning > 0 {
-		logger.Info("等待所有任务执行完成后退出")
-	}
-	for {
-		if taskNumInRunning <= 0 {
-			break
-		}
-		time.Sleep(3 * time.Second)
-		taskNumInRunning = service.TaskNum.Num()
-	}
-
-	// 释放gRPC连接池
-	grpcpool.Pool.ReleaseAll()
+	serviceTask.Stop()
 }
 
 // 判断应用是否需要升级, 当存在版本号文件且版本小于app.VersionId时升级

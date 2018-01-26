@@ -23,61 +23,51 @@ var Cron *cron.Cron
 var runInstance Instance
 
 // 任务计数-正在运行中的任务
-var TaskNum TaskCount
+var taskCount TaskCount
 
 // 任务计数
 type TaskCount struct {
-	num int
-	sync.RWMutex
+	wg sync.WaitGroup
+	exit chan bool
 }
 
-func (c *TaskCount) Add() {
-	c.Lock()
-	defer c.Unlock()
-	c.num += 1
+func (tc *TaskCount) Add()  {
+	tc.wg.Add(1)
 }
 
-func (c *TaskCount) Done() {
-	c.Lock()
-	defer c.Unlock()
-	c.num -= 1
+func (tc *TaskCount) Done()  {
+	tc.wg.Done()
 }
 
-func (c *TaskCount) Num() int {
-	c.RLock()
-	defer c.RUnlock()
+func (tc *TaskCount) Exit()  {
+	tc.wg.Done()
+	<-tc.exit
+}
 
-	return c.num
+func (tc *TaskCount) Wait()  {
+	tc.Add()
+	tc.wg.Wait()
+	close(tc.exit)
 }
 
 // 任务ID作为Key
 type Instance struct {
-	Status map[int]bool
-	sync.RWMutex
+	m sync.Map
 }
 
 // 是否有任务处于运行中
 func (i *Instance) has(key int) bool {
-	i.RLock()
-	defer i.RUnlock()
-	running, ok := i.Status[key]
-	if ok && running {
-		return true
-	}
+	_, ok := i.m.Load(key)
 
-	return false
+	return ok
 }
 
 func (i *Instance) add(key int) {
-	i.Lock()
-	defer i.Unlock()
-	i.Status[key] = true
+	i.m.Store(key, true)
 }
 
 func (i *Instance) done(key int) {
-	i.Lock()
-	defer i.Unlock()
-	delete(i.Status, key)
+	i.m.Delete(key)
 }
 
 type Task struct{}
@@ -92,8 +82,9 @@ type TaskResult struct {
 func (task *Task) Initialize() {
 	Cron = cron.New()
 	Cron.Start()
-	runInstance = Instance{make(map[int]bool), sync.RWMutex{}}
-	TaskNum = TaskCount{0, sync.RWMutex{}}
+	runInstance = Instance{}
+	taskCount = TaskCount{sync.WaitGroup{}, make(chan bool)}
+	go taskCount.Wait()
 
 	taskModel := new(models.Task)
 	taskList, err := taskModel.ActiveList()
@@ -137,8 +128,9 @@ func (task *Task) Add(taskModel models.Task) {
 }
 
 // 停止所有任务
-func (task *Task) StopAll() {
+func (task *Task) Stop() {
 	Cron.Stop()
+	taskCount.Exit()
 }
 
 // 直接运行任务
@@ -251,8 +243,8 @@ func createJob(taskModel models.Task) cron.FuncJob {
 		return nil
 	}
 	taskFunc := func() {
-		TaskNum.Add()
-		defer TaskNum.Done()
+		taskCount.Add()
+		defer taskCount.Done()
 		taskLogId := beforeExecJob(taskModel)
 		if taskLogId <= 0 {
 			return
