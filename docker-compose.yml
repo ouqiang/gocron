@@ -1,0 +1,18 @@
+# 定义二个服务 center,node
+# code
+version: '2'
+services:
+    # center
+    center:
+        image: registry.cn-hangzhou.aliyuncs.com/lingdian/gocron:master
+        restart: always
+        ports:
+            - "80:5920"
+        command: ["/usr/bin/supervisord"]
+    node:
+        image: registry.cn-hangzhou.aliyuncs.com/lingdian/gocron:master
+        restart: always
+        ports:
+            - "5921:5921"
+        command: ["runuser", "-u", "gonode", "/go/src/github.com/ouqiang/gocron/gocron-node"]
+    
