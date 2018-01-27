@@ -25,6 +25,7 @@ type TaskForm struct {
 	Spec             string
 	Protocol         models.TaskProtocol `binding:"In(1,2)"`
 	Command          string              `binding:"Required;MaxSize(256)"`
+	HttpMethod       models.TaskHTTPMethod  `binding:"In(1,2)"`
 	Timeout          int                 `binding:"Range(0,86400)"`
 	Multi            int8                `binding:"In(1,2)"`
 	RetryTimes       int8
@@ -111,11 +112,11 @@ func Edit(ctx *macaron.Context) {
 	ctx.HTML(200, "task/task_form")
 }
 
-// 保存任务
+// 保存任务  todo 拆分为多个方法 快变成意大利面条式代码了
 func Store(ctx *macaron.Context, form TaskForm) string {
 	json := utils.JsonResponse{}
 	taskModel := models.Task{}
-	var id int = form.Id
+	var id = form.Id
 	nameExists, err := taskModel.NameExist(form.Name, form.Id)
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent, err)
@@ -130,7 +131,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 
 	taskModel.Name = form.Name
 	taskModel.Protocol = form.Protocol
-	taskModel.Command = form.Command
+	taskModel.Command = strings.TrimSpace(form.Command)
 	taskModel.Timeout = form.Timeout
 	taskModel.Tag = form.Tag
 	taskModel.Remark = form.Remark
@@ -150,6 +151,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	if taskModel.NotifyStatus > 0 && taskModel.NotifyReceiverId == "" {
 		return json.CommonFailure("至少选择一个通知接收者")
 	}
+	taskModel.HttpMethod = form.HttpMethod
 	if taskModel.Protocol == models.TaskHTTP {
 		command := strings.ToLower(taskModel.Command)
 		if !strings.HasPrefix(command, "http://") && !strings.HasPrefix(command, "https://") {
@@ -235,7 +237,7 @@ func Remove(ctx *macaron.Context) string {
 	taskHostModel := new(models.TaskHost)
 	taskHostModel.Remove(id)
 
-	service.Cron.RemoveJob(strconv.Itoa(id))
+	service.ServiceTask.Remove(id)
 
 	return json.Success(utils.SuccessContent, nil)
 }
@@ -261,8 +263,7 @@ func Run(ctx *macaron.Context) string {
 	}
 
 	task.Spec = "手动运行"
-	serviceTask := new(service.Task)
-	serviceTask.Run(task)
+	service.ServiceTask.Run(task)
 
 	return json.Success("任务已开始运行, 请到任务日志中查看结果", nil)
 }
@@ -282,7 +283,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 	if status == models.Enabled {
 		addTaskToTimer(id)
 	} else {
-		service.Cron.RemoveJob(strconv.Itoa(id))
+		service.ServiceTask.Remove(id)
 	}
 
 	return json.Success(utils.SuccessContent, nil)
@@ -297,8 +298,7 @@ func addTaskToTimer(id int) {
 		return
 	}
 
-	taskService := service.Task{}
-	taskService.Add(task)
+	service.ServiceTask.Add(task)
 }
 
 // 解析查询参数

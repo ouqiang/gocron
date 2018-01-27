@@ -16,7 +16,7 @@ import (
 type Status int8
 type CommonMap map[string]interface{}
 
-var TablePrefix string = ""
+var TablePrefix = ""
 var Db *xorm.Engine
 
 const (
@@ -99,7 +99,7 @@ func CreateTmpDb(setting *setting.Setting) (*xorm.Engine, error) {
 // 获取数据库引擎DSN  mysql,sqlite
 func getDbEngineDSN(setting *setting.Setting) string {
 	engine := strings.ToLower(setting.Db.Engine)
-	var dsn string = ""
+	dsn := ""
 	switch engine {
 	case "mysql":
 		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s",

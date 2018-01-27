@@ -178,7 +178,16 @@ func (migration *Migration) upgradeFor140(session *xorm.Session) error  {
 	tableName := TablePrefix + "task"
 	// task表增加字段
 	// retry_interval 重试间隔时间(秒)
-	_, err := session.Exec(fmt.Sprintf("ALTER TABLE %s ADD COLUMN retry_interval SMALLINT NOT NULL DEFAULT 0", tableName))
+	// http_method    http请求方法
+	sql := fmt.Sprintf(
+	"ALTER TABLE %s ADD COLUMN retry_interval SMALLINT NOT NULL DEFAULT 0,ADD COLUMN http_method TINYINT NOT NULL DEFAULT 1", tableName)
+	_, err := session.Exec(sql)
+
+	if err != nil {
+		return err
+	}
+
+
 
 	logger.Info("已升级到v1.4\n")
 

@@ -20,7 +20,7 @@ func ExecShell(ctx context.Context, command string) (string, error) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
 	}
-	var resultChan chan Result = make(chan Result)
+	resultChan := make(chan Result)
 	go func() {
 		output, err := cmd.CombinedOutput()
 		resultChan <- Result{string(output), err}

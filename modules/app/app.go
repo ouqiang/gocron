@@ -110,11 +110,12 @@ func ToNumberVersion(versionString string) int {
 // 检测目录是否存在
 func createDirIfNotExists(path ...string) {
 	for _, value := range path {
-		if !utils.FileExist(value) {
-			err := os.Mkdir(value, 0755)
-			if err != nil {
-				logger.Fatal(fmt.Sprintf("创建目录失败:%s", err.Error()))
-			}
+		if utils.FileExist(value) {
+			continue
+		}
+		err := os.Mkdir(value, 0755)
+		if err != nil {
+			logger.Fatal(fmt.Sprintf("创建目录失败:%s", err.Error()))
 		}
 	}
 }

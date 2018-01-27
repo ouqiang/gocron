@@ -97,8 +97,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 
 	app.Installed = true
 	// 初始化定时任务
-	serviceTask := new(service.Task)
-	serviceTask.Initialize()
+	service.ServiceTask.Initialize()
 
 	return json.Success("安装成功", nil)
 }

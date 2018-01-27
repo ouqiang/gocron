@@ -127,8 +127,7 @@ func Store(ctx *macaron.Context, form HostForm) string {
 		if err != nil {
 			return json.CommonFailure("刷新任务主机信息失败", err)
 		}
-		serviceTask := new(service.Task)
-		serviceTask.BatchAdd(tasks)
+		service.ServiceTask.BatchAdd(tasks)
 	}
 
 	return json.Success("保存成功", nil)
@@ -190,7 +189,7 @@ func Ping(ctx *macaron.Context) string {
 
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) models.CommonMap {
-	var params models.CommonMap = models.CommonMap{}
+	var params = models.CommonMap{}
 	params["Id"] = ctx.QueryInt("id")
 	params["Name"] = ctx.QueryTrim("name")
 	base.ParsePageAndPageSize(ctx, params)

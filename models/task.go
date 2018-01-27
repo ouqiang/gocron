@@ -28,6 +28,13 @@ const (
 	TaskDependencyStatusWeak   TaskDependencyStatus = 2 // 弱依赖
 )
 
+type TaskHTTPMethod int8
+
+const (
+	TaskHTTPMethodGet  TaskHTTPMethod = 1;
+	TaskHttpMethodPost TaskHTTPMethod = 2;
+)
+
 // 任务
 type Task struct {
 	Id               int                  `xorm:"int pk autoincr"`
@@ -38,6 +45,7 @@ type Task struct {
 	Spec             string               `xorm:"varchar(64) notnull"`              // crontab
 	Protocol         TaskProtocol         `xorm:"tinyint notnull index"`            // 协议 1:http 2:系统命令
 	Command          string               `xorm:"varchar(256) notnull"`             // URL地址或shell命令
+	HttpMethod       TaskHTTPMethod       `xorm:"tinyint notnull default 1"`        // http请求方法
 	Timeout          int                  `xorm:"mediumint notnull default 0"`      // 任务执行超时时间(单位秒),0不限制
 	Multi            int8                 `xorm:"tinyint notnull default 1"`        // 是否允许多实例运行
 	RetryTimes       int8                 `xorm:"tinyint notnull default 0"`        // 重试次数
@@ -84,9 +92,9 @@ func (task *Task) CreateTestTask() {
 
 func (task *Task) UpdateBean(id int) (int64, error) {
 	return Db.ID(id).
-		Cols("name,spec,protocol,command,timeout,multi," +
-			"retry_times,retry_interval,remark,notify_status," +
-			"notify_type,notify_receiver_id, dependency_task_id, dependency_status, tag").
+		Cols(`name,spec,protocol,command,timeout,multi,
+			retry_times,retry_interval,remark,notify_status,
+			notify_type,notify_receiver_id, dependency_task_id, dependency_status, tag,http_method`).
 		Update(task)
 }
 

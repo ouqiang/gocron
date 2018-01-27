@@ -112,6 +112,16 @@
 
             </div>
         </div>
+        <div class="two fields" id="http-method" style="display: none">
+            <div class="field">
+                <label>请求方法</label>
+            <select name="http_method">
+                    <option value="1" {{{if .Task}}} {{{if eq .Task.HttpMethod 1}}}selected{{{end}}} {{{end}}}>GET</option>
+                    <option value="2" {{{if .Task}}} {{{if eq .Task.HttpMethod 2}}}selected{{{end}}} {{{end}}}
+                            data-validate-type="selectProtocol">POST</option>
+            </select>
+            </div>
+        </div>
         <div class="two fields">
             <div class="field">
                 <label>命令</label>
@@ -299,10 +309,12 @@
         var protocol = $('#protocol').val();
         if (protocol == 2) {
             $('#hostField').show();
+            $('#http-method').hide();
             return;
         }
 
         $('#hostField').hide();
+        $('#http-method').show();
     }
 
     $('.ui.checkbox')

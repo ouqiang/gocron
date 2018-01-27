@@ -102,8 +102,10 @@
                     {{{end}}}
 
 
-                    {{{if and (eq .Status 1)  (eq .Protocol 2) }}}
-        <button class="ui small blue button" onclick="stopTask({{{.Id}}}, {{{.TaskId}}})">停止任务</button>
+                    {{{if $.IsAdmin}}}
+                        {{{if and (eq .Status 1)  (eq .Protocol 2) }}}
+            <button class="ui small blue button" onclick="stopTask({{{.Id}}}, {{{.TaskId}}})">停止任务</button>
+                        {{{end}}}
                     {{{end}}}
                 </td>
             </tr>
@@ -155,8 +157,8 @@
 
   function stopTask(id, taskId) {
         util.confirm("确定要停止任务吗", function () {
-           util.post("/task/log/stop/", {id: id, task_id:taskId}, function () {
-               location.reload();
+           util.post("/task/log/stop/", {id: id, task_id:taskId}, function (code, message) {
+               swal('提示', message, 'info');
            });
         });
 }

@@ -12,7 +12,7 @@ type Notifiable interface {
 	Send(msg Message)
 }
 
-var queue chan Message = make(chan Message, 100)
+var queue = make(chan Message, 100)
 
 func init() {
 	go run()

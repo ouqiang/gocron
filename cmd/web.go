@@ -78,13 +78,12 @@ func initModule() {
 	upgradeIfNeed()
 
 	// 初始化定时任务
-	serviceTask := new(service.Task)
-	serviceTask.Initialize()
+	service.ServiceTask.Initialize()
 }
 
 // 解析端口
 func parsePort(ctx *cli.Context) int {
-	var port int = DefaultPort
+	port := DefaultPort
 	if ctx.IsSet("port") {
 		port = ctx.Int("port")
 	}
@@ -104,7 +103,7 @@ func parseHost(ctx *cli.Context) string {
 }
 
 func setEnvironment(ctx *cli.Context) {
-	var env string = "prod"
+	env := "prod"
 	if ctx.IsSet("env") {
 		env = ctx.String("env")
 	}
@@ -147,10 +146,9 @@ func shutdown() {
 		return
 	}
 	logger.Info("应用准备退出")
-	serviceTask := new(service.Task)
 	// 停止所有任务调度
 	logger.Info("停止定时任务调度")
-	serviceTask.WaitAndExit()
+	service.ServiceTask.WaitAndExit()
 }
 
 // 判断应用是否需要升级, 当存在版本号文件且版本小于app.VersionId时升级

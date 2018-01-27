@@ -17,14 +17,27 @@ import (
 	"net/http"
 )
 
-// 定时任务调度管理器
-var Cron *cron.Cron
+var (
+	ServiceTask Task
+)
 
-// 同一任务是否有实例处于运行中
-var runInstance Instance
+var (
+	// 定时任务调度管理器
+  	serviceCron *cron.Cron
 
-// 任务计数-正在运行中的任务
-var taskCount TaskCount
+	// 同一任务是否有实例处于运行中
+	runInstance Instance
+
+	// 任务计数-正在运行的任务
+	taskCount TaskCount
+)
+
+func init()  {
+	serviceCron = cron.New()
+	serviceCron.Start()
+	taskCount = TaskCount{sync.WaitGroup{}, make(chan bool)}
+	go taskCount.Wait()
+}
 
 // 任务计数
 type TaskCount struct {
@@ -79,14 +92,9 @@ type TaskResult struct {
 	RetryTimes int8
 }
 
-// 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
-func (task *Task) Initialize() {
-	Cron = cron.New()
-	Cron.Start()
-	runInstance = Instance{}
-	taskCount = TaskCount{sync.WaitGroup{}, make(chan bool)}
-	go taskCount.Wait()
 
+// 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
+func (task Task) Initialize() {
 	taskModel := new(models.Task)
 	taskList, err := taskModel.ActiveList()
 	if err != nil {
@@ -101,14 +109,14 @@ func (task *Task) Initialize() {
 }
 
 // 批量添加任务
-func (task *Task) BatchAdd(tasks []models.Task) {
+func (task Task) BatchAdd(tasks []models.Task) {
 	for _, item := range tasks {
 		task.Add(item)
 	}
 }
 
 // 添加任务
-func (task *Task) Add(taskModel models.Task) {
+func (task Task) Add(taskModel models.Task) {
 	if taskModel.Level == models.TaskLevelChild {
 		logger.Errorf("添加任务失败#不允许添加子任务到调度器#任务Id-%d", taskModel.Id)
 		return
@@ -121,26 +129,30 @@ func (task *Task) Add(taskModel models.Task) {
 
 	cronName := strconv.Itoa(taskModel.Id)
 	// Cron任务采用数组存储, 删除任务需遍历数组, 并对数组重新赋值, 任务较多时，有性能问题
-	Cron.RemoveJob(cronName)
-	err := Cron.AddFunc(taskModel.Spec, taskFunc, cronName)
+	serviceCron.RemoveJob(cronName)
+	err := serviceCron.AddFunc(taskModel.Spec, taskFunc, cronName)
 	if err != nil {
 		logger.Error("添加任务到调度器失败#", err)
 	}
 }
 
 // 停止运行中的任务
-func (task *Task) Stop(ip string, port int, id int64)  {
+func (task Task) Stop(ip string, port int, id int64)  {
 	rpcClient.Stop(ip, port, id)
 }
 
+func (task Task) Remove(id int)  {
+	serviceCron.RemoveJob(strconv.Itoa(id))
+}
+
 // 等待所有任务结束后退出
-func (task *Task) WaitAndExit() {
-	Cron.Stop()
+func (task Task) WaitAndExit() {
+	serviceCron.Stop()
 	taskCount.Exit()
 }
 
 // 直接运行任务
-func (task *Task) Run(taskModel models.Task) {
+func (task Task) Run(taskModel models.Task) {
 	go createJob(taskModel)()
 }
 
@@ -158,7 +170,18 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
 		taskModel.Timeout = HttpExecTimeout
 	}
-	resp := httpclient.Get(taskModel.Command, taskModel.Timeout)
+	var resp httpclient.ResponseWrapper
+	if (taskModel.HttpMethod == models.TaskHTTPMethodGet) {
+		resp = httpclient.Get(taskModel.Command, taskModel.Timeout)
+	} else {
+		urlFields := strings.Split(taskModel.Command, "?")
+		taskModel.Command = urlFields[0]
+		var params string
+		if (len(urlFields) >= 2) {
+			params = urlFields[1]
+		}
+		resp = httpclient.PostParams(taskModel.Command, params, taskModel.Timeout)
+	}
 	// 返回状态码非200，均为失败
 	if resp.StatusCode != http.StatusOK {
 		return resp.Body, errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
@@ -175,11 +198,11 @@ func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result stri
 	taskRequest.Timeout = int32(taskModel.Timeout)
 	taskRequest.Command = taskModel.Command
 	taskRequest.Id = taskUniqueId
-	var resultChan chan TaskResult = make(chan TaskResult, len(taskModel.Hosts))
+	resultChan := make(chan TaskResult, len(taskModel.Hosts))
 	for _, taskHost := range taskModel.Hosts {
 		go func(th models.TaskHostDetail) {
 			output, err := rpcClient.Exec(th.Name, th.Port, taskRequest)
-			var errorMessage string = ""
+			errorMessage := ""
 			if err != nil {
 				errorMessage = err.Error()
 			}
@@ -191,7 +214,7 @@ func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result stri
 	}
 
 	var aggregationErr error = nil
-	var aggregationResult string = ""
+	aggregationResult := ""
 	for i := 0; i < len(taskModel.Hosts); i++ {
 		taskResult := <-resultChan
 		aggregationResult += taskResult.Result
@@ -213,7 +236,7 @@ func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 	taskLogModel.Command = taskModel.Command
 	taskLogModel.Timeout = taskModel.Timeout
 	if taskModel.Protocol == models.TaskRPC {
-		var aggregationHost string = ""
+		aggregationHost := ""
 		for _, host := range taskModel.Hosts {
 			aggregationHost += fmt.Sprintf("%s-%s<br>", host.Alias, host.Name)
 		}
@@ -230,7 +253,7 @@ func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
 	taskLogModel := new(models.TaskLog)
 	var status models.Status
-	var result string = taskResult.Result
+	result := taskResult.Result
 	if taskResult.Err != nil {
 		status = models.Failure
 	} else {
@@ -245,7 +268,7 @@ func updateTaskLog(taskLogId int64, taskResult TaskResult) (int64, error) {
 }
 
 func createJob(taskModel models.Task) cron.FuncJob {
-	var handler Handler = createHandler(taskModel)
+	handler := createHandler(taskModel)
 	if handler == nil {
 		return nil
 	}
@@ -339,10 +362,9 @@ func execDependencyTask(taskModel models.Task, taskResult TaskResult) {
 	if len(tasks) == 0 {
 		logger.Errorf("依赖任务列表为空#主任务ID-%d", taskModel.Id)
 	}
-	serviceTask := new(Task)
 	for _, task := range tasks {
 		task.Spec = fmt.Sprintf("依赖任务(主任务ID-%d)", taskModel.Id)
-		serviceTask.Run(task)
+		ServiceTask.Run(task)
 	}
 }
 

@@ -3,11 +3,9 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"fmt"
 	"github.com/Tang-RoseChild/mahonia"
 	"math/rand"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -39,11 +37,6 @@ func RandNumber(max int) int {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 
 	return r.Intn(max)
-}
-
-// 判断当前系统是否是windows
-func IsWindows() bool {
-	return runtime.GOOS == "windows"
 }
 
 // GBK编码转换为UTF8
@@ -99,9 +92,4 @@ func FileExist(file string) bool {
 	}
 
 	return true
-}
-
-// 格式化环境变量
-func FormatUnixEnv(key, value string) string {
-	return fmt.Sprintf("export %s=%s; ", key, value)
 }
