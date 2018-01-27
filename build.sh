@@ -2,11 +2,11 @@
 
 # set -x -u
 # 构建应用, 生成压缩包 gocron.zip或gocron.tar.gz
-# ./build.sh -p windows -a amd64
+# ./build.sh -p windows -a amd64 -v 1.4
 # 参数含义
 # -p 指定平台(windows|linux|darwin)
 # -a 指定体系架构(amd64|386), 默认amd64
-
+# -v 版本号
 
 TEMP_DIR=`date +%s`-temp-`echo $RANDOM`
 

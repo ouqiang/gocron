@@ -36,7 +36,7 @@ func InitEnv(versionString string) {
 	DataDir = AppDir + "/data"
 	AppConfig = ConfDir + "/app.ini"
 	VersionFile = ConfDir + "/.version"
-	createDirIfNeed(ConfDir, LogDir, DataDir)
+	createDirIfNotExists(ConfDir, LogDir, DataDir)
 	Installed = IsInstalled()
 	VersionId = ToNumberVersion(versionString)
 }
@@ -108,7 +108,7 @@ func ToNumberVersion(versionString string) int {
 }
 
 // 检测目录是否存在
-func createDirIfNeed(path ...string) {
+func createDirIfNotExists(path ...string) {
 	for _, value := range path {
 		if !utils.FileExist(value) {
 			err := os.Mkdir(value, 0755)

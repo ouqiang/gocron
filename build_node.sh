@@ -2,10 +2,11 @@
 
 # set -x -u
 # 任务节点打包, 生成压缩包 gocron-node.zip或gocron-node.tar.gz
-# ./build-node.sh -p windows -a amd64
+# ./build-node.sh -p windows -a amd64 -v 1.4
 # 参数含义
 # -p 指定平台(windows|linux|darwin)
 # -a 指定体系架构(amd64|386), 默认amd64
+# -v 版本号
 
 
 # 目标平台 windows,linux,darwin

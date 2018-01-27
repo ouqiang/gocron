@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 	"time"
+	"net/http"
 )
 
 // 定时任务调度管理器
@@ -127,8 +128,13 @@ func (task *Task) Add(taskModel models.Task) {
 	}
 }
 
-// 停止所有任务
-func (task *Task) Stop() {
+// 停止运行中的任务
+func (task *Task) Stop(ip string, port int, id int64)  {
+	rpcClient.Stop(ip, port, id)
+}
+
+// 等待所有任务结束后退出
+func (task *Task) WaitAndExit() {
 	Cron.Stop()
 	taskCount.Exit()
 }
@@ -139,7 +145,7 @@ func (task *Task) Run(taskModel models.Task) {
 }
 
 type Handler interface {
-	Run(taskModel models.Task) (string, error)
+	Run(taskModel models.Task, taskUniqueId int64) (string, error)
 }
 
 // HTTP任务
@@ -148,13 +154,13 @@ type HTTPHandler struct{}
 // http任务执行时间不超过300秒
 const HttpExecTimeout = 300
 
-func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
+func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result string, err error) {
 	if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
 		taskModel.Timeout = HttpExecTimeout
 	}
 	resp := httpclient.Get(taskModel.Command, taskModel.Timeout)
 	// 返回状态码非200，均为失败
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return resp.Body, errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
 	}
 
@@ -164,10 +170,11 @@ func (h *HTTPHandler) Run(taskModel models.Task) (result string, err error) {
 // RPC调用执行任务
 type RPCHandler struct{}
 
-func (h *RPCHandler) Run(taskModel models.Task) (result string, err error) {
+func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result string, err error) {
 	taskRequest := new(pb.TaskRequest)
 	taskRequest.Timeout = int32(taskModel.Timeout)
 	taskRequest.Command = taskModel.Command
+	taskRequest.Id = taskUniqueId
 	var resultChan chan TaskResult = make(chan TaskResult, len(taskModel.Hosts))
 	for _, taskHost := range taskModel.Hosts {
 		go func(th models.TaskHostDetail) {
@@ -250,7 +257,7 @@ func createJob(taskModel models.Task) cron.FuncJob {
 			return
 		}
 		logger.Infof("开始执行任务#%s#命令-%s", taskModel.Name, taskModel.Command)
-		taskResult := execJob(handler, taskModel)
+		taskResult := execJob(handler, taskModel, taskLogId)
 		logger.Infof("任务完成#%s#命令-%s", taskModel.Name, taskModel.Command)
 		afterExecJob(taskModel, taskResult, taskLogId)
 	}
@@ -371,7 +378,7 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 }
 
 // 执行具体任务
-func execJob(handler Handler, taskModel models.Task) TaskResult {
+func execJob(handler Handler, taskModel models.Task, taskUniqueId int64) TaskResult {
 	defer func() {
 		if err := recover(); err != nil {
 			logger.Error("panic#service/task.go:execJob#", err)
@@ -389,7 +396,7 @@ func execJob(handler Handler, taskModel models.Task) TaskResult {
 	var output string
 	var err error
 	for i < execTimes {
-		output, err = handler.Run(taskModel)
+		output, err = handler.Run(taskModel, taskUniqueId)
 		if err == nil {
 			return TaskResult{Result: output, Err: err, RetryTimes: i}
 		}

@@ -11,6 +11,7 @@ import (
 	"github.com/ouqiang/gocron/routers/base"
 	"gopkg.in/macaron.v1"
 	"html/template"
+	"github.com/ouqiang/gocron/service"
 )
 
 func Index(ctx *macaron.Context) {
@@ -46,6 +47,31 @@ func Clear(ctx *macaron.Context) string {
 	}
 
 	return json.Success(utils.SuccessContent, nil)
+}
+
+// 停止运行中的任务
+func Stop(ctx *macaron.Context) string  {
+	id := ctx.QueryInt64("id")
+	taskId := ctx.QueryInt("task_id")
+	taskModel := new(models.Task)
+	task, err := taskModel.Detail(taskId)
+	json := utils.JsonResponse{}
+	if err != nil {
+		return json.CommonFailure("获取任务信息失败#" + err.Error(), err)
+	}
+	if task.Protocol != models.TaskRPC {
+		return json.CommonFailure("仅支持SHELL任务手动停止")
+	}
+	if len(task.Hosts) == 0 {
+		return json.CommonFailure("任务节点列表为空")
+	}
+	serviceTask := new(service.Task)
+	for _, host := range task.Hosts {
+		serviceTask.Stop(host.Name, host.Port, id)
+
+	}
+
+	return json.Success("已执行停止操作, 请等待任务退出", nil);
 }
 
 // 删除N个月前的日志

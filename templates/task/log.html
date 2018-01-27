@@ -100,6 +100,11 @@
                                 >查看结果
                         </button>
                     {{{end}}}
+
+
+                    {{{if and (eq .Status 1)  (eq .Protocol 2) }}}
+        <button class="ui small blue button" onclick="stopTask({{{.Id}}}, {{{.TaskId}}})">停止任务</button>
+                    {{{end}}}
                 </td>
             </tr>
             {{{end}}}
@@ -148,6 +153,14 @@
       }).modal('refresh').modal('show');
   }
 
+  function stopTask(id, taskId) {
+        util.confirm("确定要停止任务吗", function () {
+           util.post("/task/log/stop/", {id: id, task_id:taskId}, function () {
+               location.reload();
+           });
+        });
+}
+  
   function clearLog() {
       util.confirm("确定要删除所有日志吗？", function() {
           util.post("/task/log/clear",{}, function() {
