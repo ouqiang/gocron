@@ -1,8 +1,8 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 <div class="ui grid">
-    {{{template "task/menu" .}}}
+    {%template "task/menu" .%}
     <div class="twelve wide column">
-        {{{if .IsAdmin}}}
+        {%if .IsAdmin%}
             <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
@@ -15,40 +15,40 @@
                 </h3>
             </div>
         </div>
-        {{{end}}}
+        {%end%}
         <form class="ui form">
             <div class="six fields search">
                 <div class="one wide field">
-                    <input type="text" placeholder="任务ID" name="id" value="{{{if gt .Params.Id 0}}}{{{.Params.Id}}}{{{end}}}">
+                    <input type="text" placeholder="任务ID" name="id" value="{%if gt .Params.Id 0%}{%.Params.Id%}{%end%}">
                 </div>
                 <div class="field">
-                    <input type="text" placeholder="任务名称" name="name" value="{{{.Params.Name}}}">
+                    <input type="text" placeholder="任务名称" name="name" value="{%.Params.Name%}">
                 </div>
                 <div class="field">
-                    <input type="text" placeholder="标签名称" name="tag" value="{{{.Params.Tag}}}">
+                    <input type="text" placeholder="标签名称" name="tag" value="{%.Params.Tag%}">
                 </div>
             </div>
             <div class="six fields search">
                 <div class="field">
                     <select name="host_id" id="hostId">
                         <option value="">选择节点</option>
-                        {{{range $i, $v := .Hosts}}}
-                        <option value="{{{.Id}}}" {{{if eq $.Params.HostId .Id }}} selected {{{end}}} >{{{.Alias}}}-{{{.Name}}}</option>
-                        {{{end}}}
+                        {%range $i, $v := .Hosts%}
+                        <option value="{%.Id%}" {%if eq $.Params.HostId .Id %} selected {%end%} >{%.Alias%}-{%.Name%}</option>
+                        {%end%}
                     </select>
                 </div>
                 <div class="field">
                     <select name="protocol" id="protocol">
                         <option value="0">执行方式</option>
-                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
-                        <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
+                        <option value="2"  {%if eq .Params.Protocol 2%}selected{%end%} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
+                        <option value="1"  {%if eq .Params.Protocol 1%}selected{%end%}>HTTP</option>
                     </select>
                 </div>
                 <div class="field">
                     <select name="status">
                         <option value="0">状态</option>
-                        <option value="1" {{{if eq .Params.Status 0}}}selected{{{end}}} >停止</option>
-                        <option value="2" {{{if eq .Params.Status 1}}}selected{{{end}}}>激活</option>
+                        <option value="1" {%if eq .Params.Status 0%}selected{%end%} >停止</option>
+                        <option value="2" {%if eq .Params.Status 1%}selected{%end%}>激活</option>
                     </select>
                 </div>
                 <div class="field">
@@ -56,7 +56,7 @@
                 </div>
             </div>
         </form>
-        {{{if .IsAdmin}}}
+        {%if .IsAdmin%}
             <div class="field">
                 <select id="batch-operation">
                     <option value="0">批量操作</option>
@@ -65,16 +65,16 @@
                     <option value="3">删除</option>
                 </select>
             </div>
-        {{{end}}}
+        {%end%}
         <br>
         <table class="ui celled table task-list">
             <thead>
             <tr>
-                {{{if .IsAdmin}}}
+                {%if .IsAdmin%}
                     <th>
                         <input type="checkbox" onclick="checkAll(this)" style="width:25px;height: 25px;">
                     </th>
-                {{{end}}}
+                {%end%}
                 <th>任务ID</th>
                 <th>任务名称</th>
                 <th>任务类型</th>
@@ -90,58 +90,58 @@
             </tr>
             </thead>
             <tbody>
-                {{{range $i, $v := .Tasks}}}
+                {%range $i, $v := .Tasks%}
                     <tr>
-                        {{{if $.IsAdmin}}}
+                        {%if $.IsAdmin%}
                             <td>
                                 <input type="checkbox"
                                        class="sub-check"
-                                       data-id="{{{.Id}}}"
+                                       data-id="{%.Id%}"
                                        style="width:25px;height: 25px;">
                             </td>
-                        {{{end}}}
-                        <td>{{{.Id}}}</td>
-                        <td>{{{.Name}}}</td>
-                        <td>{{{if eq .Level 1}}}主任务{{{else}}}子任务{{{end}}}</td>
-                        <td>{{{.Tag}}}</td>
-                        <td>{{{.Spec}}}</td>
-                        <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
-                        <td>{{{if eq .Timeout -1}}}后台运行{{{else if gt .Timeout 0}}}{{{.Timeout}}}秒{{{else}}}不限制{{{end}}}</td>
-                        <td>{{{.RetryTimes}}}</td>
-                        <td>{{{if gt .Multi 0}}}否{{{else}}}是{{{end}}}</td>
+                        {%end%}
+                        <td>{%.Id%}</td>
+                        <td>{%.Name%}</td>
+                        <td>{%if eq .Level 1%}主任务{%else%}子任务{%end%}</td>
+                        <td>{%.Tag%}</td>
+                        <td>{%.Spec%}</td>
+                        <td>{%if eq .Protocol 1%} HTTP {%else if eq .Protocol 2%} SHELL {%end%}</td>
+                        <td>{%if eq .Timeout -1%}后台运行{%else if gt .Timeout 0%}{%.Timeout%}秒{%else%}不限制{%end%}</td>
+                        <td>{%.RetryTimes%}</td>
+                        <td>{%if gt .Multi 0%}否{%else%}是{%end%}</td>
                         <td>
-                            {{{range $k, $h := .Hosts}}}
-                                {{{$h.Alias}}}<br>
-                            {{{end}}}
+                            {%range $k, $h := .Hosts%}
+                                {%$h.Alias%}<br>
+                            {%end%}
                         </td>
                         <td>
-                            {{{if eq .Level 1}}}
-                                {{{if eq .Status 1}}}<span><i class="checkmark big icon"></i></span>{{{else}}}<span><i class="minus big icon"></i><span>{{{end}}}
-                            {{{end}}}
+                            {%if eq .Level 1%}
+                                {%if eq .Status 1%}<span><i class="checkmark big icon"></i></span>{%else%}<span><i class="minus big icon"></i><span>{%end%}
+                            {%end%}
                         </td>
                         <td>
                             <div class="ui buttons operation">
-                                {{{if $.IsAdmin}}}
-                                <a href="/task/edit/{{{.Id}}}" ><i class="edit big  icon" title="编辑"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
-                                {{{if eq .Level 1}}}
-                                    {{{if eq .Status 1}}}
-                                        <a href="javascript:void(0);" @click="changeStatus({{{.Id}}},{{{.Status}}})"><i class="pause circle big  icon" title="停止"></i></a>&nbsp;&nbsp;
-                                    {{{else}}}
-                                        <a href="javascript:void(0);" @click="changeStatus({{{.Id}}},{{{.Status}}})"><i class="play big  icon" title="激活"></i></a>&nbsp;&nbsp;
-                                    {{{end}}}
-                                {{{end}}}
-                                <a href="javascript:void(0);"  @click="remove({{{.Id}}})"><i class="remove big  icon" title="删除"></i></a>
-                                <a href="javascript:void(0);"  @click="run({{{.Id}}})"><i class="rocket big icon" title="手动执行"></i></a>&nbsp;&nbsp;
-                                {{{end}}}
+                                {%if $.IsAdmin%}
+                                <a href="/task/edit/{%.Id%}" ><i class="edit big  icon" title="编辑"></i></a>&nbsp;&nbsp;&nbsp;&nbsp;
+                                {%if eq .Level 1%}
+                                    {%if eq .Status 1%}
+                                        <a href="javascript:void(0);" @click="changeStatus({%.Id%},{%.Status%})"><i class="pause circle big  icon" title="停止"></i></a>&nbsp;&nbsp;
+                                    {%else%}
+                                        <a href="javascript:void(0);" @click="changeStatus({%.Id%},{%.Status%})"><i class="play big  icon" title="激活"></i></a>&nbsp;&nbsp;
+                                    {%end%}
+                                {%end%}
+                                <a href="javascript:void(0);"  @click="remove({%.Id%})"><i class="remove big  icon" title="删除"></i></a>
+                                <a href="javascript:void(0);"  @click="run({%.Id%})"><i class="rocket big icon" title="手动执行"></i></a>&nbsp;&nbsp;
+                                {%end%}
 
-                                <a href="/task/log?task_id={{{.Id}}}"><i class="bar chart icon big" title="查看日志"></i></a>
+                                <a href="/task/log?task_id={%.Id%}"><i class="bar chart icon big" title="查看日志"></i></a>
                             </div>
                         </td>
                     </tr>
-            {{{end}}}
+            {%end%}
             </tbody>
         </table>
-    {{{ template "common/pagination" .}}}
+    {% template "common/pagination" .%}
     </div>
 </div>
 
@@ -239,4 +239,4 @@
     }
 </script>
 
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

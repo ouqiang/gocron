@@ -1,7 +1,7 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 
 <div class="ui grid">
-   {{{ template "host/menu" . }}}
+   {% template "host/menu" . %}
 
     <div class="twelve wide column">
         <div class="pageHeader">
@@ -14,24 +14,24 @@
             </div>
         </div>
         <form class="ui form fluid vertical segment">
-            <input type="hidden" name="id" value="{{{.Host.Id}}}">
+            <input type="hidden" name="id" value="{%.Host.Id%}">
             <div class="four fields">
                 <div class="field">
                     <label>主机名</label>
                     <div class="ui small input">
-                        <input type="text"  name="name" value="{{{.Host.Name}}}" placeholder="127.0.0.1">
+                        <input type="text"  name="name" value="{%.Host.Name%}" placeholder="127.0.0.1">
                     </div>
                 </div>
                 <div class="field">
                     <label>端口</label>
                     <div class="ui small  input">
-                        <input type="text"  name="port" value="{{{.Host.Port}}}" placeholder="5921">
+                        <input type="text"  name="port" value="{%.Host.Port%}" placeholder="5921">
                     </div>
                 </div>
                 <div class="field">
                     <label>节点名称</label>
                     <div class="ui small  input">
-                        <input type="text" name="alias" value="{{{.Host.Alias}}}"
+                        <input type="text" name="alias" value="{%.Host.Alias%}"
                         placeholder="节点名称如web">
                     </div>
                 </div>
@@ -40,7 +40,7 @@
                 <div class="field">
                     <label>备注</label>
                     <div class="ui small  input">
-                        <textarea rows="7" name="remark" >{{{.Host.Remark}}}</textarea>
+                        <textarea rows="7" name="remark" >{%.Host.Remark%}</textarea>
                     </div>
                 </div>
             </div>
@@ -113,4 +113,4 @@
             });
 </script>
 
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

@@ -1,13 +1,13 @@
 <div class="three wide column">
     <div class="verticalMenu">
         <div class="ui vertical pointing menu fluid">
-            <a class="{{{if eq .URI "/manage/slack/edit"}}}active teal{{{end}}}  item" href="/manage/slack/edit">
+            <a class="{%if eq .URI "/manage/slack/edit"%}active teal{%end%}  item" href="/manage/slack/edit">
             <i class="slack icon"></i> Slack配置
             </a>
-            <a class="{{{if eq .URI "/manage/mail/edit"}}}active teal{{{end}}}  item" href="/manage/mail/edit">
+            <a class="{%if eq .URI "/manage/mail/edit"%}active teal{%end%}  item" href="/manage/mail/edit">
                 <i class="slack icon"></i> 邮件配置
             </a>
-            <a class="{{{if eq .URI "/manage/login-log"}}}active teal{{{end}}}  item" href="/manage/login-log">
+            <a class="{%if eq .URI "/manage/login-log"%}active teal{%end%}  item" href="/manage/login-log">
                 <i class="slack icon"></i> 登录日志
             </a>
         </div>

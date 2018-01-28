@@ -1,12 +1,12 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 <div class="ui grid">
-    {{{template "manage/menu" .}}}
+    {%template "manage/menu" .%}
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
                     <div class="content">
-                        {{{.Title}}}
+                        {%.Title%}
                     </div>
                 </h3>
             </div>
@@ -18,7 +18,7 @@
                         <div class="content">Slack WebHook URL</div>
                     </label>
                     <div class="ui small input">
-                        <input type="text" id="url" value="{{{.Slack.Url}}}">
+                        <input type="text" id="url" value="{%.Slack.Url%}">
                     </div>
                 </div>
             <div class="ui primary button" @click="updateUrl">保存</div>
@@ -27,13 +27,13 @@
             <div>
                 <div class="content">Slack Channel(配置任务通知时，可选择多Channel)</div><p></p>
                 <div class="fields">
-                {{{range $i, $v := .Slack.Channels}}}
+                {%range $i, $v := .Slack.Channels%}
                     <div class="field">
                         <div class="ui segment">
-                            {{{.Name}}}&nbsp;&nbsp;&nbsp;<div class="ui blue button" @click="removeChannel({{{.Id}}})">删除</div>
+                            {%.Name%}&nbsp;&nbsp;&nbsp;<div class="ui blue button" @click="removeChannel({%.Id%})">删除</div>
                         </div>
                     </div>
-                {{{end}}}
+                {%end%}
                 </div>
             </div>
             <div class="ui facebook button" @click="createChannel">新增Channel</div>
@@ -85,4 +85,4 @@
         }
     });
 </script>
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

@@ -1,12 +1,12 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 <div class="ui grid">
-    {{{template "manage/menu" .}}}
+    {%template "manage/menu" .%}
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
                     <div class="content">
-                        {{{.Title}}}
+                        {%.Title%}
                     </div>
                 </h3>
             </div>
@@ -19,7 +19,7 @@
                         SMTP服务器
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="host" value="{{{.Mail.Host}}}">
+                        <input type="text" name="host" value="{%.Mail.Host%}">
                     </div>
                 </div>
                 <div class="field">
@@ -27,7 +27,7 @@
                         端口
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="port" value="{{{if gt .Mail.Port 0}}}{{{.Mail.Port}}}{{{end}}}">
+                        <input type="text" name="port" value="{%if gt .Mail.Port 0%}{%.Mail.Port%}{%end%}">
                     </div>
                 </div>
                 <div class="field">
@@ -35,7 +35,7 @@
                         用户名
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="user" value="{{{.Mail.User}}}">
+                        <input type="text" name="user" value="{%.Mail.User%}">
                     </div>
                 </div>
                 <div class="field">
@@ -43,25 +43,25 @@
                         密码
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="password" value="{{{.Mail.Password}}}">
+                        <input type="text" name="password" value="{%.Mail.Password%}">
                     </div>
                 </div>
             </div>
             <button class="ui primary  button">保存</button>
-            {{{if .Mail.Host}}}
+            {%if .Mail.Host%}
                 <a class="ui green button" onclick="clearMailServer()">删除</a>
-            {{{end}}}
+            {%end%}
             <br><br><br>
             <div>
                 <div class="content">邮箱用户</div><p></p>
                 <div class="fields">
-                    {{{range $i, $v := .Mail.MailUsers}}}
+                    {%range $i, $v := .Mail.MailUsers%}
                     <div class="field">
                         <div class="ui segment">
-                            {{{.Username}}}-{{{.Email}}}&nbsp;&nbsp;&nbsp;<div class="ui blue button" onclick="removeMailUser({{{.Id}}})">删除</div>
+                            {%.Username%}-{%.Email%}&nbsp;&nbsp;&nbsp;<div class="ui blue button" onclick="removeMailUser({%.Id%})">删除</div>
                         </div>
                     </div>
-                    {{{end}}}
+                    {%end%}
                 </div>
             </div>
         </form>
@@ -198,4 +198,4 @@
         });
     }
 </script>
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="renderer" content="webkit">
-    <title>{{{.Title}}}</title>
+    <title>{%.Title%}</title>
     <link type="text/css" rel="stylesheet" href="/resource/css/framework.css" />
     <link type="text/css" rel="stylesheet" href="/resource/css/main.css" />
     <link type="text/css" rel="stylesheet" href="/resource/sweetalert/sweetalert.css" />
@@ -29,29 +29,29 @@
 </head>
 <body>
 <div class="page">
-    {{{if not .DisableNav}}}
+    {%if not .DisableNav%}
     <!--header begin-->
     <header>
         <div class="bigcontainer">
             <div id="logo">
-                {{{.AppName}}}
+                {%.AppName%}
             </div>
             <div class="user">
                 <div class="ui inline labeled icon top right pointing dropdown">
-                    {{{if not .LoginUsername}}}
+                    {%if not .LoginUsername%}
                         你好
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             <a class="item" href="/user/login"><i class="sign in icon"></i>登录</a>
                         </div>
-                    {{{else}}}
-                        你好，{{{.LoginUsername}}}
+                    {%else%}
+                        你好，{%.LoginUsername%}
                         <i class="dropdown icon"></i>
                         <div class="menu">
                             <a href="/user/editMyPassword" class="item"><i class="edit icon"></i>修改密码</a>
                             <a class="item" href="/user/logout"><i class="sign out icon"></i>退出</a>
                         </div>
-                    {{{end}}}
+                    {%end%}
                 </div>
             </div>
         </div>
@@ -60,13 +60,13 @@
     <div class="ui teal inverted menu">
         <div class="bigcontainer">
             <div class="right menu">
-                <a class="item {{{if or (eq .Controller "task") (eq .Controller "delaytask")}}}active{{{end}}}" href="/task"><i class="tasks icon"></i>任务</a>
-                <a class="item {{{if eq .Controller "host"}}}active{{{end}}}" href="/host"><i class="linux icon"></i>任务节点</a>
-                {{{if .IsAdmin}}}
-                 <a class="item {{{if eq .Controller "user"}}}active{{{end}}}" href="/user"><i class="user icon"></i>用户管理</a>
-                <a class="item {{{if eq .Controller "manage"}}}active{{{end}}}" href="/manage/slack/edit"><i class="settings icon"></i>系统管理</a>
-                {{{end}}}
+                <a class="item {%if or (eq .Controller "task") (eq .Controller "delaytask")%}active{%end%}" href="/task"><i class="tasks icon"></i>任务</a>
+                <a class="item {%if eq .Controller "host"%}active{%end%}" href="/host"><i class="linux icon"></i>任务节点</a>
+                {%if .IsAdmin%}
+                 <a class="item {%if eq .Controller "user"%}active{%end%}" href="/user"><i class="user icon"></i>用户管理</a>
+                <a class="item {%if eq .Controller "manage"%}active{%end%}" href="/manage/slack/edit"><i class="settings icon"></i>系统管理</a>
+                {%end%}
             </div>
         </div>
     </div>
-    {{{end}}}
+    {%end%}

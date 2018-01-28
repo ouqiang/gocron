@@ -142,16 +142,8 @@ func RegisterMiddleware(m *macaron.Macaron) {
 	}
 	m.Use(macaron.Static(StaticDir))
 	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory:  "templates",
-		Extensions: []string{".html"},
 		// 模板语法分隔符，默认为 ["{{", "}}"]
-		Delims: macaron.Delims{"{{{", "}}}"},
-		// 追加的 Content-Type 头信息，默认为 "UTF-8"
-		Charset: "UTF-8",
-		// 渲染具有缩进格式的 JSON，默认为不缩进
-		IndentJSON: true,
-		// 渲染具有缩进格式的 XML，默认为不缩进
-		IndentXML: true,
+		Delims: macaron.Delims{"{%", "%}"},
 		Funcs: []template.FuncMap{map[string]interface{}{
 			"HostFormat": func(index int) bool {
 				return (index+1)%3 == 0

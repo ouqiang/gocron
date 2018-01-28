@@ -1,25 +1,25 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 <div class="ui grid">
-    {{{template "task/menu" .}}}
+    {%template "task/menu" .%}
     <div class="twelve wide column">
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
                     <div class="content">
-                        {{{.Title}}}
+                        {%.Title%}
                     </div>
                 </h3>
             </div>
         </div>
     <form class="ui form fluid vertical segment">
-        <input type="hidden" name="id" value="{{{.Task.Id}}}">
+        <input type="hidden" name="id" value="{%.Task.Id%}">
         <div class="two fields">
             <div class="field">
                 <label>
                     <div class="content">任务名称</div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="name" placeholder="任务名称" value="{{{.Task.Name}}}">
+                    <input type="text" name="name" placeholder="任务名称" value="{%.Task.Name%}">
                 </div>
             </div>
 
@@ -28,7 +28,7 @@
                     <div class="content">标签名称</div>
                 </label>
                 <div class="ui small input">
-                    <input type="text" name="tag" placeholder="标签用于任务分类" value="{{{.Task.Tag}}}">
+                    <input type="text" name="tag" placeholder="标签用于任务分类" value="{%.Task.Tag%}">
                 </div>
             </div>
         </div>
@@ -41,9 +41,9 @@
                         任务类型新增后不能变更
                     </div>
                 </label>
-                <select name="level" id="level" {{{if .Task}}}disabled="disabled"{{{end}}}>
-                    <option value="1" {{{if .Task}}} {{{if eq .Task.Level 1}}}selected{{{end}}} {{{end}}}>主任务</option>
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.Level 2}}}selected{{{end}}} {{{end}}}>子任务</option>
+                <select name="level" id="level" {%if .Task%}disabled="disabled"{%end%}>
+                    <option value="1" {%if .Task%} {%if eq .Task.Level 1%}selected{%end%} {%end%}>主任务</option>
+                    <option value="2" {%if .Task%} {%if eq .Task.Level 2%}selected{%end%} {%end%}>子任务</option>
                 </select>
             </div>
         </div>
@@ -58,8 +58,8 @@
                         </div>
                     </label>
                     <select name="dependency_status" id="dependency_status">
-                        <option value="1" {{{if .Task}}} {{{if eq .Task.DependencyStatus 1}}}selected{{{end}}} {{{end}}}>强依赖</option>
-                        <option value="2" {{{if .Task}}} {{{if eq .Task.DependencyStatus 2}}}selected{{{end}}} {{{end}}}>弱依赖</option>
+                        <option value="1" {%if .Task%} {%if eq .Task.DependencyStatus 1%}selected{%end%} {%end%}>强依赖</option>
+                        <option value="2" {%if .Task%} {%if eq .Task.DependencyStatus 2%}selected{%end%} {%end%}>弱依赖</option>
                     </select>
                 </div>
                 <div class="field">
@@ -71,7 +71,7 @@
                         </div>
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="dependency_task_id" placeholder="可选" value="{{{.Task.DependencyTaskId}}}">
+                        <input type="text" name="dependency_task_id" placeholder="可选" value="{%.Task.DependencyTaskId%}">
                     </div>
                 </div>
             </div>
@@ -83,7 +83,7 @@
                         </div>
                     </label>
                     <div class="ui small input">
-                        <input type="text" name="spec" value="{{{.Task.Spec}}}" placeholder="秒 分 时 天 月 周"/>
+                        <input type="text" name="spec" value="{%.Task.Spec%}" placeholder="秒 分 时 天 月 周"/>
                     </div>
                 </div>
             </div>
@@ -92,9 +92,9 @@
             <div class="field">
                 <label>执行方式</label>
                 <select name="protocol" id="protocol">
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.Protocol 2}}}selected{{{end}}} {{{end}}}
+                    <option value="2" {%if .Task%} {%if eq .Task.Protocol 2%}selected{%end%} {%end%}
                             data-validate-type="selectProtocol">SHELL</option>
-                    <option value="1" {{{if .Task}}} {{{if eq .Task.Protocol 1}}}selected{{{end}}} {{{end}}}>HTTP</option>
+                    <option value="1" {%if .Task%} {%if eq .Task.Protocol 1%}selected{%end%} {%end%}>HTTP</option>
                 </select>
             </div>
         </div>
@@ -102,12 +102,12 @@
             <div class="field">
                 <label>选择任务节点</label>
                 <div id="hostId">
-                    {{{range $i, $v := .Hosts}}}
+                    {%range $i, $v := .Hosts%}
                         <label>
-                            <input type="checkbox" value="{{{.Id}}}" {{{if $.Task}}}{{{if $v.Selected}}} checked {{{end}}}{{{end}}}  style="width:25px;height: 25px;">{{{.Alias}}}-{{{.Name}}}
-                            {{{if  (HostFormat $i) }}}<br>{{{end}}}
+                            <input type="checkbox" value="{%.Id%}" {%if $.Task%}{%if $v.Selected%} checked {%end%}{%end%}  style="width:25px;height: 25px;">{%.Alias%}-{%.Name%}
+                            {%if  (HostFormat $i) %}<br>{%end%}
                         </label>
-                    {{{end}}}
+                    {%end%}
                  </div> &nbsp; <br> <a class="ui blue button" href="/host/create" target="_blank">添加节点</a>
 
             </div>
@@ -116,8 +116,8 @@
             <div class="field">
                 <label>请求方法</label>
             <select name="http_method">
-                    <option value="1" {{{if .Task}}} {{{if eq .Task.HttpMethod 1}}}selected{{{end}}} {{{end}}}>GET</option>
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.HttpMethod 2}}}selected{{{end}}} {{{end}}}
+                    <option value="1" {%if .Task%} {%if eq .Task.HttpMethod 1%}selected{%end%} {%end%}>GET</option>
+                    <option value="2" {%if .Task%} {%if eq .Task.HttpMethod 2%}selected{%end%} {%end%}
                             data-validate-type="selectProtocol">POST</option>
             </select>
             </div>
@@ -125,19 +125,19 @@
         <div class="two fields">
             <div class="field">
                 <label>命令</label>
-                <textarea rows="5" name="command" placeholder="请输入系统命令" id="command">{{{.Task.Command}}}</textarea>
+                <textarea rows="5" name="command" placeholder="请输入系统命令" id="command">{%.Task.Command%}</textarea>
             </div>
         </div>
         <div class="two fields">
             <div class="field">
                 <label>任务超时时间(秒, 0-86400)</label>
-                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{{{if .Task}}} {{{.Task.Timeout}}} {{{else}}}0{{{end}}}">
+                <input type="text"  name="timeout" placeholder="默认0, 不限制" value="{%if .Task%} {%.Task.Timeout%} {%else%}0{%end%}">
             </div>
             <div class="field">
                 <label>允许多实例同时运行</label>
                 <select name="multi">
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.Multi 0}}}selected{{{end}}} {{{end}}}>否</option>
-                    <option value="1"{{{if .Task}}} {{{if eq .Task.Multi 1}}}selected{{{end}}} {{{end}}}>是</option>
+                    <option value="2" {%if .Task%} {%if eq .Task.Multi 0%}selected{%end%} {%end%}>否</option>
+                    <option value="1"{%if .Task%} {%if eq .Task.Multi 1%}selected{%end%} {%end%}>是</option>
                 </select>
             </div>
         </div>
@@ -145,11 +145,11 @@
         <div class="two fields">
 <div class="field">
     <label>任务失败重试次数 (0-10)</label>
-        <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{{{if .Task}}} {{{.Task.RetryTimes}}} {{{else}}}0{{{end}}}">
+        <input type="text"  name="retry_times" placeholder="默认0, 不重试" value="{%if .Task%} {%.Task.RetryTimes%} {%else%}0{%end%}">
 </div>
 <div class="field">
     <label>任务失败重试间隔时间 (秒, 0-3600)</label>
-        <input type="text"  name="retry_interval" placeholder="默认0, 执行默认重试策略" value="{{{if .Task}}} {{{.Task.RetryInterval}}} {{{else}}}0{{{end}}}">
+        <input type="text"  name="retry_interval" placeholder="默认0, 执行默认重试策略" value="{%if .Task%} {%.Task.RetryInterval%} {%else%}0{%end%}">
 </div>
         </div>
 
@@ -157,9 +157,9 @@
             <div class="field">
                 <label>任务通知</label>
                 <select name="notify_status" id="task-status">
-                    <option value="1"{{{if .Task}}} {{{if eq .Task.NotifyStatus 0}}}selected{{{end}}} {{{end}}}>不通知</option>
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.NotifyStatus 1}}}selected{{{end}}} {{{end}}}>失败通知</option>
-                    <option value="3" {{{if .Task}}} {{{if eq .Task.NotifyStatus 2}}}selected{{{end}}} {{{end}}}>执行结束通知</option>
+                    <option value="1"{%if .Task%} {%if eq .Task.NotifyStatus 0%}selected{%end%} {%end%}>不通知</option>
+                    <option value="2" {%if .Task%} {%if eq .Task.NotifyStatus 1%}selected{%end%} {%end%}>失败通知</option>
+                    <option value="3" {%if .Task%} {%if eq .Task.NotifyStatus 2%}selected{%end%} {%end%}>执行结束通知</option>
                 </select>
             </div>
         </div>
@@ -167,9 +167,9 @@
             <div class="field" >
                 <label>通知类型</label>
                 <select name="notify_type">
-                    <option value="1"{{{if .Task}}} {{{if eq .Task.NotifyType 0}}}selected{{{end}}} {{{end}}}>请选择</option>
-                    <option value="2" {{{if .Task}}} {{{if eq .Task.NotifyType 1}}}selected{{{end}}} {{{end}}}>邮件</option>
-                    <option value="3" {{{if .Task}}} {{{if eq .Task.NotifyType 2}}}selected{{{end}}} {{{end}}}>Slack</option>
+                    <option value="1"{%if .Task%} {%if eq .Task.NotifyType 0%}selected{%end%} {%end%}>请选择</option>
+                    <option value="2" {%if .Task%} {%if eq .Task.NotifyType 1%}selected{%end%} {%end%}>邮件</option>
+                    <option value="3" {%if .Task%} {%if eq .Task.NotifyType 2%}selected{%end%} {%end%}>Slack</option>
                 </select>
             </div>
         </div>
@@ -177,7 +177,7 @@
         <div class="two fields">
             <div class="field">
                 <label>备注</label>
-                <textarea rows="5" name="remark" placeholder="任务备注信息">{{{.Task.Remark}}}</textarea>
+                <textarea rows="5" name="remark" placeholder="任务备注信息">{%.Task.Remark%}</textarea>
             </div>
         </div>
         <div class="ui primary submit button">保存</div>   <a class="ui button" onclick="location.href='/task';">取消</a>
@@ -256,11 +256,11 @@
     }
 
     function showNotify() {
-        var notifyStatus = {{{.Task.NotifyStatus}}};
+        var notifyStatus = {%.Task.NotifyStatus%};
         if (notifyStatus > 0) {
             $('#task-notify-type').show();
         }
-        var notifyReceiverIds = '{{{.Task.NotifyReceiverId}}}'.split(',');
+        var notifyReceiverIds = '{%.Task.NotifyReceiverId%}'.split(',');
         changeNotify(notifyReceiverIds);
     }
 
@@ -465,4 +465,4 @@
             });
 </script>
 
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

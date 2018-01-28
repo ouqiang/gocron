@@ -1,7 +1,7 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 
 <div class="ui grid">
-   {{{ template "user/menu" . }}}
+   {% template "user/menu" . %}
 
     <div class="twelve wide column">
         <div class="pageHeader">
@@ -28,30 +28,30 @@
             </tr>
             </thead>
             <tbody>
-            {{{range $i, $v := .Users}}}
+            {%range $i, $v := .Users%}
             <tr>
-                <td>{{{.Id}}}</td>
-                <td>{{{.Name}}}</td>
-                <td>{{{.Email}}}</td>
-                <td>{{{if .IsAdmin}}}管理员{{{else}}}普通用户{{{end}}}</td>
-                <td>{{{if .Status}}}启用{{{else}}}禁用{{{end}}}</td>
+                <td>{%.Id%}</td>
+                <td>{%.Name%}</td>
+                <td>{%.Email%}</td>
+                <td>{%if .IsAdmin%}管理员{%else%}普通用户{%end%}</td>
+                <td>{%if .Status%}启用{%else%}禁用{%end%}</td>
                 <td class="operation">
-        <a class="ui purple button"  href="/user/edit/{{{.Id}}}">编辑</a>
-                {{{if eq .Status 1}}}
-                <button class="ui button red" onclick="changeStatus({{{.Id}}},{{{.Status}}})">禁用</button>&nbsp;&nbsp;
-                {{{else}}}
-                <button class="ui button twitter" onclick="changeStatus({{{.Id}}},{{{.Status}}})">启用</button>&nbsp;&nbsp;
-                {{{end}}}
-                    <a href="/user/editPassword/{{{.Id}}}">
+        <a class="ui purple button"  href="/user/edit/{%.Id%}">编辑</a>
+                {%if eq .Status 1%}
+                <button class="ui button red" onclick="changeStatus({%.Id%},{%.Status%})">禁用</button>&nbsp;&nbsp;
+                {%else%}
+                <button class="ui button twitter" onclick="changeStatus({%.Id%},{%.Status%})">启用</button>&nbsp;&nbsp;
+                {%end%}
+                    <a href="/user/editPassword/{%.Id%}">
                         <button class="ui button facebook">修改密码</button>
                     </a>
-                    <button class="ui positive button" onclick="util.removeConfirm('/user/remove/{{{.Id}}}')">删除</button>
+                    <button class="ui positive button" onclick="util.removeConfirm('/user/remove/{%.Id%}')">删除</button>
                 </td>
             </tr>
-            {{{end}}}
+            {%end%}
             </tbody>
         </table>
-        {{{ template "common/pagination" .}}}
+        {% template "common/pagination" .%}
     </div>
 </div>
 
@@ -70,4 +70,4 @@
     }
 </script>
 
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

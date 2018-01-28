@@ -1,7 +1,7 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 
 <div class="ui grid">
-  {{{ template "manage/menu" . }}}
+  {% template "manage/menu" . %}
 
   <div class="twelve wide column">
     <div class="pageHeader">
@@ -22,18 +22,18 @@
       </tr>
       </thead>
       <tbody>
-      {{{range $i, $v := .LoginLogs}}}
+      {%range $i, $v := .LoginLogs%}
       <tr>
-        <td>{{{.Username}}}</td>
-        <td>{{{.Ip}}}</td>
-        <td>{{{.Created}}}</td>
+        <td>{%.Username%}</td>
+        <td>{%.Ip%}</td>
+        <td>{%.Created%}</td>
       </tr>
-      {{{end}}}
+      {%end%}
       </tbody>
     </table>
-    {{{ template "common/pagination" .}}}
+    {% template "common/pagination" .%}
   </div>
 </div>
 
 
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

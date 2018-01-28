@@ -1,4 +1,4 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
 <style type="text/css">
     pre {
         white-space: pre-wrap;
@@ -10,10 +10,10 @@
 </style>
 <div class="ui grid">
     <!--the vertical menu-->
-   {{{ template "task/menu" . }}}
+   {% template "task/menu" . %}
 
     <div class="twelve wide column">
-        {{{if .IsAdmin}}}
+        {%if .IsAdmin%}
         <div class="pageHeader">
             <div class="segment">
                 <h3 class="ui dividing header">
@@ -23,26 +23,26 @@
                 </h3>
             </div>
         </div>
-        {{{end}}}
+        {%end%}
         <form class="ui form">
             <div class="six fields search">
                 <div class="field">
-                    <input type="text" placeholder="任务ID" name="task_id" value="{{{if gt .Params.TaskId 0}}}{{{.Params.TaskId}}}{{{end}}}">
+                    <input type="text" placeholder="任务ID" name="task_id" value="{%if gt .Params.TaskId 0%}{%.Params.TaskId%}{%end%}">
                 </div>
                 <div class="field">
                     <select name="protocol" id="protocol">
                         <option value="0">执行方式</option>
-                        <option value="2"  {{{if eq .Params.Protocol 2}}}selected{{{end}}} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
-                        <option value="1"  {{{if eq .Params.Protocol 1}}}selected{{{end}}}>HTTP</option>
+                        <option value="2"  {%if eq .Params.Protocol 2%}selected{%end%} data-match="host_id" data-validate-type="selectProtocol">SHELL</option>
+                        <option value="1"  {%if eq .Params.Protocol 1%}selected{%end%}>HTTP</option>
                     </select>
                 </div>
                 <div class="field">
                     <select name="status">
                         <option value="0">状态</option>
-                        <option value="1" {{{if eq .Params.Status 0}}}selected{{{end}}} >失败</option>
-                        <option value="2" {{{if eq .Params.Status 1}}}selected{{{end}}}>执行中</option>
-                        <option value="3" {{{if eq .Params.Status 2}}}selected{{{end}}}>成功</option>
-                        <option value="4" {{{if eq .Params.Status 3}}}selected{{{end}}}>取消</option>
+                        <option value="1" {%if eq .Params.Status 0%}selected{%end%} >失败</option>
+                        <option value="2" {%if eq .Params.Status 1%}selected{%end%}>执行中</option>
+                        <option value="3" {%if eq .Params.Status 2%}selected{%end%}>成功</option>
+                        <option value="4" {%if eq .Params.Status 3%}selected{%end%}>取消</option>
                     </select>
                 </div>
                 <div class="field">
@@ -65,54 +65,54 @@
             </tr>
             </thead>
             <tbody>
-            {{{range $i, $v := .Logs}}}
+            {%range $i, $v := .Logs%}
             <tr>
-                <td><a href="/task?id={{{.TaskId}}}">{{{.TaskId}}}</a></td>
-                <td>{{{.Name}}}</td>
-                <td>{{{.Spec}}}</td>
-                <td>{{{if eq .Protocol 1}}} HTTP {{{else if eq .Protocol 2}}} SHELL {{{end}}}</td>
-                <td>{{{.RetryTimes}}}</td>
-                <td>{{{unescape .Hostname}}}</td>
+                <td><a href="/task?id={%.TaskId%}">{%.TaskId%}</a></td>
+                <td>{%.Name%}</td>
+                <td>{%.Spec%}</td>
+                <td>{%if eq .Protocol 1%} HTTP {%else if eq .Protocol 2%} SHELL {%end%}</td>
+                <td>{%.RetryTimes%}</td>
+                <td>{%unescape .Hostname%}</td>
                 <td>
-                    {{{if and (ne .Status 3) (ne .Status 4)}}}
-                    {{{if gt .TotalTime 0}}}{{{.TotalTime}}}秒{{{else}}}1秒{{{end}}}<br>
-                    开始时间: {{{.StartTime.Format "2006-01-02 15:04:05" }}}<br>
-                    {{{if ne .Status 1}}}
-                        结束时间: {{{.EndTime.Format "2006-01-02 15:04:05" }}}
-                    {{{end}}}
-                    {{{end}}}
+                    {%if and (ne .Status 3) (ne .Status 4)%}
+                    {%if gt .TotalTime 0%}{%.TotalTime%}秒{%else%}1秒{%end%}<br>
+                    开始时间: {%.StartTime.Format "2006-01-02 15:04:05" %}<br>
+                    {%if ne .Status 1%}
+                        结束时间: {%.EndTime.Format "2006-01-02 15:04:05" %}
+                    {%end%}
+                    {%end%}
                 </td>
                 <td>
-                    {{{if eq .Status 2}}}
+                    {%if eq .Status 2%}
                         成功
-                    {{{else if eq .Status 1}}}
+                    {%else if eq .Status 1%}
                         <span style="color:green">执行中</span>
-                    {{{else if eq .Status 0}}}
+                    {%else if eq .Status 0%}
                         <span style="color:red">失败</span>
-                    {{{else if eq .Status 3}}}
+                    {%else if eq .Status 3%}
                         <span style="color:#4499EE">取消</span>
-                    {{{end}}}
+                    {%end%}
                 </td>
                 <td>
-                    {{{if or (eq .Status 2) (eq .Status 0)}}}
+                    {%if or (eq .Status 2) (eq .Status 0)%}
                         <button class="ui small primary button"
-                                onclick="showResult('{{{.Name}}}', '{{{.Command}}}', '{{{.Result}}}')"
+                                onclick="showResult('{%.Name%}', '{%.Command%}', '{%.Result%}')"
                                 >查看结果
                         </button>
-                    {{{end}}}
+                    {%end%}
 
 
-                    {{{if $.IsAdmin}}}
-                        {{{if and (eq .Status 1)  (eq .Protocol 2) }}}
-            <button class="ui small blue button" onclick="stopTask({{{.Id}}}, {{{.TaskId}}})">停止任务</button>
-                        {{{end}}}
-                    {{{end}}}
+                    {%if $.IsAdmin%}
+                        {%if and (eq .Status 1)  (eq .Protocol 2) %}
+            <button class="ui small blue button" onclick="stopTask({%.Id%}, {%.TaskId%})">停止任务</button>
+                        {%end%}
+                    {%end%}
                 </td>
             </tr>
-            {{{end}}}
+            {%end%}
             </tbody>
         </table>
-        {{{ template "common/pagination" .}}}
+        {% template "common/pagination" .%}
     </div>
 </div>
 
@@ -171,4 +171,4 @@
       });
   }
 </script>
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}

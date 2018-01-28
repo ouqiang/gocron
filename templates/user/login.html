@@ -1,4 +1,4 @@
-{{{ template "common/header" . }}}
+{% template "common/header" . %}
     <div class="ui small modal">
         <div class="header">用户登录</div>
         <div class="content">
@@ -15,7 +15,7 @@
                 </div>
                 <div class="two fields">
                     <div class="field">
-                        {{{.Captcha.CreateHtml}}}
+                        {%.Captcha.CreateHtml%}
                         <input type="text" name="captcha" placeholder="验证码">
                     </div>
                 </div>
@@ -71,4 +71,4 @@
                 inline : true
             });
 </script>
-{{{ template "common/footer" . }}}
+{% template "common/footer" . %}
