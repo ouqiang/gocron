@@ -121,6 +121,7 @@ func writeConfig(form InstallForm) error {
 		"api.key", "",
 		"api.secret", "",
 		"enable_tls", "false",
+		"concurrency.queue", "1000",
 		"ca_file", "",
 		"cert_file", "",
 		"key_file", "",
