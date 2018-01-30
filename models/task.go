@@ -120,9 +120,11 @@ func (task *Task) Enable(id int) (int64, error) {
 }
 
 // 获取所有激活任务
-func (task *Task) ActiveList() ([]Task, error) {
+func (task *Task) ActiveList(page, pageSize int) ([]Task, error) {
+	params := CommonMap{"Page": page, "PageSize": pageSize}
+	task.parsePageAndPageSize(params)
 	list := make([]Task, 0)
-	err := Db.Where("status = ? AND level = ?", Enabled, TaskLevelParent).
+	err := Db.Where("status = ? AND level = ?", Enabled, TaskLevelParent).Limit(task.PageSize, task.pageLimitOffset()).
 		Find(&list)
 
 	if err != nil {

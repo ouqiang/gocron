@@ -299,7 +299,7 @@ func addTaskToTimer(id int) {
 		return
 	}
 
-	service.ServiceTask.Add(task)
+	service.ServiceTask.RemoveAndAdd(task)
 }
 
 // 解析查询参数

@@ -95,24 +95,40 @@ type TaskResult struct {
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task Task) Initialize() {
+	logger.Info("开始初始化定时任务")
 	taskModel := new(models.Task)
-	taskList, err := taskModel.ActiveList()
-	if err != nil {
-		logger.Error("定时任务初始化#获取任务列表错误-", err.Error())
-		return
+	taskNum := 0
+	page := 1
+	pageSize := 1000
+	maxPage := 1000
+	for page < maxPage {
+		taskList, err := taskModel.ActiveList(page, pageSize)
+		if err != nil {
+			logger.Fatalf("定时任务初始化#获取任务列表错误-", err.Error())
+		}
+		if len(taskList) == 0 {
+			break
+		}
+		for _, item := range taskList {
+			task.Add(item)
+			taskNum++
+		}
+		page++
 	}
-	if len(taskList) == 0 {
-		logger.Debug("任务列表为空")
-		return
-	}
-	task.BatchAdd(taskList)
+	logger.Infof("定时任务初始化完成, 共%d个定时任务添加到调度器", taskNum)
 }
 
 // 批量添加任务
 func (task Task) BatchAdd(tasks []models.Task) {
 	for _, item := range tasks {
-		task.Add(item)
+		task.RemoveAndAdd(item)
 	}
+}
+
+// 删除任务后添加
+func (task Task) RemoveAndAdd(taskModel models.Task) {
+	task.Remove(taskModel.Id)
+	task.Add(taskModel)
 }
 
 // 添加任务
@@ -128,8 +144,6 @@ func (task Task) Add(taskModel models.Task) {
 	}
 
 	cronName := strconv.Itoa(taskModel.Id)
-	// Cron任务采用数组存储, 删除任务需遍历数组, 并对数组重新赋值, 任务较多时，有性能问题
-	serviceCron.RemoveJob(cronName)
 	err := serviceCron.AddFunc(taskModel.Spec, taskFunc, cronName)
 	if err != nil {
 		logger.Error("添加任务到调度器失败#", err)
