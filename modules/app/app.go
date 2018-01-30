@@ -3,13 +3,14 @@ package app
 import (
 	"os"
 
-	"github.com/ouqiang/gocron/modules/logger"
-	"github.com/ouqiang/gocron/modules/setting"
-	"github.com/ouqiang/gocron/modules/utils"
+	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
-	"fmt"
+
+	"github.com/ouqiang/gocron/modules/logger"
+	"github.com/ouqiang/gocron/modules/setting"
+	"github.com/ouqiang/gocron/modules/utils"
 )
 
 var (

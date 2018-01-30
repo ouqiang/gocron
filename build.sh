@@ -63,9 +63,9 @@ fi
 
 echo '开始编译调度器'
 if [[ $OS = 'windows' ]];then
-    GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w'
+    CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w'
 else
-    GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w'
+    CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH go build -tags gocron -ldflags '-w'
 fi
 
 if [[ $? != 0 ]];then

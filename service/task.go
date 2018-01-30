@@ -3,6 +3,12 @@ package service
 import (
 	"errors"
 	"fmt"
+	"net/http"
+	"strconv"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/jakecoffman/cron"
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/httpclient"
@@ -10,11 +16,6 @@ import (
 	"github.com/ouqiang/gocron/modules/notify"
 	rpcClient "github.com/ouqiang/gocron/modules/rpc/client"
 	pb "github.com/ouqiang/gocron/modules/rpc/proto"
-	"strconv"
-	"strings"
-	"sync"
-	"time"
-	"net/http"
 )
 
 var (
@@ -23,7 +24,7 @@ var (
 
 var (
 	// 定时任务调度管理器
-  	serviceCron *cron.Cron
+	serviceCron *cron.Cron
 
 	// 同一任务是否有实例处于运行中
 	runInstance Instance
@@ -32,7 +33,7 @@ var (
 	taskCount TaskCount
 )
 
-func init()  {
+func init() {
 	serviceCron = cron.New()
 	serviceCron.Start()
 	taskCount = TaskCount{sync.WaitGroup{}, make(chan bool)}
@@ -41,24 +42,24 @@ func init()  {
 
 // 任务计数
 type TaskCount struct {
-	wg sync.WaitGroup
+	wg   sync.WaitGroup
 	exit chan bool
 }
 
-func (tc *TaskCount) Add()  {
+func (tc *TaskCount) Add() {
 	tc.wg.Add(1)
 }
 
-func (tc *TaskCount) Done()  {
+func (tc *TaskCount) Done() {
 	tc.wg.Done()
 }
 
-func (tc *TaskCount) Exit()  {
+func (tc *TaskCount) Exit() {
 	tc.wg.Done()
 	<-tc.exit
 }
 
-func (tc *TaskCount) Wait()  {
+func (tc *TaskCount) Wait() {
 	tc.Add()
 	tc.wg.Wait()
 	close(tc.exit)
@@ -91,7 +92,6 @@ type TaskResult struct {
 	Err        error
 	RetryTimes int8
 }
-
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task Task) Initialize() {
@@ -137,11 +137,11 @@ func (task Task) Add(taskModel models.Task) {
 }
 
 // 停止运行中的任务
-func (task Task) Stop(ip string, port int, id int64)  {
+func (task Task) Stop(ip string, port int, id int64) {
 	rpcClient.Stop(ip, port, id)
 }
 
-func (task Task) Remove(id int)  {
+func (task Task) Remove(id int) {
 	serviceCron.RemoveJob(strconv.Itoa(id))
 }
 
@@ -171,13 +171,13 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 		taskModel.Timeout = HttpExecTimeout
 	}
 	var resp httpclient.ResponseWrapper
-	if (taskModel.HttpMethod == models.TaskHTTPMethodGet) {
+	if taskModel.HttpMethod == models.TaskHTTPMethodGet {
 		resp = httpclient.Get(taskModel.Command, taskModel.Timeout)
 	} else {
 		urlFields := strings.Split(taskModel.Command, "?")
 		taskModel.Command = urlFields[0]
 		var params string
-		if (len(urlFields) >= 2) {
+		if len(urlFields) >= 2 {
 			params = urlFields[1]
 		}
 		resp = httpclient.PostParams(taskModel.Command, params, taskModel.Timeout)

@@ -5,8 +5,9 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"google.golang.org/grpc/credentials"
 	"io/ioutil"
+
+	"google.golang.org/grpc/credentials"
 )
 
 type Certificate struct {

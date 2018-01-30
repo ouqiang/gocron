@@ -2,10 +2,11 @@ package logger
 
 import (
 	"fmt"
-	"github.com/cihub/seelog"
-	"gopkg.in/macaron.v1"
 	"os"
 	"runtime"
+
+	"github.com/cihub/seelog"
+	"gopkg.in/macaron.v1"
 )
 
 // 日志库

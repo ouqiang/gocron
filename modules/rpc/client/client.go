@@ -3,14 +3,15 @@ package client
 import (
 	"errors"
 	"fmt"
+	"sync"
+	"time"
+
 	"github.com/ouqiang/gocron/modules/logger"
 	"github.com/ouqiang/gocron/modules/rpc/grpcpool"
 	pb "github.com/ouqiang/gocron/modules/rpc/proto"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"time"
-	"sync"
 )
 
 var (
@@ -25,7 +26,7 @@ func generateTaskUniqueKey(ip string, port int, id int64) string {
 	return fmt.Sprintf("%s:%d:%d", ip, port, id)
 }
 
-func Stop(ip string, port int , id int64)   {
+func Stop(ip string, port int, id int64) {
 	key := generateTaskUniqueKey(ip, port, id)
 	cancel, ok := taskMap.Load(key)
 	if !ok {

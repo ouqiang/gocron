@@ -4,13 +4,14 @@ package notify
 
 import (
 	"fmt"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/httpclient"
 	"github.com/ouqiang/gocron/modules/logger"
 	"github.com/ouqiang/gocron/modules/utils"
-	"strconv"
-	"strings"
-	"time"
 )
 
 type Slack struct{}

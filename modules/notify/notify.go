@@ -2,8 +2,9 @@ package notify
 
 import (
 	"fmt"
-	"github.com/ouqiang/gocron/modules/logger"
 	"time"
+
+	"github.com/ouqiang/gocron/modules/logger"
 )
 
 type Message map[string]interface{}

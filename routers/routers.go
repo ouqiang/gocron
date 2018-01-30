@@ -1,6 +1,12 @@
 package routers
 
 import (
+	"html/template"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/cache"
 	"github.com/go-macaron/captcha"
@@ -18,11 +24,6 @@ import (
 	"github.com/ouqiang/gocron/routers/tasklog"
 	"github.com/ouqiang/gocron/routers/user"
 	"gopkg.in/macaron.v1"
-	"html/template"
-	"strconv"
-	"strings"
-	"time"
-	"net/http"
 )
 
 // 静态文件目录
@@ -220,13 +221,13 @@ func userAuth(ctx *macaron.Context, sess session.Store) {
 }
 
 // URL权限验证
-func urlAuth(ctx *macaron.Context, sess session.Store)  {
+func urlAuth(ctx *macaron.Context, sess session.Store) {
 	if user.IsAdmin(sess) {
 		return
 	}
 	uri := strings.TrimSpace(ctx.Req.URL.Path)
 	uri = strings.TrimRight(uri, "/")
-	if (strings.HasPrefix(uri, "/api")) {
+	if strings.HasPrefix(uri, "/api") {
 		return
 	}
 	// 普通用户允许访问的URL地址

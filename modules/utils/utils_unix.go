@@ -4,9 +4,10 @@ package utils
 
 import (
 	"errors"
-	"golang.org/x/net/context"
 	"os/exec"
 	"syscall"
+
+	"golang.org/x/net/context"
 )
 
 type Result struct {

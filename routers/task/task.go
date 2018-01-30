@@ -2,6 +2,10 @@ package task
 
 import (
 	"fmt"
+	"html/template"
+	"strconv"
+	"strings"
+
 	"github.com/Unknwon/paginater"
 	"github.com/go-macaron/binding"
 	"github.com/jakecoffman/cron"
@@ -11,9 +15,6 @@ import (
 	"github.com/ouqiang/gocron/routers/base"
 	"github.com/ouqiang/gocron/service"
 	"gopkg.in/macaron.v1"
-	"html/template"
-	"strconv"
-	"strings"
 )
 
 type TaskForm struct {
@@ -23,11 +24,11 @@ type TaskForm struct {
 	DependencyTaskId string
 	Name             string `binding:"Required;MaxSize(32)"`
 	Spec             string
-	Protocol         models.TaskProtocol `binding:"In(1,2)"`
-	Command          string              `binding:"Required;MaxSize(256)"`
-	HttpMethod       models.TaskHTTPMethod  `binding:"In(1,2)"`
-	Timeout          int                 `binding:"Range(0,86400)"`
-	Multi            int8                `binding:"In(1,2)"`
+	Protocol         models.TaskProtocol   `binding:"In(1,2)"`
+	Command          string                `binding:"Required;MaxSize(256)"`
+	HttpMethod       models.TaskHTTPMethod `binding:"In(1,2)"`
+	Timeout          int                   `binding:"Range(0,86400)"`
+	Multi            int8                  `binding:"In(1,2)"`
 	RetryTimes       int8
 	RetryInterval    int16
 	HostId           string

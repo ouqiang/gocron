@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/ouqiang/gocron/modules/utils"
 	"time"
+
+	"github.com/ouqiang/gocron/modules/utils"
 )
 
 const PasswordSaltLength = 6
@@ -78,7 +79,7 @@ func (user *User) Match(username, password string) bool {
 }
 
 // 获取用户详情
-func (user *User) Find(id int) (error) {
+func (user *User) Find(id int) error {
 	_, err := Db.Id(id).Get(user)
 
 	return err

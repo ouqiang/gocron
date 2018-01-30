@@ -2,6 +2,9 @@ package models
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
@@ -9,8 +12,6 @@ import (
 	"github.com/ouqiang/gocron/modules/logger"
 	"github.com/ouqiang/gocron/modules/setting"
 	"gopkg.in/macaron.v1"
-	"strings"
-	"time"
 )
 
 type Status int8

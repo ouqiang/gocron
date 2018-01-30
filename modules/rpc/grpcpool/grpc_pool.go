@@ -2,13 +2,14 @@ package grpcpool
 
 import (
 	"errors"
+	"strings"
+	"sync"
+	"time"
+
 	"github.com/ouqiang/gocron/modules/app"
 	"github.com/ouqiang/gocron/modules/rpc/auth"
 	"github.com/silenceper/pool"
 	"google.golang.org/grpc"
-	"strings"
-	"sync"
-	"time"
 )
 
 var (

@@ -2,12 +2,13 @@ package loginlog
 
 import (
 	"fmt"
+	"html/template"
+
 	"github.com/Unknwon/paginater"
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/logger"
 	"github.com/ouqiang/gocron/routers/base"
 	"gopkg.in/macaron.v1"
-	"html/template"
 )
 
 func Index(ctx *macaron.Context) {

@@ -70,9 +70,9 @@ fi
 
 echo '开始编译任务节点'
 if [[ $OS = 'windows' ]];then
-    GOOS=$OS GOARCH=$ARCH go build -tags node -ldflags '-w' -o $EXEC_NAME
+    CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH go build -tags node -ldflags '-w' -o $EXEC_NAME
 else
-    GOOS=$OS GOARCH=$ARCH go build -tags node -ldflags '-w' -o $EXEC_NAME
+    CGO_ENABLED=0 GOOS=$OS GOARCH=$ARCH go build -tags node -ldflags '-w' -o $EXEC_NAME
 fi
 
 if [[ $? != 0 ]];then

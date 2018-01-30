@@ -4,14 +4,15 @@ package tasklog
 
 import (
 	"fmt"
+	"html/template"
+
 	"github.com/Unknwon/paginater"
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/logger"
 	"github.com/ouqiang/gocron/modules/utils"
 	"github.com/ouqiang/gocron/routers/base"
-	"gopkg.in/macaron.v1"
-	"html/template"
 	"github.com/ouqiang/gocron/service"
+	"gopkg.in/macaron.v1"
 )
 
 func Index(ctx *macaron.Context) {
@@ -50,14 +51,14 @@ func Clear(ctx *macaron.Context) string {
 }
 
 // 停止运行中的任务
-func Stop(ctx *macaron.Context) string  {
+func Stop(ctx *macaron.Context) string {
 	id := ctx.QueryInt64("id")
 	taskId := ctx.QueryInt("task_id")
 	taskModel := new(models.Task)
 	task, err := taskModel.Detail(taskId)
 	json := utils.JsonResponse{}
 	if err != nil {
-		return json.CommonFailure("获取任务信息失败#" + err.Error(), err)
+		return json.CommonFailure("获取任务信息失败#"+err.Error(), err)
 	}
 	if task.Protocol != models.TaskRPC {
 		return json.CommonFailure("仅支持SHELL任务手动停止")
@@ -70,7 +71,7 @@ func Stop(ctx *macaron.Context) string  {
 
 	}
 
-	return json.Success("已执行停止操作, 请等待任务退出", nil);
+	return json.Success("已执行停止操作, 请等待任务退出", nil)
 }
 
 // 删除N个月前的日志

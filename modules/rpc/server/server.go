@@ -1,6 +1,8 @@
 package server
 
 import (
+	"net"
+
 	"github.com/ouqiang/gocron/modules/rpc/auth"
 	pb "github.com/ouqiang/gocron/modules/rpc/proto"
 	"github.com/ouqiang/gocron/modules/utils"
@@ -8,7 +10,6 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/grpclog"
-	"net"
 )
 
 type Server struct{}

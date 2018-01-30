@@ -3,11 +3,12 @@ package utils
 import (
 	"crypto/md5"
 	"encoding/hex"
-	"github.com/Tang-RoseChild/mahonia"
 	"math/rand"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/Tang-RoseChild/mahonia"
 )
 
 // 生成长度为length的随机字符串

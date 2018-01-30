@@ -2,6 +2,8 @@ package install
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/app"
@@ -9,7 +11,6 @@ import (
 	"github.com/ouqiang/gocron/modules/utils"
 	"github.com/ouqiang/gocron/service"
 	"gopkg.in/macaron.v1"
-	"strconv"
 )
 
 // 系统安装

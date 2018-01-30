@@ -3,9 +3,10 @@ package models
 import (
 	"errors"
 	"fmt"
+	"strconv"
+
 	"github.com/go-xorm/xorm"
 	"github.com/ouqiang/gocron/modules/logger"
-	"strconv"
 )
 
 type Migration struct{}
@@ -172,7 +173,7 @@ func (migration *Migration) upgradeFor130(session *xorm.Session) error {
 }
 
 // 升级到v1.4版本
-func (migration *Migration) upgradeFor140(session *xorm.Session) error  {
+func (migration *Migration) upgradeFor140(session *xorm.Session) error {
 	logger.Info("开始升级到v1.4")
 
 	tableName := TablePrefix + "task"
@@ -180,14 +181,12 @@ func (migration *Migration) upgradeFor140(session *xorm.Session) error  {
 	// retry_interval 重试间隔时间(秒)
 	// http_method    http请求方法
 	sql := fmt.Sprintf(
-	"ALTER TABLE %s ADD COLUMN retry_interval SMALLINT NOT NULL DEFAULT 0,ADD COLUMN http_method TINYINT NOT NULL DEFAULT 1", tableName)
+		"ALTER TABLE %s ADD COLUMN retry_interval SMALLINT NOT NULL DEFAULT 0,ADD COLUMN http_method TINYINT NOT NULL DEFAULT 1", tableName)
 	_, err := session.Exec(sql)
 
 	if err != nil {
 		return err
 	}
-
-
 
 	logger.Info("已升级到v1.4\n")
 

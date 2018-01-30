@@ -2,6 +2,10 @@ package host
 
 import (
 	"fmt"
+	"html/template"
+	"strconv"
+	"strings"
+
 	"github.com/Unknwon/paginater"
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/models"
@@ -13,9 +17,6 @@ import (
 	"github.com/ouqiang/gocron/routers/base"
 	"github.com/ouqiang/gocron/service"
 	"gopkg.in/macaron.v1"
-	"html/template"
-	"strconv"
-	"strings"
 )
 
 // Index 主机列表

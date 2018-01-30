@@ -1,6 +1,11 @@
 package user
 
 import (
+	"fmt"
+	"html/template"
+	"strings"
+
+	"github.com/Unknwon/paginater"
 	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/session"
 	"github.com/ouqiang/gocron/models"
@@ -8,10 +13,6 @@ import (
 	"github.com/ouqiang/gocron/modules/utils"
 	"github.com/ouqiang/gocron/routers/base"
 	"gopkg.in/macaron.v1"
-	"github.com/Unknwon/paginater"
-	"html/template"
-	"fmt"
-	"strings"
 )
 
 // @author qiang.ou<qingqianludao@gmail.com>
@@ -19,17 +20,17 @@ import (
 
 // UserForm 用户表单
 type UserForm struct {
-	Id int
-	Name      string    `binding:"Required;MaxSize(32)"`     // 用户名
-	Password  string         // 密码
-	ConfirmPassword string   // 确认密码
-	Email     string    `binding:"Required;MaxSize(50)"`     // 邮箱
-	IsAdmin   int8      // 是否是管理员 1:管理员 0:普通用户
-	Status    models.Status
+	Id              int
+	Name            string `binding:"Required;MaxSize(32)"` // 用户名
+	Password        string // 密码
+	ConfirmPassword string // 确认密码
+	Email           string `binding:"Required;MaxSize(50)"` // 邮箱
+	IsAdmin         int8   // 是否是管理员 1:管理员 0:普通用户
+	Status          models.Status
 }
 
 // Index 用户列表页
-func Index(ctx *macaron.Context)  {
+func Index(ctx *macaron.Context) {
 	queryParams := parseQueryParams(ctx)
 	userModel := new(models.User)
 	users, err := userModel.List(queryParams)
@@ -59,7 +60,7 @@ func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 }
 
 // Create 新增用户页
-func Create(ctx *macaron.Context)  {
+func Create(ctx *macaron.Context) {
 	userModel := new(models.User)
 	userModel.Status = models.Enabled
 	userModel.IsAdmin = 0
@@ -129,16 +130,15 @@ func Store(ctx *macaron.Context, form UserForm) string {
 		}
 	} else {
 		_, err = userModel.Update(form.Id, models.CommonMap{
-			"name": form.Name,
-			"email": form.Email,
-			"status": form.Status,
+			"name":     form.Name,
+			"email":    form.Email,
+			"status":   form.Status,
 			"is_admin": form.IsAdmin,
 		})
 		if err != nil {
 			return json.CommonFailure("修改失败", err)
 		}
 	}
-
 
 	return json.Success("保存成功", nil)
 }

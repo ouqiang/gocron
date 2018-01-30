@@ -1,6 +1,10 @@
 package cmd
 
 import (
+	"os"
+	"os/signal"
+	"syscall"
+
 	"github.com/ouqiang/gocron/models"
 	"github.com/ouqiang/gocron/modules/app"
 	"github.com/ouqiang/gocron/modules/logger"
@@ -9,9 +13,6 @@ import (
 	"github.com/ouqiang/gocron/service"
 	"github.com/urfave/cli"
 	"gopkg.in/macaron.v1"
-	"os"
-	"os/signal"
-	"syscall"
 )
 
 // web服务器默认端口

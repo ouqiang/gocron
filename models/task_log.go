@@ -1,8 +1,9 @@
 package models
 
 import (
-	"github.com/go-xorm/xorm"
 	"time"
+
+	"github.com/go-xorm/xorm"
 )
 
 type TaskType int8
