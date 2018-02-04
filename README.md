@@ -25,9 +25,9 @@
 * 任务执行结果通知, 支持邮件、Slack
 
 ### 截图
-![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/scheduler.png)
-![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot_task.png)
-![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot_slack.png)
+![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/scheduler.png)
+![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/task.png)
+![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/notification.png)
     
 ### 支持平台
 > Windows、Linux、Mac OS
@@ -56,12 +56,12 @@
 4. 浏览器访问 http://localhost:5920
 
 ### 源码安装
-1. `go`语言版本1.7+
+1. `go`语言版本1.9+
 2. `go get -d github.com/ouqiang/gocron`
-3. 编译 
-    * 调度器 `go build -tags gocron -o gocron`
-    * 任务节点 `go build -tags node -o gocron-node`
-4. 启动、访问方式同上
+3. 编译 `make`
+4. 启动
+    * gocron `./bin/gocron web`
+    * gocron-node `./bin/gocron-node`
 
 ### 命令
 
@@ -96,13 +96,20 @@
 * 定时任务调度 [Cron](https://github.com/robfig/cron)
 * ORM [Xorm](https://github.com/go-xorm/xorm)
 * UI框架 [Semantic UI](https://semantic-ui.com/)
-* 依赖管理(所有依赖包放入vendor目录) [Govendor](https://github.com/kardianos/govendor)
+* 依赖管理 [Govendor](https://github.com/kardianos/govendor)
 * RPC框架 [gRPC](https://github.com/grpc/grpc)
 
 ## 反馈
 提交[issue](https://github.com/ouqiang/gocron/issues/new)
 
 ## ChangeLog
+
+v1.4
+--------
+* HTTP任务支持POST请求
+* 后台手动停止运行中的shell任务
+* 任务执行失败重试间隔时间支持用户自定义
+* 修复API接口调用报403错误
 
 v1.3
 --------
@@ -117,8 +124,6 @@ v1.2.2
 * 任务批量开启、关闭、删除
 * 调度器与任务节点支持HTTPS双向认证
 * 修复任务列表页总记录数显示错误
-
-
 
 v1.1
 --------
