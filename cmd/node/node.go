@@ -1,20 +1,20 @@
-// +build node
-// 任务节点
+// main gocron-node
 
 package main
 
 import (
 	"flag"
 	"fmt"
-	"github.com/ouqiang/gocron/modules/rpc/auth"
-	"github.com/ouqiang/gocron/modules/rpc/server"
-	"github.com/ouqiang/gocron/modules/utils"
 	"os"
 	"runtime"
 	"strings"
+
+	"github.com/ouqiang/gocron/modules/rpc/auth"
+	"github.com/ouqiang/gocron/modules/rpc/server"
+	"github.com/ouqiang/gocron/modules/utils"
 )
 
-const AppVersion = "1.3"
+var AppVersion = "1.4"
 
 func main() {
 	var serverAddr string

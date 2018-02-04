@@ -1,4 +1,6 @@
-package cmd
+// main gocron
+
+package main
 
 import (
 	"os"
@@ -15,30 +17,47 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+var AppVersion = "1.4"
+
 // web服务器默认端口
 const DefaultPort = 5920
 
-var CmdWeb = cli.Command{
-	Name:   "web",
-	Usage:  "run web server",
-	Action: runWeb,
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name:  "host",
-			Value: "0.0.0.0",
-			Usage: "bind host",
+func main() {
+	cliApp := cli.NewApp()
+	cliApp.Name = "gocron"
+	cliApp.Usage = "gocron service"
+	cliApp.Version = AppVersion
+	cliApp.Commands = getCommands()
+	cliApp.Flags = append(cliApp.Flags, []cli.Flag{}...)
+	cliApp.Run(os.Args)
+}
+
+// getCommands
+func getCommands() []cli.Command {
+	command := cli.Command{
+		Name:   "web",
+		Usage:  "run web server",
+		Action: runWeb,
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "host",
+				Value: "0.0.0.0",
+				Usage: "bind host",
+			},
+			cli.IntFlag{
+				Name:  "port,p",
+				Value: DefaultPort,
+				Usage: "bind port",
+			},
+			cli.StringFlag{
+				Name:  "env,e",
+				Value: "prod",
+				Usage: "runtime environment, dev|test|prod",
+			},
 		},
-		cli.IntFlag{
-			Name:  "port,p",
-			Value: DefaultPort,
-			Usage: "bind port",
-		},
-		cli.StringFlag{
-			Name:  "env,e",
-			Value: "prod",
-			Usage: "runtime environment, dev|test|prod",
-		},
-	},
+	}
+
+	return []cli.Command{command}
 }
 
 func runWeb(ctx *cli.Context) {

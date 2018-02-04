@@ -1,0 +1,33 @@
+
+LDFLAGS = -w -s -X main.AppVersion=${VERSION}
+
+
+all: build
+
+
+build: gocron node
+
+
+gocron:
+
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron_darwin_amd64/gocron ./cmd/gocron
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron_linux_amd64/gocron ./cmd/gocron
+	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron_windows_amd64/gocron.exe ./cmd/gocron
+
+node:
+
+	env CGO_ENABLED=0 GOOS=darwin GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron-node_darwin_amd64/gocron-node ./cmd/node
+	env CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron-node_linux_amd64/gocron-node ./cmd/node
+	env CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o ./gocron-node_windows_amd64/gocron-node.exe ./cmd/node
+
+
+clean:
+
+	rm -rf gocron_darwin_amd64
+	rm -rf gocron_linux_amd64
+	rm -rf gocron_windows_amd64
+
+	rm -rf gocron-node_darwin_amd64
+	rm -rf gocron-node_linux_amd64
+	rm -rf gocron-node_windows_amd64
+

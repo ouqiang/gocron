@@ -39,21 +39,21 @@ var (
 
 // 并发队列
 type ConcurrencyQueue struct {
-	queue chan bool
+	queue chan struct{}
 }
 
-func (cq *ConcurrencyQueue) Push() {
-	cq.queue <- true
+func (cq *ConcurrencyQueue) Add() {
+	cq.queue <- struct{}{}
 }
 
-func (cq *ConcurrencyQueue) Pop() {
+func (cq *ConcurrencyQueue) Done() {
 	<-cq.queue
 }
 
 // 任务计数
 type TaskCount struct {
 	wg   sync.WaitGroup
-	exit chan bool
+	exit chan struct{}
 }
 
 func (tc *TaskCount) Add() {
@@ -88,7 +88,7 @@ func (i *Instance) has(key int) bool {
 }
 
 func (i *Instance) add(key int) {
-	i.m.Store(key, true)
+	i.m.Store(key, struct{}{})
 }
 
 func (i *Instance) done(key int) {
@@ -107,8 +107,8 @@ type TaskResult struct {
 func (task Task) Initialize() {
 	serviceCron = cron.New()
 	serviceCron.Start()
-	concurrencyQueue = ConcurrencyQueue{queue: make(chan bool, app.Setting.ConcurrencyQueue)}
-	taskCount = TaskCount{sync.WaitGroup{}, make(chan bool)}
+	concurrencyQueue = ConcurrencyQueue{queue: make(chan struct{}, app.Setting.ConcurrencyQueue)}
+	taskCount = TaskCount{sync.WaitGroup{}, make(chan struct{})}
 	go taskCount.Wait()
 
 	logger.Info("开始初始化定时任务")
@@ -303,21 +303,21 @@ func createJob(taskModel models.Task) cron.FuncJob {
 		return nil
 	}
 	taskFunc := func() {
+		taskCount.Add()
+		defer taskCount.Done()
+
 		taskLogId := beforeExecJob(taskModel)
 		if taskLogId <= 0 {
 			return
 		}
-
-		taskCount.Add()
-		defer taskCount.Done()
 
 		if taskModel.Multi == 0 {
 			runInstance.add(taskModel.Id)
 			defer runInstance.done(taskModel.Id)
 		}
 
-		concurrencyQueue.Push()
-		defer concurrencyQueue.Pop()
+		concurrencyQueue.Add()
+		defer concurrencyQueue.Done()
 
 		logger.Infof("开始执行任务#%s#命令-%s", taskModel.Name, taskModel.Command)
 		taskResult := execJob(handler, taskModel, taskLogId)
