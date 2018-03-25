@@ -25,9 +25,9 @@
 * 任务执行结果通知, 支持邮件、Slack
 
 ### 截图
-![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/scheduler.png)
-![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/task.png)
-![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/screenshot/notification.png)
+![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
+![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/task.png)
+![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/notification.png)
     
 ### 支持平台
 > Windows、Linux、Mac OS
