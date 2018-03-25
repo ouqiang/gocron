@@ -7,12 +7,12 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/ouqiang/gocron/models"
-	"github.com/ouqiang/gocron/modules/app"
-	"github.com/ouqiang/gocron/modules/logger"
-	"github.com/ouqiang/gocron/modules/setting"
-	"github.com/ouqiang/gocron/routers"
-	"github.com/ouqiang/gocron/service"
+	"github.com/ouqiang/gocron/internal/models"
+	"github.com/ouqiang/gocron/internal/modules/app"
+	"github.com/ouqiang/gocron/internal/modules/logger"
+	"github.com/ouqiang/gocron/internal/modules/setting"
+	"github.com/ouqiang/gocron/internal/routers"
+	"github.com/ouqiang/gocron/internal/service"
 	"github.com/urfave/cli"
 	"gopkg.in/macaron.v1"
 )

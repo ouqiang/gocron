@@ -46,7 +46,7 @@ package_gocron() {
         mkdir ${PACKAGE_DIR}/${PLATFORM_NAME}
     fi
 
-    for file in public templates LICENSE README.md Dockerfile-release; do
+    for file in web LICENSE README.md Dockerfile-release; do
         cp -r ${file} ${PLATFORM_NAME}
     done
 

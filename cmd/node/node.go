@@ -9,9 +9,9 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/ouqiang/gocron/modules/rpc/auth"
-	"github.com/ouqiang/gocron/modules/rpc/server"
-	"github.com/ouqiang/gocron/modules/utils"
+	"github.com/ouqiang/gocron/internal/modules/rpc/auth"
+	"github.com/ouqiang/gocron/internal/modules/rpc/server"
+	"github.com/ouqiang/gocron/internal/modules/utils"
 )
 
 var AppVersion = "1.4"
