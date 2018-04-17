@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"path/filepath"
 
 	"fmt"
 	"io/ioutil"
@@ -27,11 +28,11 @@ var (
 
 func InitEnv(versionString string) {
 	logger.InitLogger()
-	wd, err := os.Getwd()
+	var err error
+	AppDir, err = filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		logger.Fatal(err)
 	}
-	AppDir = wd
 	ConfDir = AppDir + "/conf"
 	LogDir = AppDir + "/log"
 	DataDir = AppDir + "/data"

@@ -1,5 +1,4 @@
-// main gocron-node
-
+// Command gocron-node
 package main
 
 import (

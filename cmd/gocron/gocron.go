@@ -1,4 +1,4 @@
-// main gocron
+// Command gocron
 
 package main
 
