@@ -155,6 +155,12 @@
 			"revisionTime": "2016-03-02T07:53:16Z"
 		},
 		{
+			"checksumSHA1": "TXREfPduAnd3j2nWhkqVXEcvufk=",
+			"path": "github.com/ouqiang/goutil",
+			"revision": "82b3d2997d337a2174b708d0ffe3f711ffb1eddf",
+			"revisionTime": "2018-04-18T01:28:05Z"
+		},
+		{
 			"checksumSHA1": "cVGA2CJTJsCAVa5VKTM8k/ma/BU=",
 			"path": "github.com/silenceper/pool",
 			"revision": "e4c4536403d9765c8ea74cda2ee49dcb0848bc7a",

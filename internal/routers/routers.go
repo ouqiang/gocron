@@ -3,6 +3,7 @@ package routers
 import (
 	"html/template"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
@@ -142,9 +143,9 @@ func RegisterMiddleware(m *macaron.Macaron) {
 	if macaron.Env != macaron.DEV {
 		m.Use(gzip.Gziper())
 	}
-	m.Use(macaron.Static(staticDir))
+	m.Use(macaron.Static(filepath.Join(app.AppDir, staticDir)))
 	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory: templateDir,
+		Directory: filepath.Join(app.AppDir, templateDir),
 		// 模板语法分隔符，默认为 ["{{", "}}"]
 		Delims: macaron.Delims{"{%", "%}"},
 		Funcs: []template.FuncMap{map[string]interface{}{

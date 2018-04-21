@@ -12,40 +12,51 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/setting"
 	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/ouqiang/goutil"
 )
 
 var (
-	AppDir      string           // 应用根目录
-	ConfDir     string           // 配置目录
-	LogDir      string           // 日志目录
-	DataDir     string           // 存放session等
-	AppConfig   string           // 应用配置文件
-	Installed   bool             // 应用是否安装过
-	Setting     *setting.Setting // 应用配置
-	VersionId   int              // 版本号
-	VersionFile string           // 版本号文件
+	// AppDir 应用根目录
+	AppDir string // 应用根目录
+	// ConfDir 配置文件目录
+	ConfDir string // 配置目录
+	// LogDir 日志目录
+	LogDir string // 日志目录
+	// DataDir 数据目录
+	DataDir string // 存放session等
+	// AppConfig 配置文件
+	AppConfig string // 应用配置文件
+	// Installed 应用是否已安装
+	Installed bool // 应用是否安装过
+	// Setting 应用配置
+	Setting *setting.Setting // 应用配置
+	// VersionId 版本号
+	VersionId int // 版本号
+	// VersionFile 版本文件
+	VersionFile string // 版本号文件
 )
 
+// InitEnv 初始化
 func InitEnv(versionString string) {
 	logger.InitLogger()
 	var err error
-	AppDir, err = filepath.Abs(filepath.Dir(os.Args[0]))
+	AppDir, err = goutil.WorkDir()
 	if err != nil {
 		logger.Fatal(err)
 	}
-	ConfDir = AppDir + "/conf"
-	LogDir = AppDir + "/log"
-	DataDir = AppDir + "/data"
-	AppConfig = ConfDir + "/app.ini"
-	VersionFile = ConfDir + "/.version"
+	ConfDir = filepath.Join(AppDir, "/conf")
+	LogDir = filepath.Join(AppDir, "/log")
+	DataDir = filepath.Join(AppDir, "/data")
+	AppConfig = filepath.Join(ConfDir, "/app.ini")
+	VersionFile = filepath.Join(ConfDir, "/.version")
 	createDirIfNotExists(ConfDir, LogDir, DataDir)
 	Installed = IsInstalled()
 	VersionId = ToNumberVersion(versionString)
 }
 
-// 判断应用是否已安装
+// IsInstalled 判断应用是否已安装
 func IsInstalled() bool {
-	_, err := os.Stat(ConfDir + "/install.lock")
+	_, err := os.Stat(filepath.Join(ConfDir, "/install.lock"))
 	if os.IsNotExist(err) {
 		return false
 	}
@@ -53,9 +64,9 @@ func IsInstalled() bool {
 	return true
 }
 
-// 创建安装锁文件
+// CreateInstallLock 创建安装锁文件
 func CreateInstallLock() error {
-	_, err := os.Create(ConfDir + "/install.lock")
+	_, err := os.Create(filepath.Join(ConfDir, "/install.lock"))
 	if err != nil {
 		logger.Error("创建安装锁文件conf/install.lock失败")
 	}
@@ -63,7 +74,7 @@ func CreateInstallLock() error {
 	return err
 }
 
-// 更新应用版本号文件
+// UpdateVersionFile 更新应用版本号文件
 func UpdateVersionFile() {
 	err := ioutil.WriteFile(VersionFile,
 		[]byte(strconv.Itoa(VersionId)),
@@ -75,7 +86,7 @@ func UpdateVersionFile() {
 	}
 }
 
-// 获取应用当前版本号, 从版本号文件中读取
+// GetCurrentVersionId 获取应用当前版本号, 从版本号文件中读取
 func GetCurrentVersionId() int {
 	if !utils.FileExist(VersionFile) {
 		return 0
@@ -94,7 +105,7 @@ func GetCurrentVersionId() int {
 	return versionId
 }
 
-// 把字符串版本号a.b.c转换为整数版本号abc
+// ToNumberVersion 把字符串版本号a.b.c转换为整数版本号abc
 func ToNumberVersion(versionString string) int {
 	v := strings.Replace(versionString, ".", "", -1)
 	if len(v) < 3 {
