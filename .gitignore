@@ -31,11 +31,8 @@ conf
 profile/*
 public/resource/javascript/vue.js
 /gocron
-gocron.exe
 /gocron-node
-gocron-node.exe
 /bin
 /packages
 
 node_modules
-package.json
