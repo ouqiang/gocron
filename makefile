@@ -9,7 +9,7 @@ build-race: enable-race build
 .PHONY: run
 run: build kill
 	./bin/gocron-node &
-	./bin/gocron web
+	./bin/gocron web -e dev
 
 .PHONY: run-race
 run-race: enable-race run

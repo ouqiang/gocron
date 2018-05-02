@@ -11,26 +11,29 @@ import (
 
 // region slack
 
-func EditSlack(ctx *macaron.Context) {
-	ctx.Data["Title"] = "Slack配置"
+func EditSlack(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	slack, err := settingModel.Slack()
+	jsonResp := utils.JsonResponse{}
 	if err != nil {
 		logger.Error(err)
+		return jsonResp.Success(utils.SuccessContent, nil)
 	}
-	ctx.Data["Slack"] = slack
-	ctx.HTML(200, "manage/slack")
+
+	return jsonResp.Success(utils.SuccessContent, slack)
 }
 
 func Slack(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	slack, err := settingModel.Slack()
+	jsonResp := utils.JsonResponse{}
 	if err != nil {
 		logger.Error(err)
-	}
-	json := utils.JsonResponse{}
+		return jsonResp.Success(utils.SuccessContent, nil)
 
-	return json.Success("", slack)
+	}
+
+	return jsonResp.Success(utils.SuccessContent, slack)
 }
 
 func UpdateSlackUrl(ctx *macaron.Context) string {
@@ -45,9 +48,9 @@ func CreateSlackChannel(ctx *macaron.Context) string {
 	channel := ctx.QueryTrim("channel")
 	settingModel := new(models.Setting)
 	if settingModel.IsChannelExist(channel) {
-		json := utils.JsonResponse{}
+		jsonResp := utils.JsonResponse{}
 
-		return json.CommonFailure("Channel已存在")
+		return jsonResp.CommonFailure("Channel已存在")
 	}
 	_, err := settingModel.CreateChannel(channel)
 
@@ -66,27 +69,28 @@ func RemoveSlackChannel(ctx *macaron.Context) string {
 
 // region 邮件
 
-func EditMail(ctx *macaron.Context) {
-	ctx.Data["Title"] = "邮件配置"
+func EditMail(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	mail, err := settingModel.Mail()
+	jsonResp := utils.JsonResponse{}
 	if err != nil {
 		logger.Error(err)
+		return jsonResp.Success(utils.SuccessContent, nil)
 	}
-	ctx.Data["Mail"] = mail
-	ctx.HTML(200, "manage/mail")
+
+	return jsonResp.Success(utils.SuccessContent, mail)
 }
 
 func Mail(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	mail, err := settingModel.Mail()
+	jsonResp := utils.JsonResponse{}
 	if err != nil {
 		logger.Error(err)
+		return jsonResp.Success(utils.SuccessContent, nil)
 	}
 
-	json := utils.JsonResponse{}
-
-	return json.Success("", mail)
+	return jsonResp.Success("", mail)
 }
 
 type MailServerForm struct {
@@ -117,9 +121,9 @@ func CreateMailUser(ctx *macaron.Context) string {
 	email := ctx.QueryTrim("email")
 	settingModel := new(models.Setting)
 	if username == "" || email == "" {
-		json := utils.JsonResponse{}
+		jsonResp := utils.JsonResponse{}
 
-		return json.CommonFailure("用户名、邮箱均不能为空")
+		return jsonResp.CommonFailure("用户名、邮箱均不能为空")
 	}
 	_, err := settingModel.CreateMailUser(username, email)
 

@@ -1,17 +1,14 @@
 package loginlog
 
 import (
-	"fmt"
-	"html/template"
-
-	"github.com/Unknwon/paginater"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/logger"
+	"github.com/ouqiang/gocron/internal/modules/utils"
 	"github.com/ouqiang/gocron/internal/routers/base"
 	"gopkg.in/macaron.v1"
 )
 
-func Index(ctx *macaron.Context) {
+func Index(ctx *macaron.Context) string {
 	loginLogModel := new(models.LoginLog)
 	params := models.CommonMap{}
 	base.ParsePageAndPageSize(ctx, params)
@@ -20,12 +17,11 @@ func Index(ctx *macaron.Context) {
 	if err != nil {
 		logger.Error(err)
 	}
-	PageParams := fmt.Sprintf("page_size=%d", params["PageSize"])
-	params["PageParams"] = template.URL(PageParams)
-	p := paginater.New(int(total), params["PageSize"].(int), params["Page"].(int), 5)
-	ctx.Data["Pagination"] = p
-	ctx.Data["Title"] = "登录日志"
-	ctx.Data["LoginLogs"] = loginLogs
-	ctx.Data["Params"] = params
-	ctx.HTML(200, "manage/login_log")
+
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  loginLogs,
+	})
 }

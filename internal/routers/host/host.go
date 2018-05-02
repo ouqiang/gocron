@@ -2,11 +2,9 @@ package host
 
 import (
 	"fmt"
-	"html/template"
 	"strconv"
 	"strings"
 
-	"github.com/Unknwon/paginater"
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/logger"
@@ -19,8 +17,11 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+const testConnectionCommand = "echo hello"
+const testConnectionTimeout = 10
+
 // Index 主机列表
-func Index(ctx *macaron.Context) {
+func Index(ctx *macaron.Context) string {
 	hostModel := new(models.Host)
 	queryParams := parseQueryParams(ctx)
 	total, err := hostModel.Total(queryParams)
@@ -28,39 +29,41 @@ func Index(ctx *macaron.Context) {
 	if err != nil {
 		logger.Error(err)
 	}
-	name, ok := queryParams["name"].(string)
-	var safeNameHTML = ""
-	if ok {
-		safeNameHTML = template.HTMLEscapeString(name)
+
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  hosts,
+	})
+}
+
+// All 获取所有主机
+func All(ctx *macaron.Context) string {
+	hostModel := new(models.Host)
+	hostModel.PageSize = -1
+	hosts, err := hostModel.List(models.CommonMap{})
+	if err != nil {
+		logger.Error(err)
 	}
-	PageParams := fmt.Sprintf("id=%d&name=%s&page_size=%d",
-		queryParams["Id"], safeNameHTML, queryParams["PageSize"])
-	queryParams["PageParams"] = template.URL(PageParams)
-	p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
-	ctx.Data["Pagination"] = p
-	ctx.Data["Title"] = "主机列表"
-	ctx.Data["Hosts"] = hosts
-	ctx.Data["Params"] = queryParams
-	ctx.HTML(200, "host/index")
+
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, hosts)
 }
 
-// Create 创建主机页面
-func Create(ctx *macaron.Context) {
-	ctx.Data["Title"] = "添加主机"
-	ctx.HTML(200, "host/host_form")
-}
-
-// Edit 修改主机页面
-func Edit(ctx *macaron.Context) {
-	ctx.Data["Title"] = "编辑主机"
+// Detail 主机详情
+func Detail(ctx *macaron.Context) string {
 	hostModel := new(models.Host)
 	id := ctx.ParamsInt(":id")
 	err := hostModel.Find(id)
+	jsonResp := utils.JsonResponse{}
 	if err != nil {
 		logger.Errorf("获取主机详情失败#主机id-%d", id)
+		return jsonResp.Success(utils.SuccessContent, nil)
 	}
-	ctx.Data["Host"] = hostModel
-	ctx.HTML(200, "host/host_form")
+
+	return jsonResp.Success(utils.SuccessContent, hostModel)
 }
 
 type HostForm struct {
@@ -78,8 +81,7 @@ func (f HostForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	}
 	json := utils.JsonResponse{}
 	content := json.CommonFailure("表单验证失败, 请检测输入")
-
-	ctx.Resp.Write([]byte(content))
+	ctx.Write([]byte(content))
 }
 
 // Store 保存、修改主机信息
@@ -178,8 +180,8 @@ func Ping(ctx *macaron.Context) string {
 	}
 
 	taskReq := &rpc.TaskRequest{}
-	taskReq.Command = "echo hello"
-	taskReq.Timeout = 10
+	taskReq.Command = testConnectionCommand
+	taskReq.Timeout = testConnectionTimeout
 	output, err := client.Exec(hostModel.Name, hostModel.Port, taskReq)
 	if err != nil {
 		return json.CommonFailure("连接失败-"+err.Error()+" "+output, err)

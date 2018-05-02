@@ -3,10 +3,6 @@ package tasklog
 // 任务日志
 
 import (
-	"fmt"
-	"html/template"
-
-	"github.com/Unknwon/paginater"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/utils"
@@ -15,7 +11,7 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-func Index(ctx *macaron.Context) {
+func Index(ctx *macaron.Context) string {
 	logModel := new(models.TaskLog)
 	queryParams := parseQueryParams(ctx)
 	total, err := logModel.Total(queryParams)
@@ -26,16 +22,12 @@ func Index(ctx *macaron.Context) {
 	if err != nil {
 		logger.Error(err)
 	}
-	PageParams := fmt.Sprintf("task_id=%d&protocol=%d&status=%d&page_size=%d",
-		queryParams["TaskId"], queryParams["Protocol"], queryParams["Status"],
-		queryParams["PageSize"])
-	queryParams["PageParams"] = template.URL(PageParams)
-	p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
-	ctx.Data["Pagination"] = p
-	ctx.Data["Title"] = "任务日志"
-	ctx.Data["Logs"] = logs
-	ctx.Data["Params"] = queryParams
-	ctx.HTML(200, "task/log")
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  logs,
+	})
 }
 
 // 清空日志

@@ -34,13 +34,13 @@ func (setting *Setting) InitBasicField() {
 // region slack配置
 
 type Slack struct {
-	Url      string
-	Channels []Channel
+	Url      string    `json:"url"`
+	Channels []Channel `json:"channels"`
 }
 
 type Channel struct {
-	Id   int
-	Name string
+	Id   int    `json:"id"`
+	Name string `json:"name"`
 }
 
 func (setting *Setting) Slack() (Slack, error) {
@@ -106,17 +106,17 @@ func (setting *Setting) RemoveChannel(id int) (int64, error) {
 // endregion
 
 type Mail struct {
-	Host      string
-	Port      int
-	User      string
-	Password  string
-	MailUsers []MailUser
+	Host      string     `json:"host"`
+	Port      int        `json:"port"`
+	User      string     `json:"user"`
+	Password  string     `json:"password"`
+	MailUsers []MailUser `json:"mail_users"`
 }
 
 type MailUser struct {
-	Id       int
-	Username string
-	Email    string
+	Id       int    `json:"id"`
+	Username string `json:"username"`
+	Email    string `json:"email"`
 }
 
 // region 邮件配置

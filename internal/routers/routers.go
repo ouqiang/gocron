@@ -1,18 +1,13 @@
 package routers
 
 import (
-	"html/template"
-	"net/http"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-macaron/binding"
-	"github.com/go-macaron/cache"
-	"github.com/go-macaron/captcha"
 	"github.com/go-macaron/gzip"
-	"github.com/go-macaron/session"
 	"github.com/go-macaron/toolbox"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/logger"
@@ -29,43 +24,37 @@ import (
 
 // 静态文件目录
 const staticDir = "web/public"
-const templateDir = "web/templates"
+
+// URL前缀
+const urlPrefix = "/api"
 
 // 路由注册
 func Register(m *macaron.Macaron) {
+	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
-	// 首页
-	m.Get("/", Home)
 	// 系统安装
 	m.Group("/install", func() {
-		m.Get("", install.Create)
 		m.Post("/store", binding.Bind(install.InstallForm{}), install.Store)
 	})
 
 	// 用户
 	m.Group("/user", func() {
 		m.Get("", user.Index)
-		m.Get("/create", user.Create)
-		m.Get("/edit/:id", user.Edit)
+		m.Get("/:id", user.Detail)
 		m.Post("/store", binding.Bind(user.UserForm{}), user.Store)
 		m.Post("/remove/:id", user.Remove)
-		m.Get("/login", user.Login)
 		m.Post("/login", user.ValidateLogin)
-		m.Get("/logout", user.Logout)
 		m.Post("/enable/:id", user.Enable)
 		m.Post("/disable/:id", user.Disable)
-		m.Get("/editMyPassword", user.EditMyPassword)
 		m.Post("/editMyPassword", user.UpdateMyPassword)
-		m.Get("/editPassword/:id", user.EditPassword)
 		m.Post("/editPassword/:id", user.UpdatePassword)
 	})
 
 	// 定时任务
 	m.Group("/task", func() {
-		m.Get("/create", task.Create)
 		m.Post("/store", binding.Bind(task.TaskForm{}), task.Store)
-		m.Get("/edit/:id", task.Edit)
+		m.Get("/:id", task.Detail)
 		m.Get("", task.Index)
 		m.Get("/log", tasklog.Index)
 		m.Post("/log/clear", tasklog.Clear)
@@ -78,8 +67,7 @@ func Register(m *macaron.Macaron) {
 
 	// 主机
 	m.Group("/host", func() {
-		m.Get("/create", host.Create)
-		m.Get("/edit/:id", host.Edit)
+		m.Get("/:id", host.Detail)
 		m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
 		m.Get("", host.Index)
 		m.Get("/ping/:id", host.Ping)
@@ -87,7 +75,7 @@ func Register(m *macaron.Macaron) {
 	})
 
 	// 管理
-	m.Group("/manage", func() {
+	m.Group("/system", func() {
 		m.Group("/slack", func() {
 			m.Get("/", manage.Slack)
 			m.Get("/edit", manage.EditSlack)
@@ -107,32 +95,23 @@ func Register(m *macaron.Macaron) {
 	})
 
 	// API
-	m.Group("/api/v1", func() {
+	m.Group("/v1", func() {
 		m.Post("/tasklog/remove/:id", tasklog.Remove)
 		m.Post("/task/enable/:id", task.Enable)
 		m.Post("/task/disable/:id", task.Disable)
 	}, apiAuth)
 
 	// 404错误
-	m.NotFound(func(ctx *macaron.Context) {
-		if isGetRequest(ctx) && !isAjaxRequest(ctx) {
-			ctx.Data["Title"] = "404 - NOT FOUND"
-			ctx.HTML(http.StatusNotFound, "error/404")
-		} else {
-			json := utils.JsonResponse{}
-			ctx.Resp.Write([]byte(json.Failure(utils.NotFound, "您访问的地址不存在")))
-		}
+	m.NotFound(func(ctx *macaron.Context) string {
+		jsonResp := utils.JsonResponse{}
+
+		return jsonResp.Failure(utils.NotFound, "您访问的页面不存在")
 	})
 	// 50x错误
-	m.InternalServerError(func(ctx *macaron.Context) {
-		logger.Debug("500错误")
-		if isGetRequest(ctx) && !isAjaxRequest(ctx) {
-			ctx.Data["Title"] = "500 - INTERNAL SERVER ERROR"
-			ctx.HTML(http.StatusInternalServerError, "error/500")
-		} else {
-			json := utils.JsonResponse{}
-			ctx.Resp.Write([]byte(json.Failure(utils.ServerError, "网站暂时无法访问,请稍后再试")))
-		}
+	m.InternalServerError(func(ctx *macaron.Context) string {
+		jsonResp := utils.JsonResponse{}
+
+		return jsonResp.Failure(utils.ServerError, "服务器内部错误, 请稍后再试")
 	})
 }
 
@@ -144,50 +123,30 @@ func RegisterMiddleware(m *macaron.Macaron) {
 		m.Use(gzip.Gziper())
 	}
 	m.Use(macaron.Static(filepath.Join(app.AppDir, staticDir)))
-	m.Use(macaron.Renderer(macaron.RenderOptions{
-		Directory: filepath.Join(app.AppDir, templateDir),
-		// 模板语法分隔符，默认为 ["{{", "}}"]
-		Delims: macaron.Delims{"{%", "%}"},
-		Funcs: []template.FuncMap{map[string]interface{}{
-			"HostFormat": func(index int) bool {
-				return (index+1)%3 == 0
-			},
-			"unescape": func(str string) template.HTML {
-				return template.HTML(str)
-			},
-		}},
-	}))
-	m.Use(cache.Cacher())
-	m.Use(captcha.Captchaer())
-	m.Use(session.Sessioner(session.Options{
-		Provider:       "file",
-		ProviderConfig: app.DataDir + "/sessions",
-	}))
-	m.Use(toolbox.Toolboxer(m))
-	checkAppInstall(m)
-	m.Use(func(ctx *macaron.Context, sess session.Store) {
-		if app.Installed {
-			ipAuth(ctx)
-			userAuth(ctx, sess)
-			urlAuth(ctx, sess)
-			setShareData(ctx, sess)
-		}
-	})
+	if macaron.Env == macaron.DEV {
+		m.Use(toolbox.Toolboxer(m))
+	}
+	m.Use(macaron.Renderer())
+	m.Use(ipAuth)
+	m.Use(checkAppInstall)
+	m.Use(userAuth)
+	m.Use(urlAuth)
 }
 
 // region 自定义中间件
 
-/** 系统未安装，重定向到安装页面 **/
-func checkAppInstall(m *macaron.Macaron) {
-	m.Use(func(ctx *macaron.Context) {
-		installUrl := "/install"
-		if strings.HasPrefix(ctx.Req.URL.Path, installUrl) {
-			return
-		}
-		if !app.Installed {
-			ctx.Redirect(installUrl)
-		}
-	})
+/** 检测应用是否已安装 **/
+func checkAppInstall(ctx *macaron.Context) {
+	installUrl := filepath.Join(urlPrefix, "/install")
+	if strings.HasPrefix(ctx.Req.URL.Path, installUrl) {
+		return
+	}
+	if !app.Installed {
+		jsonResp := utils.JsonResponse{}
+
+		data := jsonResp.Failure(utils.AppNotInstall, "应用未安装")
+		ctx.Write([]byte(data))
+	}
 }
 
 // IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
@@ -198,39 +157,43 @@ func ipAuth(ctx *macaron.Context) {
 	}
 	clientIp := ctx.RemoteAddr()
 	allowIps := strings.Split(allowIpsStr, ",")
-	if !utils.InStringSlice(allowIps, clientIp) {
-		logger.Warnf("非法IP访问-%s", clientIp)
-		ctx.Status(http.StatusForbidden)
+	if utils.InStringSlice(allowIps, clientIp) {
+		return
 	}
+	logger.Warnf("非法IP访问-%s", clientIp)
+	jsonResp := utils.JsonResponse{}
+
+	data := jsonResp.Failure(utils.UnauthorizedError, "您无权限访问")
+
+	ctx.Write([]byte(data))
 }
 
 // 用户认证
-func userAuth(ctx *macaron.Context, sess session.Store) {
-	if user.IsLogin(sess) {
+func userAuth(ctx *macaron.Context) {
+	user.RestoreToken(ctx)
+	if user.IsLogin(ctx) {
 		return
 	}
 	uri := ctx.Req.URL.Path
-	found := false
-	excludePaths := []string{"/install", "/user/login", "/api"}
+	excludePaths := []string{"/install", "/user/login", "/v1"}
 	for _, path := range excludePaths {
 		if strings.HasPrefix(uri, path) {
-			found = true
-			break
+			return
 		}
 	}
-	if !found {
-		ctx.Redirect("/user/login")
-	}
+	jsonResp := utils.JsonResponse{}
+	data := jsonResp.Failure(utils.AuthError, "认证失败")
+	ctx.Write([]byte(data))
+
 }
 
 // URL权限验证
-func urlAuth(ctx *macaron.Context, sess session.Store) {
-	if user.IsAdmin(sess) {
+func urlAuth(ctx *macaron.Context) {
+	if user.IsAdmin(ctx) {
 		return
 	}
-	uri := strings.TrimSpace(ctx.Req.URL.Path)
-	uri = strings.TrimRight(uri, "/")
-	if strings.HasPrefix(uri, "/api") {
+	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
+	if strings.HasPrefix(uri, "/v1") {
 		return
 	}
 	// 普通用户允许访问的URL地址
@@ -240,7 +203,6 @@ func urlAuth(ctx *macaron.Context, sess session.Store) {
 		"/task/log",
 		"/host",
 		"/user/login",
-		"/user/logout",
 		"/user/editMyPassword",
 	}
 	for _, path := range allowPaths {
@@ -249,27 +211,10 @@ func urlAuth(ctx *macaron.Context, sess session.Store) {
 		}
 	}
 
-	ctx.Status(http.StatusUnauthorized)
+	jsonResp := utils.JsonResponse{}
 
-}
-
-/** 设置共享数据 **/
-func setShareData(ctx *macaron.Context, sess session.Store) {
-	ctx.Data["URI"] = ctx.Req.URL.Path
-	urlPath := strings.TrimPrefix(ctx.Req.URL.Path, "/")
-	paths := strings.Split(urlPath, "/")
-	ctx.Data["Controller"] = ""
-	ctx.Data["Action"] = ""
-	if len(paths) > 0 {
-		ctx.Data["Controller"] = paths[0]
-	}
-	if len(paths) > 1 {
-		ctx.Data["Action"] = paths[1]
-	}
-	ctx.Data["LoginUsername"] = user.Username(sess)
-	ctx.Data["LoginUid"] = user.Uid(sess)
-	ctx.Data["IsAdmin"] = user.IsAdmin(sess)
-	ctx.Data["AppName"] = app.Setting.AppName
+	data := jsonResp.Failure(utils.UnauthorizedError, "您无权限访问")
+	ctx.Write([]byte(data))
 }
 
 /** API接口签名验证 **/
@@ -313,16 +258,3 @@ func apiAuth(ctx *macaron.Context) {
 }
 
 // endregion
-
-func isAjaxRequest(ctx *macaron.Context) bool {
-	req := ctx.Req.Header.Get("X-Requested-With")
-	if req == "XMLHttpRequest" {
-		return true
-	}
-
-	return false
-}
-
-func isGetRequest(ctx *macaron.Context) bool {
-	return ctx.Req.Method == "GET"
-}

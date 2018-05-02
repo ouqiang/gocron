@@ -15,12 +15,6 @@
 			"revisionTime": "2017-02-13T07:20:14Z"
 		},
 		{
-			"checksumSHA1": "TZJb+QbOuWcbYb30BriioMAjg/o=",
-			"path": "github.com/Unknwon/paginater",
-			"revision": "45e5d631308ea359946e761484147982c978d0df",
-			"revisionTime": "2017-04-05T23:39:47Z"
-		},
-		{
 			"checksumSHA1": "1bK29RcAjCAMCYS2HS3O18w4m8k=",
 			"path": "github.com/cihub/seelog",
 			"revision": "f561c5e57575bb1e0a2167028b7339b3a8d16fb4",
@@ -51,10 +45,10 @@
 			"revisionTime": "2017-01-30T13:45:32Z"
 		},
 		{
-			"checksumSHA1": "foY4H6dyBE6AmY0uTZ2rfH+34Q4=",
-			"path": "github.com/donnie4w/go-logger",
-			"revision": "34aa9bcfff225db756df097fc49ffd35b68412bb",
-			"revisionTime": "2016-05-29T15:11:07Z"
+			"checksumSHA1": "4772zXrOaPVeDeSgdiV7Vp4KEjk=",
+			"path": "github.com/dgrijalva/jwt-go",
+			"revision": "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e",
+			"revisionTime": "2018-03-08T23:13:08Z"
 		},
 		{
 			"checksumSHA1": "DB+/DpKJUO7dR+MyQVchJ+yyHoI=",
@@ -69,24 +63,6 @@
 			"revisionTime": "2016-12-22T07:05:54Z"
 		},
 		{
-			"checksumSHA1": "2P7Mi5cgjw7B0sgNodHpt1MTtwk=",
-			"path": "github.com/go-macaron/cache",
-			"revision": "56173531277692bc2925924d51fda1cd0a6b8178",
-			"revisionTime": "2015-10-13T08:11:02Z"
-		},
-		{
-			"checksumSHA1": "Z14F1jXWg0vXQVCNxqVJEu+VQmg=",
-			"path": "github.com/go-macaron/captcha",
-			"revision": "cbfb9d984efb41f44f63e9abaa366a3308ff78ca",
-			"revisionTime": "2017-03-30T19:07:02Z"
-		},
-		{
-			"checksumSHA1": "60FC18/huiHD1fZ9I3BzK61Pk2Q=",
-			"path": "github.com/go-macaron/csrf",
-			"revision": "428b7c62d7d0034b048b1cd43ba60d87857f5253",
-			"revisionTime": "2017-02-07T23:07:24Z"
-		},
-		{
 			"path": "github.com/go-macaron/gzip",
 			"revision": ""
 		},
@@ -95,12 +71,6 @@
 			"path": "github.com/go-macaron/inject",
 			"revision": "d8a0b8677191f4380287cfebd08e462217bac7ad",
 			"revisionTime": "2016-06-27T17:00:12Z"
-		},
-		{
-			"checksumSHA1": "bwYWc6t4Lapw4Xl3v4o2hzOZ5kw=",
-			"path": "github.com/go-macaron/session",
-			"revision": "b8a2b5ef7fb4c91c1c8ca23e2a52e29a4bcbb22f",
-			"revisionTime": "2016-11-21T22:59:37Z"
 		},
 		{
 			"checksumSHA1": "VMRkwnbl0mKWWvK/62CnIlv1oOg=",
@@ -326,12 +296,6 @@
 			"path": "gopkg.in/macaron.v1",
 			"revision": "a325110f8b392bce3e5cdeb8c44bf98078ada3be",
 			"revisionTime": "2017-02-13T09:12:08Z"
-		},
-		{
-			"checksumSHA1": "0KwOlQV1dNUh9X8t+5s7nX5bqfk=",
-			"path": "gopkg.in/yaml.v2",
-			"revision": "a3f3340b5840cee44f372bddb5880fcbc419b46a",
-			"revisionTime": "2017-02-08T14:18:51Z"
 		},
 		{
 			"path": "https://code.google.com/p/mahonia",

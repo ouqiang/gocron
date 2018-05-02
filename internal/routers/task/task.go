@@ -1,12 +1,9 @@
 package task
 
 import (
-	"fmt"
-	"html/template"
 	"strconv"
 	"strings"
 
-	"github.com/Unknwon/paginater"
 	"github.com/go-macaron/binding"
 	"github.com/jakecoffman/cron"
 	"github.com/ouqiang/gocron/internal/models"
@@ -50,7 +47,7 @@ func (f TaskForm) Error(ctx *macaron.Context, errs binding.Errors) {
 }
 
 // 首页
-func Index(ctx *macaron.Context) {
+func Index(ctx *macaron.Context) string {
 	taskModel := new(models.Task)
 	queryParams := parseQueryParams(ctx)
 	total, err := taskModel.Total(queryParams)
@@ -61,59 +58,29 @@ func Index(ctx *macaron.Context) {
 	if err != nil {
 		logger.Error(err)
 	}
-	name, ok := queryParams["name"].(string)
-	var safeNameHTML = ""
-	if ok {
-		safeNameHTML = template.HTMLEscapeString(name)
-	}
-	PageParams := fmt.Sprintf("id=%d&host_id=%d&name=%s&protocol=%d&tag=%s&status=%d&page_size=%d",
-		queryParams["Id"], queryParams["HostId"], safeNameHTML, queryParams["Protocol"], queryParams["Tag"], queryParams["Status"], queryParams["PageSize"])
-	queryParams["PageParams"] = template.URL(PageParams)
-	p := paginater.New(int(total), queryParams["PageSize"].(int), queryParams["Page"].(int), 5)
-	ctx.Data["Pagination"] = p
-	setHostsToTemplate(ctx)
-	ctx.Data["Params"] = queryParams
-	ctx.Data["Title"] = "任务列表"
-	ctx.Data["Tasks"] = tasks
-	ctx.HTML(200, "task/index")
+	jsonResp := utils.JsonResponse{}
+
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+		"data":  tasks,
+	})
 }
 
-// 新增页面
-func Create(ctx *macaron.Context) {
-	setHostsToTemplate(ctx)
-	ctx.Data["Title"] = "添加任务"
-	ctx.HTML(200, "task/task_form")
-}
-
-// 编辑页面
-func Edit(ctx *macaron.Context) {
+// Detail 任务详情
+func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
 	taskModel := new(models.Task)
 	task, err := taskModel.Detail(id)
+	jsonResp := utils.JsonResponse{}
 	if err != nil || task.Id != id {
 		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
-		ctx.Redirect("/task")
-	}
-	hostModel := new(models.Host)
-	hostModel.PageSize = -1
-	hosts, err := hostModel.List(models.CommonMap{})
-	if err != nil {
-		logger.Error(err)
-	} else {
-		for i, host := range hosts {
-			if inHosts(task.Hosts, host.Id) {
-				hosts[i].Selected = true
-			}
-		}
+		return jsonResp.Success(utils.SuccessContent, nil)
 	}
 
-	ctx.Data["Task"] = task
-	ctx.Data["Hosts"] = hosts
-	ctx.Data["Title"] = "编辑"
-	ctx.HTML(200, "task/task_form")
+	return jsonResp.Success(utils.SuccessContent, task)
 }
 
-// 保存任务  todo 拆分为多个方法 快变成意大利面条式代码了
+// 保存任务  todo 拆分为多个方法
 func Store(ctx *macaron.Context, form TaskForm) string {
 	json := utils.JsonResponse{}
 	taskModel := models.Task{}
@@ -318,24 +285,4 @@ func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	base.ParsePageAndPageSize(ctx, params)
 
 	return params
-}
-
-func setHostsToTemplate(ctx *macaron.Context) {
-	hostModel := new(models.Host)
-	hostModel.PageSize = -1
-	hosts, err := hostModel.List(models.CommonMap{})
-	if err != nil {
-		logger.Error(err)
-	}
-	ctx.Data["Hosts"] = hosts
-}
-
-func inHosts(slice []models.TaskHostDetail, element int16) bool {
-	for _, v := range slice {
-		if v.HostId == element {
-			return true
-		}
-	}
-
-	return false
 }

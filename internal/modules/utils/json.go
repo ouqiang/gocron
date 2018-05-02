@@ -18,21 +18,22 @@ type JsonResponse struct{}
 
 const ResponseSuccess = 0
 const ResponseFailure = 1
-const NotFound = 2
-const AuthError = 3
-const ServerError = 4
-const CaptchaError = 5
+const UnauthorizedError = 403
+const AuthError = 401
+const NotFound = 404
+const ServerError = 500
+const AppNotInstall = 801
 
 const SuccessContent = "操作成功"
 const FailureContent = "操作失败"
 
 func JsonResponseByErr(err error) string {
-	json := JsonResponse{}
+	jsonResp := JsonResponse{}
 	if err != nil {
-		return json.CommonFailure(FailureContent, err)
+		return jsonResp.CommonFailure(FailureContent, err)
 	}
 
-	return json.Success(SuccessContent, nil)
+	return jsonResp.Success(SuccessContent, nil)
 }
 
 func (j *JsonResponse) Success(message string, data interface{}) string {

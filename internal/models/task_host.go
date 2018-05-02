@@ -1,9 +1,9 @@
 package models
 
 type TaskHost struct {
-	Id     int   `xorm:"int pk autoincr"`
-	TaskId int   `xorm:"int not null index"`
-	HostId int16 `xorm:"smallint not null index"`
+	Id     int   `json:"id" xorm:"int pk autoincr"`
+	TaskId int   `json:"task_id" xorm:"int not null index"`
+	HostId int16 `json:"host_id" xorm:"smallint not null index"`
 }
 
 type TaskHostDetail struct {

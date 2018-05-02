@@ -35,6 +35,7 @@ type Setting struct {
 	KeyFile   string
 
 	ConcurrencyQueue int
+	AuthSecret       string
 }
 
 // 读取配置
@@ -64,6 +65,7 @@ func Read(filename string) (*Setting, error) {
 	s.ApiSecret = section.Key("api.secret").MustString("")
 	s.ApiSignEnable = section.Key("api.sign.enable").MustBool(true)
 	s.ConcurrencyQueue = section.Key("concurrency.queue").MustInt(500)
+	s.AuthSecret = section.Key("auth_secret").MustString("")
 
 	s.EnableTLS = section.Key("enable_tls").MustBool(false)
 	s.CAFile = section.Key("ca_file").MustString("")

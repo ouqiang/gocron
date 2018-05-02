@@ -70,7 +70,6 @@ func runWeb(ctx *cli.Context) {
 	// 捕捉信号,配置热更新等
 	go catchSignal()
 	m := macaron.Classic()
-
 	// 注册路由
 	routers.Register(m)
 	// 注册中间件.

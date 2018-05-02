@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strconv"
 
+	"crypto/rand"
+
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -35,17 +37,7 @@ func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	}
 	json := utils.JsonResponse{}
 	content := json.CommonFailure("表单验证失败, 请检测输入")
-
-	ctx.Resp.Write([]byte(content))
-}
-
-func Create(ctx *macaron.Context) {
-	if app.Installed {
-		ctx.Redirect("/")
-	}
-	ctx.Data["Title"] = "安装"
-	ctx.Data["DisableNav"] = true
-	ctx.HTML(200, "install/create")
+	ctx.Write([]byte(content))
 }
 
 // 安装
@@ -105,6 +97,12 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 
 // 配置写入文件
 func writeConfig(form InstallForm) error {
+	buf := make([]byte, 32)
+	_, err := rand.Read(buf)
+	if err != nil {
+		return fmt.Errorf("生成认证密钥失败: %s", err)
+	}
+
 	dbConfig := []string{
 		"db.engine", form.DbType,
 		"db.host", form.DbHost,
@@ -122,6 +120,7 @@ func writeConfig(form InstallForm) error {
 		"api.secret", "",
 		"enable_tls", "false",
 		"concurrency.queue", "500",
+		"auth_token", fmt.Sprintf("%x", buf),
 		"ca_file", "",
 		"cert_file", "",
 		"key_file", "",
