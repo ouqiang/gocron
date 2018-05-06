@@ -22,7 +22,7 @@
     * HTTP任务
     > 访问指定的URL地址, 由调度器直接执行, 不依赖任务节点
 * 查看任务执行结果日志
-* 任务执行结果通知, 支持邮件、Slack
+* 任务执行结果通知, 支持邮件、Slack、Webhook
 
 ### 截图
 ![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)

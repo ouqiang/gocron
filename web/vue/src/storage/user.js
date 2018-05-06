@@ -1,45 +1,51 @@
 class User {
+  get () {
+    return {
+      'token': this.getToken(),
+      'uid': this.getUid(),
+      'username': this.getUsername(),
+      'isAdmin': this.getIsAdmin()
+    }
+  }
+
   getToken () {
-    return sessionStorage.getItem('token') || ''
+    return localStorage.getItem('token') || ''
   }
 
   setToken (token) {
-    sessionStorage.setItem('token', token)
+    localStorage.setItem('token', token)
     return this
   }
 
-  isLogin () {
-    return this.getToken() !== ''
-  }
-
   clear () {
-    sessionStorage.clear()
+    localStorage.clear()
   }
 
-  getUid (uid) {
-    return sessionStorage.getItem('uid') || ''
+  getUid () {
+    return localStorage.getItem('uid') || ''
   }
 
   setUid (uid) {
-    sessionStorage.setItem('uid', uid)
+    localStorage.setItem('uid', uid)
     return this
   }
 
   getUsername () {
-    return sessionStorage.getItem('username') || ''
+    return localStorage.getItem('username') || ''
   }
 
   setUsername (username) {
-    sessionStorage.setItem('username', username)
+    localStorage.setItem('username', username)
     return this
   }
 
   getIsAdmin () {
-    return sessionStorage.getItem('is_admin') || 0
+    let isAdmin = localStorage.getItem('is_admin')
+    return isAdmin === '1'
   }
 
   setIsAdmin (isAdmin) {
-    sessionStorage.setItem('is_admin', isAdmin)
+    localStorage.setItem('is_admin', isAdmin)
     return this
   }
 }

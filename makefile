@@ -37,6 +37,15 @@ test-race: enable-race test
 enable-race:
 	$(eval RACE = -race)
 
+.PHONY: package
+package: build-vue
+	bash ./package.sh
+
+.PHONY: build-vue
+build-vue:
+	cd web/vue && yarn run build
+	cp -r web/vue/dist/ web/public/
+
 .PHONY: clean
 clean:
 	rm bin/gocron

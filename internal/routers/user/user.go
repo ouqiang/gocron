@@ -14,6 +14,8 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
+const tokenDuration = 4 * time.Hour
+
 // UserForm 用户表单
 type UserForm struct {
 	Id              int
@@ -294,7 +296,7 @@ func IsAdmin(ctx *macaron.Context) bool {
 func generateToken(user *models.User) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
 	claims := make(jwt.MapClaims)
-	claims["exp"] = time.Now().Add(1 * time.Hour).Unix()
+	claims["exp"] = time.Now().Add(tokenDuration).Unix()
 	claims["uid"] = user.Id
 	claims["iat"] = time.Now().Unix()
 	claims["issuer"] = "gocron"

@@ -13,11 +13,15 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/setting"
 	"github.com/ouqiang/gocron/internal/routers"
 	"github.com/ouqiang/gocron/internal/service"
+	"github.com/ouqiang/goutil"
 	"github.com/urfave/cli"
 	"gopkg.in/macaron.v1"
 )
 
-var AppVersion = "1.4"
+var (
+	AppVersion           = "1.4"
+	BuildDate, GitCommit string
+)
 
 // web服务器默认端口
 const DefaultPort = 5920
@@ -26,7 +30,7 @@ func main() {
 	cliApp := cli.NewApp()
 	cliApp.Name = "gocron"
 	cliApp.Usage = "gocron service"
-	cliApp.Version = AppVersion
+	cliApp.Version, _ = goutil.FormatAppVersion(AppVersion, GitCommit, BuildDate)
 	cliApp.Commands = getCommands()
 	cliApp.Flags = append(cliApp.Flags, []cli.Flag{}...)
 	cliApp.Run(os.Args)
@@ -64,7 +68,7 @@ func runWeb(ctx *cli.Context) {
 	// 设置运行环境
 	setEnvironment(ctx)
 	// 初始化应用
-	app.InitEnv(ctx.App.Version)
+	app.InitEnv(AppVersion)
 	// 初始化模块 DB、定时任务等
 	initModule()
 	// 捕捉信号,配置热更新等

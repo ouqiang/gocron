@@ -11,9 +11,12 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/rpc/auth"
 	"github.com/ouqiang/gocron/internal/modules/rpc/server"
 	"github.com/ouqiang/gocron/internal/modules/utils"
+	"github.com/ouqiang/goutil"
 )
 
-var AppVersion = "1.4"
+var (
+	AppVersion, BuildDate, GitCommit string
+)
 
 func main() {
 	var serverAddr string
@@ -33,7 +36,7 @@ func main() {
 	flag.Parse()
 
 	if version {
-		fmt.Println(AppVersion)
+		goutil.PrintAppVersion(AppVersion, GitCommit, BuildDate)
 		return
 	}
 

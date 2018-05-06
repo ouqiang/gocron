@@ -8,9 +8,9 @@ type TaskHost struct {
 
 type TaskHostDetail struct {
 	TaskHost `xorm:"extends"`
-	Name     string
-	Port     int
-	Alias    string
+	Name     string `json:"name"`
+	Port     int    `json:"port"`
+	Alias    string `json:"alias"`
 }
 
 func (TaskHostDetail) TableName() string {

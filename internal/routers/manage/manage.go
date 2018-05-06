@@ -9,20 +9,6 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// region slack
-
-func EditSlack(ctx *macaron.Context) string {
-	settingModel := new(models.Setting)
-	slack, err := settingModel.Slack()
-	jsonResp := utils.JsonResponse{}
-	if err != nil {
-		logger.Error(err)
-		return jsonResp.Success(utils.SuccessContent, nil)
-	}
-
-	return jsonResp.Success(utils.SuccessContent, slack)
-}
-
 func Slack(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	slack, err := settingModel.Slack()
@@ -68,19 +54,6 @@ func RemoveSlackChannel(ctx *macaron.Context) string {
 // endregion
 
 // region 邮件
-
-func EditMail(ctx *macaron.Context) string {
-	settingModel := new(models.Setting)
-	mail, err := settingModel.Mail()
-	jsonResp := utils.JsonResponse{}
-	if err != nil {
-		logger.Error(err)
-		return jsonResp.Success(utils.SuccessContent, nil)
-	}
-
-	return jsonResp.Success(utils.SuccessContent, mail)
-}
-
 func Mail(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	mail, err := settingModel.Mail()

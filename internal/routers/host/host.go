@@ -58,7 +58,7 @@ func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
 	err := hostModel.Find(id)
 	jsonResp := utils.JsonResponse{}
-	if err != nil {
+	if err != nil || hostModel.Id == 0 {
 		logger.Errorf("获取主机详情失败#主机id-%d", id)
 		return jsonResp.Success(utils.SuccessContent, nil)
 	}

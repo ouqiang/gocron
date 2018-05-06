@@ -120,7 +120,7 @@ func writeConfig(form InstallForm) error {
 		"api.secret", "",
 		"enable_tls", "false",
 		"concurrency.queue", "500",
-		"auth_token", fmt.Sprintf("%x", buf),
+		"auth_secret", fmt.Sprintf("%x", buf),
 		"ca_file", "",
 		"cert_file", "",
 		"key_file", "",

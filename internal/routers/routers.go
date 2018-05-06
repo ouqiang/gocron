@@ -22,17 +22,22 @@ import (
 	"gopkg.in/macaron.v1"
 )
 
-// 静态文件目录
-const staticDir = "web/public"
-
 // URL前缀
 const urlPrefix = "/api"
 
+var staticDir = "public"
+
 // 路由注册
 func Register(m *macaron.Macaron) {
+	if macaron.Env != macaron.PROD {
+		staticDir = "web/public"
+	}
 	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
+	m.Get("/", func(ctx *macaron.Context) {
+		ctx.ServeFileContent(filepath.Join(app.AppDir, staticDir, "index.html"))
+	})
 	// 系统安装
 	m.Group("/install", func() {
 		m.Post("/store", binding.Bind(install.InstallForm{}), install.Store)
@@ -77,15 +82,13 @@ func Register(m *macaron.Macaron) {
 	// 管理
 	m.Group("/system", func() {
 		m.Group("/slack", func() {
-			m.Get("/", manage.Slack)
-			m.Get("/edit", manage.EditSlack)
+			m.Get("", manage.Slack)
 			m.Post("/url", manage.UpdateSlackUrl)
 			m.Post("/channel", manage.CreateSlackChannel)
 			m.Post("/channel/remove/:id", manage.RemoveSlackChannel)
 		})
 		m.Group("/mail", func() {
-			m.Get("/", manage.Mail)
-			m.Get("/edit", manage.EditMail)
+			m.Get("", manage.Mail)
 			m.Post("/server", binding.Bind(manage.MailServerForm{}), manage.UpdateMailServer)
 			m.Post("/server/clear", manage.ClearMailServer)
 			m.Post("/user", manage.CreateMailUser)
@@ -137,16 +140,16 @@ func RegisterMiddleware(m *macaron.Macaron) {
 
 /** 检测应用是否已安装 **/
 func checkAppInstall(ctx *macaron.Context) {
-	installUrl := filepath.Join(urlPrefix, "/install")
-	if strings.HasPrefix(ctx.Req.URL.Path, installUrl) {
+	if ctx.Req.URL.Path == "/install" {
 		return
 	}
-	if !app.Installed {
-		jsonResp := utils.JsonResponse{}
-
-		data := jsonResp.Failure(utils.AppNotInstall, "应用未安装")
-		ctx.Write([]byte(data))
+	if app.Installed {
+		return
 	}
+	jsonResp := utils.JsonResponse{}
+
+	data := jsonResp.Failure(utils.AppNotInstall, "应用未安装")
+	ctx.Write([]byte(data))
 }
 
 // IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
@@ -174,10 +177,13 @@ func userAuth(ctx *macaron.Context) {
 	if user.IsLogin(ctx) {
 		return
 	}
-	uri := ctx.Req.URL.Path
-	excludePaths := []string{"/install", "/user/login", "/v1"}
+	uri := strings.TrimRight(ctx.Req.URL.Path, "/")
+	if strings.HasPrefix(uri, "/v1") {
+		return
+	}
+	excludePaths := []string{"", "/install", "/user/login"}
 	for _, path := range excludePaths {
-		if strings.HasPrefix(uri, path) {
+		if uri == path {
 			return
 		}
 	}

@@ -29,10 +29,12 @@ log
 data
 conf
 profile/*
-public/resource/javascript/vue.js
 /gocron
 /gocron-node
 /bin
-/packages
+/web/public/static
+/web/public/index.html
+/gocron_package
+/gocron-node_package
 
 node_modules

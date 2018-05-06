@@ -236,8 +236,8 @@ func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result stri
 			if err != nil {
 				errorMessage = err.Error()
 			}
-			outputMessage := fmt.Sprintf("主机: [%s-%s]\n%s\n%s\n\n",
-				th.Alias, th.Name, errorMessage, output,
+			outputMessage := fmt.Sprintf("主机: [%s-%s:%d]\n%s\n%s\n\n",
+				th.Alias, th.Name, th.Port, errorMessage, output,
 			)
 			resultChan <- TaskResult{Err: err, Result: outputMessage}
 		}(taskHost)
@@ -268,7 +268,7 @@ func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 	if taskModel.Protocol == models.TaskRPC {
 		aggregationHost := ""
 		for _, host := range taskModel.Hosts {
-			aggregationHost += fmt.Sprintf("%s-%s<br>", host.Alias, host.Name)
+			aggregationHost += fmt.Sprintf("%s-%s:%d<br>", host.Alias, host.Name, &host)
 		}
 		taskLogModel.Hostname = aggregationHost
 	}

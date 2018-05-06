@@ -1,27 +1,24 @@
 import axios from 'axios'
-import {Loading, Message} from 'element-ui'
-import userStorage from '../storage/user'
+import {Message} from 'element-ui'
 import router from '../router/index'
+import store from '../store/index'
+import Qs from 'qs'
 
-let loadingInstance = null
 const errorMessage = '加载失败, 请稍后再试'
+// 成功状态码
 const SUCCESS_CODE = 0
+// 认证失败
 const AUTH_ERROR_CODE = 401
+// 应用未安装
 const APP_NOT_INSTALL_CODE = 801
 
 axios.defaults.baseURL = '/api'
-axios.defaults.timeout = 5000
+axios.defaults.timeout = 10000
 axios.defaults.responseType = 'json'
 axios.interceptors.request.use(config => {
-  loadingInstance = Loading.service({fullscreen: true})
-  const token = userStorage.getToken()
-  config.headers = {
-    'Auth-Token': token
-  }
-
+  config.headers['Auth-Token'] = store.getters.user.token
   return config
 }, error => {
-  loadingInstance.close()
   Message.error({
     message: errorMessage
   })
@@ -30,10 +27,8 @@ axios.interceptors.request.use(config => {
 })
 
 axios.interceptors.response.use(data => {
-  loadingInstance.close()
   return data
 }, error => {
-  loadingInstance.close()
   Message.error({
     message: errorMessage
   })
@@ -68,7 +63,7 @@ function checkResponseCode (code, msg) {
 }
 
 function successCallback (res, next) {
-  if (!checkResponseCode(res.data.code)) {
+  if (!checkResponseCode(res.data.code, res.data.message)) {
     return
   }
   if (!next) {
@@ -84,16 +79,21 @@ function failureCallback (error) {
 }
 
 export default {
-  get (uri, next) {
-    const promise = axios.get(uri)
+  get (uri, params, next) {
+    const promise = axios.get(uri, {params})
     handle(promise, next)
   },
 
-  batchGet (uris, next) {
+  batchGet (uriGroup, next) {
     const requests = []
-    for (let uri of uris) {
-      requests.push(axios.get(uri))
+    for (let item of uriGroup) {
+      let params = {}
+      if (item.params !== undefined) {
+        params = item.params
+      }
+      requests.push(axios.get(item.uri, {params}))
     }
+
     axios.all(requests).then(axios.spread(function (...res) {
       const result = []
       for (let item of res) {
@@ -107,7 +107,13 @@ export default {
   },
 
   post (uri, data, next) {
-    const promise = axios.post(uri, data)
+    const promise = axios.post(uri, Qs.stringify(data), {
+      headers: {
+        post: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      }
+    })
     handle(promise, next)
   }
 }

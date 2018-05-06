@@ -1,8 +1,10 @@
 FROM alpine:latest
 
-COPY gocron /usr/local/gocron
+MAINTAINER ouqiang <qiangqianludao@gmail.com>
 
 WORKDIR /usr/local/gocron
+
+COPY . .
 
 EXPOSE 5920
 

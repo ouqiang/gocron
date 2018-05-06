@@ -1,7 +1,5 @@
 <template>
-  <div>
-    我是footer
-  </div>
+  <div></div>
 </template>
 
 <script>
