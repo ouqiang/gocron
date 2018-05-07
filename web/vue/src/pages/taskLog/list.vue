@@ -32,10 +32,14 @@
           <el-button type="primary" @click="search">搜索</el-button>
         </el-form-item>
       </el-form>
-      <p>
-        <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空日志</el-button>
-        <el-button type="info" @click="refresh">刷新</el-button>  <br> <br>
-      </p>
+      <el-row type="flex" justify="end">
+        <el-col :span="3">
+          <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空日志</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button type="info" @click="refresh">刷新</el-button>
+        </el-col>
+      </el-row>
       <el-pagination
         background
         layout="prev, pager, next, sizes, total"
@@ -72,7 +76,8 @@
         </el-table-column>
         <el-table-column
           prop="name"
-          label="任务名称">
+          label="任务名称"
+        width="180">
         </el-table-column>
         <el-table-column
           prop="protocol"

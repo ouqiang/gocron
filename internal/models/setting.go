@@ -11,11 +11,34 @@ type Setting struct {
 	Value string `xorm:"varchar(4096) notnull default '' "`
 }
 
+const slackTemplate = `
+任务ID: {{.TaskId}}\n
+任务名称: {{.TaskName}}\n
+状态: \n {{.Status}} \n
+执行结果: {{.Result}}
+`
+const emailTemplate = `
+任务ID: {{.TaskId}}<br>
+任务名称: {{.TaskName}}<br>
+状态: \n {{.Status}}<br>
+执行结果: {{.Result}}
+`
+const webhookTemplate = `
+{
+  "task_id": "{{.TaskId}}",
+  "task_name": "{{.TaskName}}",
+  "status": "{{.Status}}",
+  "result": "{{.Result}}"
+}
+`
+
 const SlackCode = "slack"
 const SlackUrlKey = "url"
+const SlackTemplateKey = "template"
 const SlackChannelKey = "channel"
 
 const MailCode = "mail"
+const MailTemplateKey = "template"
 const MailServerKey = "server"
 const MailUserKey = "user"
 
@@ -23,11 +46,25 @@ const MailUserKey = "user"
 func (setting *Setting) InitBasicField() {
 	setting.Code = SlackCode
 	setting.Key = SlackUrlKey
+	setting.Value = ""
 	Db.Insert(setting)
-
 	setting.Id = 0
+
+	setting.Code = SlackCode
+	setting.Key = SlackTemplateKey
+	setting.Value = slackTemplate
+	Db.Insert(setting)
+	setting.Id = 0
+
 	setting.Code = MailCode
 	setting.Key = MailServerKey
+	setting.Value = ""
+	Db.Insert(setting)
+	setting.Id = 0
+
+	setting.Code = MailCode
+	setting.Key = MailTemplateKey
+	setting.Value = emailTemplate
 	Db.Insert(setting)
 }
 
@@ -36,6 +73,7 @@ func (setting *Setting) InitBasicField() {
 type Slack struct {
 	Url      string    `json:"url"`
 	Channels []Channel `json:"channels"`
+	Template string    `json:"template"`
 }
 
 type Channel struct {
@@ -46,7 +84,7 @@ type Channel struct {
 func (setting *Setting) Slack() (Slack, error) {
 	list := make([]Setting, 0)
 	err := Db.Where("code = ?", SlackCode).Find(&list)
-	slack := Slack{Url: "", Channels: make([]Channel, 0)}
+	slack := Slack{}
 	if err != nil {
 		return slack, err
 	}
@@ -58,14 +96,16 @@ func (setting *Setting) Slack() (Slack, error) {
 
 func (setting *Setting) formatSlack(list []Setting, slack *Slack) {
 	for _, v := range list {
-		if v.Key == SlackUrlKey {
+		switch v.Key {
+		case SlackUrlKey:
 			slack.Url = v.Value
-			continue
+		case SlackTemplateKey:
+			slack.Template = v.Value
+		default:
+			slack.Channels = append(slack.Channels, Channel{
+				v.Id, v.Value,
+			})
 		}
-
-		slack.Channels = append(slack.Channels, Channel{
-			v.Id, v.Value,
-		})
 	}
 }
 
@@ -111,6 +151,7 @@ type Mail struct {
 	User      string     `json:"user"`
 	Password  string     `json:"password"`
 	MailUsers []MailUser `json:"mail_users"`
+	Template  string     `json:"template"`
 }
 
 type MailUser struct {

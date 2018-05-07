@@ -1,8 +1,14 @@
 <template>
   <el-container>
     <el-main>
-      <el-button type="success"  @click="toEdit(null)">新增</el-button>
-      <el-button type="info" @click="refresh">刷新</el-button> <br><br>
+      <el-row type="flex" justify="end">
+        <el-col :span="2">
+          <el-button type="primary"  @click="toEdit(null)">新增</el-button>
+        </el-col>
+        <el-col :span="2">
+          <el-button type="info" @click="refresh">刷新</el-button>
+        </el-col>
+      </el-row>
       <el-pagination
         background
         layout="prev, pager, next, sizes, total"

@@ -130,8 +130,8 @@ func RegisterMiddleware(m *macaron.Macaron) {
 		m.Use(toolbox.Toolboxer(m))
 	}
 	m.Use(macaron.Renderer())
-	m.Use(ipAuth)
 	m.Use(checkAppInstall)
+	m.Use(ipAuth)
 	m.Use(userAuth)
 	m.Use(urlAuth)
 }
@@ -140,10 +140,10 @@ func RegisterMiddleware(m *macaron.Macaron) {
 
 /** 检测应用是否已安装 **/
 func checkAppInstall(ctx *macaron.Context) {
-	if ctx.Req.URL.Path == "/install" {
+	if app.Installed {
 		return
 	}
-	if app.Installed {
+	if ctx.Req.URL.Path == "/install/store" {
 		return
 	}
 	jsonResp := utils.JsonResponse{}
@@ -154,6 +154,9 @@ func checkAppInstall(ctx *macaron.Context) {
 
 // IP验证, 通过反向代理访问gocron，需设置Header X-Real-IP才能获取到客户端真实IP
 func ipAuth(ctx *macaron.Context) {
+	if !app.Installed {
+		return
+	}
 	allowIpsStr := app.Setting.AllowIps
 	if allowIpsStr == "" {
 		return
@@ -173,6 +176,9 @@ func ipAuth(ctx *macaron.Context) {
 
 // 用户认证
 func userAuth(ctx *macaron.Context) {
+	if !app.Installed {
+		return
+	}
 	user.RestoreToken(ctx)
 	if user.IsLogin(ctx) {
 		return
@@ -181,7 +187,7 @@ func userAuth(ctx *macaron.Context) {
 	if strings.HasPrefix(uri, "/v1") {
 		return
 	}
-	excludePaths := []string{"", "/install", "/user/login"}
+	excludePaths := []string{"", "/user/login"}
 	for _, path := range excludePaths {
 		if uri == path {
 			return
@@ -195,6 +201,9 @@ func userAuth(ctx *macaron.Context) {
 
 // URL权限验证
 func urlAuth(ctx *macaron.Context) {
+	if !app.Installed {
+		return
+	}
 	if user.IsAdmin(ctx) {
 		return
 	}
@@ -225,6 +234,9 @@ func urlAuth(ctx *macaron.Context) {
 
 /** API接口签名验证 **/
 func apiAuth(ctx *macaron.Context) {
+	if !app.Installed {
+		return
+	}
 	if !app.Setting.ApiSignEnable {
 		return
 	}

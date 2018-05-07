@@ -46,6 +46,10 @@ build-vue:
 	cd web/vue && yarn run build
 	cp -r web/vue/dist/ web/public/
 
+.PHONY: install-vue
+install-vue:
+	cp web/vue && yarn install
+
 .PHONY: clean
 clean:
 	rm bin/gocron

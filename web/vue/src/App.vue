@@ -5,7 +5,7 @@
       <app-nav-menu></app-nav-menu>
     </el-header>
     <el-main >
-      <div>
+      <div id="main-container">
         <router-view/>
       </div>
     </el-main>
@@ -35,9 +35,26 @@ export default {
 }
 </script>
 <style>
+  body {
+    margin:0;
+  }
   .el-header {
     padding:0;
     margin:0;
   }
-
+  .el-container {
+    padding:0;
+    margin:0;
+    width: 100%;
+  }
+  .el-main {
+    padding:0;
+    margin:0;
+  }
+  #main-container .el-main {
+    margin:20px 20px 0 20px;
+  }
+  .el-aside .el-menu {
+    height: 100%;
+  }
 </style>

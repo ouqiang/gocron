@@ -55,7 +55,6 @@ export default {
       })
     },
     save () {
-      console.log(this.form)
       userService.editPassword(this.form, () => {
         this.$router.push('/user')
       })

@@ -10,10 +10,6 @@ import store from './store/index'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 
-Vue.prototype.$refresh = function () {
-  router.go(0)
-}
-
 Vue.prototype.$appConfirm = function (callback) {
   this.$confirm('确定执行此操作?', '提示', {
     confirmButtonText: '确定',

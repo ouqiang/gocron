@@ -1,7 +1,5 @@
 FROM alpine:latest
 
-MAINTAINER ouqiang <qiangqianludao@gmail.com>
-
 WORKDIR /usr/local/gocron
 
 COPY . .
