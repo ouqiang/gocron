@@ -66,6 +66,9 @@ func Read(filename string) (*Setting, error) {
 	s.ApiSignEnable = section.Key("api.sign.enable").MustBool(true)
 	s.ConcurrencyQueue = section.Key("concurrency.queue").MustInt(500)
 	s.AuthSecret = section.Key("auth_secret").MustString("")
+	if s.AuthSecret == "" {
+		s.AuthSecret = utils.RandAuthToken()
+	}
 
 	s.EnableTLS = section.Key("enable_tls").MustBool(false)
 	s.CAFile = section.Key("ca_file").MustString("")

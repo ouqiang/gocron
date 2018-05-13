@@ -38,3 +38,4 @@ profile/*
 /gocron-node_package
 
 node_modules
+internal/statik

@@ -56,12 +56,13 @@
 4. 浏览器访问 http://localhost:5920
 
 ### 源码安装
-1. 安装Go 1.9+, Node.js, Yarn
-2. `go get -d github.com/ouqiang/gocron`
-3. 安装依赖 `make install-vue`
-4. 前端打包 `make build-vue`
-5. 编译Go代码 `make`
-6. 启动
+- 安装Go 1.9+, Node.js, Yarn
+- `go get -d github.com/ouqiang/gocron`
+- 安装依赖 `make install-vue`
+- 前端打包 `make build-vue`
+- 静态资源嵌入  `make statik`
+- 编译Go代码 `make`
+- 启动
     * gocron `./bin/gocron web`
     * gocron-node `./bin/gocron-node`
 

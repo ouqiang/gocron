@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"crypto/rand"
-
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -97,12 +95,6 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 
 // 配置写入文件
 func writeConfig(form InstallForm) error {
-	buf := make([]byte, 32)
-	_, err := rand.Read(buf)
-	if err != nil {
-		return fmt.Errorf("生成认证密钥失败: %s", err)
-	}
-
 	dbConfig := []string{
 		"db.engine", form.DbType,
 		"db.host", form.DbHost,
@@ -120,7 +112,7 @@ func writeConfig(form InstallForm) error {
 		"api.secret", "",
 		"enable_tls", "false",
 		"concurrency.queue", "500",
-		"auth_secret", fmt.Sprintf("%x", buf),
+		"auth_secret", utils.RandAuthToken(),
 		"ca_file", "",
 		"cert_file", "",
 		"key_file", "",

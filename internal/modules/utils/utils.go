@@ -2,7 +2,9 @@ package utils
 
 import (
 	"crypto/md5"
+	crand "crypto/rand"
 	"encoding/hex"
+	"fmt"
 	"math/rand"
 	"os"
 	"strings"
@@ -10,6 +12,16 @@ import (
 
 	"github.com/Tang-RoseChild/mahonia"
 )
+
+func RandAuthToken() string {
+	buf := make([]byte, 32)
+	_, err := crand.Read(buf)
+	if err != nil {
+		return RandString(64)
+	}
+
+	return fmt.Sprintf("%x", buf)
+}
 
 // 生成长度为length的随机字符串
 func RandString(length int64) string {

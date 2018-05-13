@@ -38,7 +38,7 @@ enable-race:
 	$(eval RACE = -race)
 
 .PHONY: package
-package: build-vue
+package: build-vue statik
 	bash ./package.sh
 
 .PHONY: build-vue
@@ -49,6 +49,11 @@ build-vue:
 .PHONY: install-vue
 install-vue:
 	cp web/vue && yarn install
+
+.PHONY: statik
+statik:
+	go get github.com/rakyll/statik
+	go generate ./...
 
 .PHONY: clean
 clean:

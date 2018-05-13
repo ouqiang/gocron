@@ -131,6 +131,12 @@
 			"revisionTime": "2018-04-18T01:28:05Z"
 		},
 		{
+			"checksumSHA1": "aoYDmf0vxCZJOvIwTdElHi2IXH4=",
+			"path": "github.com/rakyll/statik",
+			"revision": "fcdcb7b85139b8b9ca1d8ef1d98d8593e90d117f",
+			"revisionTime": "2018-03-30T20:43:14Z"
+		},
+		{
 			"checksumSHA1": "cVGA2CJTJsCAVa5VKTM8k/ma/BU=",
 			"path": "github.com/silenceper/pool",
 			"revision": "e4c4536403d9765c8ea74cda2ee49dcb0848bc7a",

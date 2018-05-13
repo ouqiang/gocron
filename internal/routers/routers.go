@@ -1,7 +1,9 @@
 package routers
 
 import (
-	"path/filepath"
+	"io"
+	"log"
+	"net/http"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +21,10 @@ import (
 	"github.com/ouqiang/gocron/internal/routers/task"
 	"github.com/ouqiang/gocron/internal/routers/tasklog"
 	"github.com/ouqiang/gocron/internal/routers/user"
+	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
+
+	_ "github.com/ouqiang/gocron/internal/statik"
 )
 
 // URL前缀
@@ -27,16 +32,30 @@ const urlPrefix = "/api"
 
 var staticDir = "public"
 
+var statikFS http.FileSystem
+
+func init() {
+	var err error
+	statikFS, err = fs.New()
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // 路由注册
 func Register(m *macaron.Macaron) {
-	if macaron.Env != macaron.PROD {
-		staticDir = "web/public"
-	}
 	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
 	m.Get("/", func(ctx *macaron.Context) {
-		ctx.ServeFileContent(filepath.Join(app.AppDir, staticDir, "index.html"))
+		file, err := statikFS.Open("/index.html")
+		if err != nil {
+			logger.Error("读取首页文件失败: %s", err)
+			ctx.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+		io.Copy(ctx.Resp, file)
+
 	})
 	// 系统安装
 	m.Group("/install", func() {
@@ -128,7 +147,15 @@ func RegisterMiddleware(m *macaron.Macaron) {
 	if macaron.Env != macaron.DEV {
 		m.Use(gzip.Gziper())
 	}
-	m.Use(macaron.Static(filepath.Join(app.AppDir, staticDir)))
+	m.Use(
+		macaron.Static(
+			"",
+			macaron.StaticOptions{
+				Prefix:     staticDir,
+				FileSystem: statikFS,
+			},
+		),
+	)
 	if macaron.Env == macaron.DEV {
 		m.Use(toolbox.Toolboxer(m))
 	}
@@ -146,7 +173,7 @@ func checkAppInstall(ctx *macaron.Context) {
 	if app.Installed {
 		return
 	}
-	if ctx.Req.URL.Path == "/install/store" {
+	if ctx.Req.URL.Path == "/install/store" || ctx.Req.URL.Path == "/" {
 		return
 	}
 	jsonResp := utils.JsonResponse{}

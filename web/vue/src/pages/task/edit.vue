@@ -33,7 +33,7 @@
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="6">
+          <el-col :span="7">
             <el-form-item label="任务类型">
               <el-select v-model.trim="form.level" :disabled="form.id !== '' ">
                 <el-option
@@ -57,7 +57,7 @@
               </el-select>
             </el-form-item>
           </el-col>
-          <el-col :span="11">
+          <el-col :span="10">
             <el-form-item label="子任务ID" v-if="form.level === 1">
               <el-input v-model.trim="form.dependency_task_id" placeholder="多个ID逗号分隔"></el-input>
             </el-form-item>

@@ -178,7 +178,7 @@ run() {
 package_gocron() {
     BINARY_NAME='gocron'
     MAIN_FILE="./cmd/gocron/gocron.go"
-    INCLUDE_FILE=(Dockerfile-release README.md web/public)
+    INCLUDE_FILE=(Dockerfile-release README.md)
 
 
     run
