@@ -86,7 +86,7 @@
         </el-table-column>
         <el-table-column
           label="任务节点"
-          width="120">
+          width="150">
           <template slot-scope="scope">
             <div v-html="scope.row.hostname">{{scope.row.hostname}}</div>
           </template>

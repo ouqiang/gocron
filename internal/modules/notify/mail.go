@@ -41,6 +41,7 @@ func (mail *Mail) Send(msg Message) {
 		logger.Error("#mail#Password为空")
 		return
 	}
+	msg["content"] = parseNotifyTemplate(mailSetting.Template, msg)
 	toUsers := mail.getActiveMailUsers(mailSetting, msg)
 	mail.send(mailSetting, toUsers, msg)
 }
@@ -51,7 +52,7 @@ func (mail *Mail) send(mailSetting models.Mail, toUsers []string, msg Message) {
 	gomailMessage := gomail.NewMessage()
 	gomailMessage.SetHeader("From", mailSetting.User)
 	gomailMessage.SetHeader("To", toUsers...)
-	gomailMessage.SetHeader("Subject", "gocron-定时任务监控通知")
+	gomailMessage.SetHeader("Subject", "gocron-定时任务通知")
 	gomailMessage.SetBody("text/html", body)
 	mailer := gomail.NewPlainDialer(mailSetting.Host, mailSetting.Port,
 		mailSetting.User, mailSetting.Password)

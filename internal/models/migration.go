@@ -35,7 +35,6 @@ func (migration *Migration) Install(dbName string) error {
 		}
 	}
 	setting.InitBasicField()
-	task.CreateTestTask()
 
 	return nil
 }
@@ -54,12 +53,13 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		return
 	}
 
-	versionIds := []int{110, 122, 130, 140}
+	versionIds := []int{110, 122, 130, 140, 150}
 	upgradeFuncs := []func(*xorm.Session) error{
 		migration.upgradeFor110,
 		migration.upgradeFor122,
 		migration.upgradeFor130,
 		migration.upgradeFor140,
+		migration.upgradeFor150,
 	}
 
 	startIndex := -1
@@ -191,4 +191,55 @@ func (migration *Migration) upgradeFor140(session *xorm.Session) error {
 	logger.Info("已升级到v1.4\n")
 
 	return err
+}
+
+func (m *Migration) upgradeFor150(session *xorm.Session) error {
+	logger.Info("开始升级到v1.5")
+
+	tableName := TablePrefix + "task"
+	// task表增加字段 notify_keyword
+	sql := fmt.Sprintf(
+		"ALTER TABLE %s ADD COLUMN notify_keyword VARCHAR(128) NOT NULL DEFAULT '' ", tableName)
+	_, err := session.Exec(sql)
+
+	if err != nil {
+		return err
+	}
+
+	settingModel := new(Setting)
+	settingModel.Code = MailCode
+	settingModel.Key = MailTemplateKey
+	settingModel.Value = emailTemplate
+	_, err = Db.Insert(settingModel)
+	if err != nil {
+		return err
+	}
+	settingModel.Id = 0
+	settingModel.Code = SlackCode
+	settingModel.Key = SlackTemplateKey
+	settingModel.Value = slackTemplate
+	_, err = Db.Insert(settingModel)
+	if err != nil {
+		return err
+	}
+
+	settingModel.Code = WebhookCode
+	settingModel.Key = WebhookUrlKey
+	settingModel.Value = ""
+	_, err = Db.Insert(settingModel)
+	if err != nil {
+		return err
+	}
+
+	settingModel.Code = WebhookCode
+	settingModel.Key = WebhookTemplateKey
+	settingModel.Value = webhookTemplate
+	_, err = Db.Insert(settingModel)
+	if err != nil {
+		return err
+	}
+
+	logger.Info("已升级到v1.5\n")
+
+	return nil
 }

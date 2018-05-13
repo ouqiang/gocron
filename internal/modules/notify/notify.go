@@ -1,7 +1,9 @@
 package notify
 
 import (
+	"bytes"
 	"fmt"
+	"html/template"
 	"time"
 
 	"github.com/ouqiang/gocron/internal/modules/logger"
@@ -47,7 +49,27 @@ func run() {
 			// Slack
 			slack := Slack{}
 			go slack.Send(msg)
+		case 3:
+			// WebHook
+			webHook := WebHook{}
+			go webHook.Send(msg)
 		}
 		time.Sleep(1 * time.Second)
 	}
+}
+
+func parseNotifyTemplate(notifyTemplate string, msg Message) string {
+	tmpl, err := template.New("notify").Parse(notifyTemplate)
+	if err != nil {
+		return fmt.Sprintf("解析通知模板失败: %s", err)
+	}
+	var buf bytes.Buffer
+	tmpl.Execute(&buf, map[string]interface{}{
+		"TaskId":   msg["task_id"],
+		"TaskName": msg["name"],
+		"Status":   msg["status"],
+		"Result":   msg["output"],
+	})
+
+	return buf.String()
 }

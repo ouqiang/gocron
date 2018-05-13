@@ -31,9 +31,10 @@ type TaskForm struct {
 	HostId           string
 	Tag              string
 	Remark           string
-	NotifyStatus     int8 `binding:"In(1,2,3)"`
-	NotifyType       int8 `binding:"In(1,2,3)"`
+	NotifyStatus     int8 `binding:"In(1,2,3,4)"`
+	NotifyType       int8 `binding:"In(1,2,3,4)"`
 	NotifyReceiverId string
+	NotifyKeyword    string
 }
 
 func (f TaskForm) Error(ctx *macaron.Context, errs binding.Errors) {
@@ -58,6 +59,9 @@ func Index(ctx *macaron.Context) string {
 	if err != nil {
 		logger.Error(err)
 	}
+	for i, item := range tasks {
+		tasks[i].NextRunTime = service.ServiceTask.NextRunTime(item)
+	}
 	jsonResp := utils.JsonResponse{}
 
 	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
@@ -72,8 +76,8 @@ func Detail(ctx *macaron.Context) string {
 	taskModel := new(models.Task)
 	task, err := taskModel.Detail(id)
 	jsonResp := utils.JsonResponse{}
-	if err != nil || task.Id != id {
-		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d#%s", id, err.Error())
+	if err != nil || task.Id == 0 {
+		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d", id)
 		return jsonResp.Success(utils.SuccessContent, nil)
 	}
 
@@ -112,11 +116,12 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	taskModel.NotifyStatus = form.NotifyStatus - 1
 	taskModel.NotifyType = form.NotifyType - 1
 	taskModel.NotifyReceiverId = form.NotifyReceiverId
+	taskModel.NotifyKeyword = form.NotifyKeyword
 	taskModel.Spec = form.Spec
 	taskModel.Level = form.Level
 	taskModel.DependencyStatus = form.DependencyStatus
 	taskModel.DependencyTaskId = strings.TrimSpace(form.DependencyTaskId)
-	if taskModel.NotifyStatus > 0 && taskModel.NotifyReceiverId == "" {
+	if taskModel.NotifyStatus > 0 && taskModel.NotifyType != 3 && taskModel.NotifyReceiverId == "" {
 		return json.CommonFailure("至少选择一个通知接收者")
 	}
 	taskModel.HttpMethod = form.HttpMethod

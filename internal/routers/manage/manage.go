@@ -22,10 +22,11 @@ func Slack(ctx *macaron.Context) string {
 	return jsonResp.Success(utils.SuccessContent, slack)
 }
 
-func UpdateSlackUrl(ctx *macaron.Context) string {
+func UpdateSlack(ctx *macaron.Context) string {
 	url := ctx.QueryTrim("url")
+	template := ctx.QueryTrim("template")
 	settingModel := new(models.Setting)
-	_, err := settingModel.UpdateSlackUrl(url)
+	err := settingModel.UpdateSlack(url, template)
 
 	return utils.JsonResponseByErr(err)
 }
@@ -73,18 +74,12 @@ type MailServerForm struct {
 	Password string `binding:"Required;MaxSize(64)"`
 }
 
-func UpdateMailServer(ctx *macaron.Context, form MailServerForm) string {
+func UpdateMail(ctx *macaron.Context, form MailServerForm) string {
 	jsonByte, _ := json.Marshal(form)
 	settingModel := new(models.Setting)
-	_, err := settingModel.UpdateMailServer(string(jsonByte))
 
-	return utils.JsonResponseByErr(err)
-}
-
-func ClearMailServer(ctx *macaron.Context) string {
-	jsonByte, _ := json.Marshal(MailServerForm{})
-	settingModel := new(models.Setting)
-	_, err := settingModel.UpdateMailServer(string(jsonByte))
+	template := ctx.QueryTrim("template")
+	err := settingModel.UpdateMail(string(jsonByte), template)
 
 	return utils.JsonResponseByErr(err)
 }
@@ -107,6 +102,27 @@ func RemoveMailUser(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
 	settingModel := new(models.Setting)
 	_, err := settingModel.RemoveMailUser(id)
+
+	return utils.JsonResponseByErr(err)
+}
+
+func WebHook(ctx *macaron.Context) string {
+	settingModel := new(models.Setting)
+	webHook, err := settingModel.Webhook()
+	jsonResp := utils.JsonResponse{}
+	if err != nil {
+		logger.Error(err)
+		return jsonResp.Success(utils.SuccessContent, nil)
+	}
+
+	return jsonResp.Success("", webHook)
+}
+
+func UpdateWebHook(ctx *macaron.Context) string {
+	url := ctx.QueryTrim("url")
+	template := ctx.QueryTrim("template")
+	settingModel := new(models.Setting)
+	err := settingModel.UpdateWebHook(url, template)
 
 	return utils.JsonResponseByErr(err)
 }

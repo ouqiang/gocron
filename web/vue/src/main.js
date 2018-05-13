@@ -10,6 +10,13 @@ import store from './store/index'
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 
+Vue.directive('focus', {
+  inserted: function (el) {
+    // 聚焦元素
+    el.focus()
+  }
+})
+
 Vue.prototype.$appConfirm = function (callback) {
   this.$confirm('确定执行此操作?', '提示', {
     confirmButtonText: '确定',
@@ -26,12 +33,18 @@ Vue.filter('formatTime', function (time) {
   }
   const date = new Date(time)
 
-  return date.getFullYear() + '-' +
+  const result = date.getFullYear() + '-' +
   (fillZero(date.getMonth() + 1)) + '-' +
   fillZero(date.getDate()) + ' ' +
   fillZero(date.getHours()) + ':' +
   fillZero(date.getMinutes()) + ':' +
   fillZero(date.getSeconds())
+
+  if (result.indexOf('20') !== 0) {
+    return ''
+  }
+
+  return result
 })
 
 /* eslint-disable no-new */

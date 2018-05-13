@@ -47,5 +47,5 @@ func ConvertEncoding(outputGBK string) string {
 		return outputUTF8
 	}
 
-	return "命令输出转换编码失败(gbk to utf8)"
+	return outputGBK
 }

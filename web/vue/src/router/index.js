@@ -4,6 +4,7 @@ import store from '../store/index'
 import NotFound from '../components/common/notFound'
 
 import TaskList from '../pages/task/list'
+import TaskEdit from '../pages/task/edit'
 import TaskLog from '../pages/taskLog/list'
 
 import HostList from '../pages/host/list'
@@ -54,6 +55,16 @@ const router = new Router({
       meta: {
         noNeedAdmin: true
       }
+    },
+    {
+      path: '/task/create',
+      name: 'task-create',
+      component: TaskEdit
+    },
+    {
+      path: '/task/edit/:id',
+      name: 'task-edit',
+      component: TaskEdit
     },
     {
       path: '/task/log',
@@ -146,6 +157,10 @@ const router = new Router({
 
 router.beforeEach((to, from, next) => {
   if (to.meta.noLogin) {
+    next()
+    return
+  }
+  if (to.fullPath === '/task') {
     next()
     return
   }

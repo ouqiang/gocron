@@ -67,6 +67,7 @@ export default {
     hostService.detail(id, (data) => {
       if (!data) {
         this.$message.error('数据不存在')
+        this.cancel()
         return
       }
       this.form.id = data.id

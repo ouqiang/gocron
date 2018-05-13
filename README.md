@@ -97,7 +97,7 @@
 * Web框架 [Macaron](http://go-macaron.com/)
 * 定时任务调度 [Cron](https://github.com/robfig/cron)
 * ORM [Xorm](https://github.com/go-xorm/xorm)
-* UI框架 [Semantic UI](https://semantic-ui.com/)
+* UI框架 [Element UI](https://github.com/ElemeFE/element)
 * 依赖管理 [Govendor](https://github.com/kardianos/govendor)
 * RPC框架 [gRPC](https://github.com/grpc/grpc)
 
@@ -105,6 +105,15 @@
 提交[issue](https://github.com/ouqiang/gocron/issues/new)
 
 ## ChangeLog
+
+v1.5
+--------
+* 前端使用Vue+ElementUI重构
+* 任务通知
+    * 新增WebHook通知
+    * 自定义通知模板
+    * 匹配任务执行结果关键字发送通知
+* 任务列表页显示任务下次执行时间
 
 v1.4
 --------

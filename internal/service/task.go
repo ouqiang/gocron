@@ -166,6 +166,22 @@ func (task Task) Add(taskModel models.Task) {
 	}
 }
 
+func (task Task) NextRunTime(taskModel models.Task) time.Time {
+	if taskModel.Level != models.TaskLevelParent ||
+		taskModel.Status != models.Enabled {
+		return time.Time{}
+	}
+	entries := serviceCron.Entries()
+	taskName := strconv.Itoa(taskModel.Id)
+	for _, item := range entries {
+		if item.Name == taskName {
+			return item.Next
+		}
+	}
+
+	return time.Time{}
+}
+
 // 停止运行中的任务
 func (task Task) Stop(ip string, port int, id int64) {
 	rpcClient.Stop(ip, port, id)
@@ -268,7 +284,7 @@ func createTaskLog(taskModel models.Task, status models.Status) (int64, error) {
 	if taskModel.Protocol == models.TaskRPC {
 		aggregationHost := ""
 		for _, host := range taskModel.Hosts {
-			aggregationHost += fmt.Sprintf("%s-%s:%d<br>", host.Alias, host.Name, &host)
+			aggregationHost += fmt.Sprintf("%s - %s<br>", host.Alias, host.Name)
 		}
 		taskLogModel.Hostname = aggregationHost
 	}
@@ -411,11 +427,17 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 	if taskModel.NotifyStatus == 0 {
 		return
 	}
+	if taskModel.NotifyStatus == 3 {
+		// 关键字匹配通知
+		if !strings.Contains(taskResult.Result, taskModel.NotifyKeyword) {
+			return
+		}
+	}
 	if taskModel.NotifyStatus == 1 && taskResult.Err == nil {
 		// 执行失败才发送通知
 		return
 	}
-	if taskModel.NotifyReceiverId == "" {
+	if taskModel.NotifyType != 3 && taskModel.NotifyReceiverId == "" {
 		return
 	}
 	if taskResult.Err != nil {
@@ -430,7 +452,7 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"name":             taskModel.Name,
 		"output":           taskResult.Result,
 		"status":           statusName,
-		"taskId":           taskModel.Id,
+		"task_id":          taskModel.Id,
 	}
 	notify.Push(msg)
 }

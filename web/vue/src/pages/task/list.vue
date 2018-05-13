@@ -55,7 +55,7 @@
     </el-form>
     <el-row type="flex" justify="end">
       <el-col :span="2">
-        <el-button type="primary" v-if="this.$store.getters.user.isAdmin">新增</el-button>
+        <el-button type="primary" @click="toEdit(null)" v-if="this.$store.getters.user.isAdmin">新增</el-button>
       </el-col>
       <el-col :span="2">
         <el-button type="info" @click="refresh">刷新</el-button>
@@ -129,6 +129,11 @@
         label="cron表达式"
       width="120">
       </el-table-column>
+      <el-table-column label="下次执行时间" width="160">
+        <template slot-scope="scope">
+          {{scope.row.next_run_time | formatTime}}
+        </template>
+      </el-table-column>
       <el-table-column
         prop="protocol"
         :formatter="formatProtocol"
@@ -138,6 +143,7 @@
         label="状态" v-if="this.isAdmin">
           <template slot-scope="scope">
             <el-switch
+              v-if="scope.row.level === 1"
               v-model="scope.row.status"
               :active-value="1"
               :inactive-vlaue="0"
@@ -150,6 +156,7 @@
       <el-table-column label="状态" v-else>
         <template slot-scope="scope">
           <el-switch
+            v-if="scope.row.level === 1"
             v-model="scope.row.status"
             :active-value="1"
             :inactive-vlaue="0"
@@ -159,10 +166,10 @@
           </el-switch>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300" v-if="this.isAdmin">
+      <el-table-column label="操作" width="220" v-if="this.isAdmin">
         <template slot-scope="scope">
           <el-row>
-            <el-button type="primary">编辑</el-button>
+            <el-button type="primary" @click="toEdit(scope.row)">编辑</el-button>
             <el-button type="success" @click="runTask(scope.row)">手动执行</el-button>
           </el-row>
           <br>
@@ -302,6 +309,15 @@ export default {
     },
     refresh () {
       this.search()
+    },
+    toEdit (item) {
+      let path = ''
+      if (item === null) {
+        path = '/task/create'
+      } else {
+        path = `/task/edit/${item.id}`
+      }
+      this.$router.push(path)
     }
   }
 }

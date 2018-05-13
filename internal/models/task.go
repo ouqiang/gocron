@@ -51,9 +51,10 @@ type Task struct {
 	Multi            int8                 `json:"multi" xorm:"tinyint notnull default 1"`                     // 是否允许多实例运行
 	RetryTimes       int8                 `json:"retry_times" xorm:"tinyint notnull default 0"`               // 重试次数
 	RetryInterval    int16                `json:"retry_interval" xorm:"smallint notnull default 0"`           // 重试间隔时间
-	NotifyStatus     int8                 `json:"notify_status" xorm:"tinyint notnull default 1"`             // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知
-	NotifyType       int8                 `json:"notify_type" xorm:"tinyint notnull default 0"`               // 通知类型 1: 邮件 2: slack
+	NotifyStatus     int8                 `json:"notify_status" xorm:"tinyint notnull default 1"`             // 任务执行结束是否通知 0: 不通知 1: 失败通知 2: 执行结束通知 3: 任务执行结果关键字匹配通知
+	NotifyType       int8                 `json:"notify_type" xorm:"tinyint notnull default 0"`               // 通知类型 1: 邮件 2: slack 3: webhook
 	NotifyReceiverId string               `json:"notify_receiver_id" xorm:"varchar(256) notnull default '' "` // 通知接受者ID, setting表主键ID，多个ID逗号分隔
+	NotifyKeyword    string               `json:"notify_keyword" xorm:"varchar(128) notnull default '' "`
 	Tag              string               `json:"tag" xorm:"varchar(32) notnull default ''"`
 	Remark           string               `json:"remark" xorm:"varchar(100) notnull default ''"` // 备注
 	Status           Status               `json:"status" xorm:"tinyint notnull index default 0"` // 状态 1:正常 0:停止
@@ -61,6 +62,7 @@ type Task struct {
 	Deleted          time.Time            `json:"deleted" xorm:"datetime deleted"`               // 删除时间
 	BaseModel        `json:"-" xorm:"-"`
 	Hosts            []TaskHostDetail `json:"hosts" xorm:"-"`
+	NextRunTime      time.Time        `json:"next_run_time" xorm:"-"`
 }
 
 func taskHostTableName() []string {
@@ -77,25 +79,11 @@ func (task *Task) Create() (insertId int, err error) {
 	return
 }
 
-// 新增测试任务
-func (task *Task) CreateTestTask() {
-	// HTTP任务
-	task.Name = "测试HTTP任务"
-	task.Level = TaskLevelParent
-	task.Protocol = TaskHTTP
-	task.Spec = "*/30 * * * * *"
-	task.Tag = "test-task"
-	// 查询IP地址区域信息
-	task.Command = "http://ip.taobao.com/service/getIpInfo.php?ip=117.27.140.253"
-	task.Status = Enabled
-	task.Create()
-}
-
 func (task *Task) UpdateBean(id int) (int64, error) {
 	return Db.ID(id).
 		Cols(`name,spec,protocol,command,timeout,multi,
 			retry_times,retry_interval,remark,notify_status,
-			notify_type,notify_receiver_id, dependency_task_id, dependency_status, tag,http_method`).
+			notify_type,notify_receiver_id, dependency_task_id, dependency_status, tag,http_method, notify_keyword`).
 		Update(task)
 }
 

@@ -5,7 +5,7 @@
       <app-nav-menu></app-nav-menu>
     </el-header>
     <el-main >
-      <div id="main-container">
+      <div id="main-container" v-cloak>
         <router-view/>
       </div>
     </el-main>
@@ -35,6 +35,9 @@ export default {
 }
 </script>
 <style>
+  [v-cloak] {
+    display: none !important;
+  }
   body {
     margin:0;
   }

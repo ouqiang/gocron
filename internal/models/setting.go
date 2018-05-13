@@ -12,15 +12,15 @@ type Setting struct {
 }
 
 const slackTemplate = `
-任务ID: {{.TaskId}}\n
-任务名称: {{.TaskName}}\n
-状态: \n {{.Status}} \n
+任务ID:  {{.TaskId}}
+任务名称: {{.TaskName}}
+状态:    {{.Status}}
 执行结果: {{.Result}}
 `
 const emailTemplate = `
-任务ID: {{.TaskId}}<br>
-任务名称: {{.TaskName}}<br>
-状态: \n {{.Status}}<br>
+任务ID:  {{.TaskId}}
+任务名称: {{.TaskName}}
+状态:    {{.Status}}
 执行结果: {{.Result}}
 `
 const webhookTemplate = `
@@ -32,15 +32,25 @@ const webhookTemplate = `
 }
 `
 
-const SlackCode = "slack"
-const SlackUrlKey = "url"
-const SlackTemplateKey = "template"
-const SlackChannelKey = "channel"
+const (
+	SlackCode        = "slack"
+	SlackUrlKey      = "url"
+	SlackTemplateKey = "template"
+	SlackChannelKey  = "channel"
+)
 
-const MailCode = "mail"
-const MailTemplateKey = "template"
-const MailServerKey = "server"
-const MailUserKey = "user"
+const (
+	MailCode        = "mail"
+	MailTemplateKey = "template"
+	MailServerKey   = "server"
+	MailUserKey     = "user"
+)
+
+const (
+	WebhookCode        = "webhook"
+	WebhookTemplateKey = "template"
+	WebhookUrlKey      = "url"
+)
 
 // 初始化基本字段 邮件、slack等
 func (setting *Setting) InitBasicField() {
@@ -65,6 +75,18 @@ func (setting *Setting) InitBasicField() {
 	setting.Code = MailCode
 	setting.Key = MailTemplateKey
 	setting.Value = emailTemplate
+	Db.Insert(setting)
+	setting.Id = 0
+
+	setting.Code = WebhookCode
+	setting.Key = WebhookTemplateKey
+	setting.Value = webhookTemplate
+	Db.Insert(setting)
+	setting.Id = 0
+
+	setting.Code = WebhookCode
+	setting.Key = WebhookUrlKey
+	setting.Value = ""
 	Db.Insert(setting)
 }
 
@@ -109,11 +131,15 @@ func (setting *Setting) formatSlack(list []Setting, slack *Slack) {
 	}
 }
 
-// 更新slack webhook url
-func (setting *Setting) UpdateSlackUrl(url string) (int64, error) {
+func (setting *Setting) UpdateSlack(url, template string) error {
 	setting.Value = url
 
-	return Db.Cols("value").Update(setting, Setting{Code: SlackCode, Key: SlackUrlKey})
+	Db.Cols("value").Update(setting, Setting{Code: SlackCode, Key: SlackUrlKey})
+
+	setting.Value = template
+	Db.Cols("value").Update(setting, Setting{Code: SlackCode, Key: SlackTemplateKey})
+
+	return nil
 }
 
 // 创建slack渠道
@@ -177,19 +203,28 @@ func (setting *Setting) Mail() (Mail, error) {
 func (setting *Setting) formatMail(list []Setting, mail *Mail) {
 	mailUser := MailUser{}
 	for _, v := range list {
-		if v.Key == MailServerKey {
+		switch v.Key {
+		case MailServerKey:
 			json.Unmarshal([]byte(v.Value), mail)
-			continue
+		case MailUserKey:
+			json.Unmarshal([]byte(v.Value), &mailUser)
+			mailUser.Id = v.Id
+			mail.MailUsers = append(mail.MailUsers, mailUser)
+		case MailTemplateKey:
+			mail.Template = v.Value
 		}
-		json.Unmarshal([]byte(v.Value), &mailUser)
-		mailUser.Id = v.Id
-		mail.MailUsers = append(mail.MailUsers, mailUser)
+
 	}
 }
 
-func (setting *Setting) UpdateMailServer(config string) (int64, error) {
+func (setting *Setting) UpdateMail(config, template string) error {
 	setting.Value = config
-	return Db.Cols("value").Update(setting, Setting{Code: MailCode, Key: MailServerKey})
+	Db.Cols("value").Update(setting, Setting{Code: MailCode, Key: MailServerKey})
+
+	setting.Value = template
+	Db.Cols("value").Update(setting, Setting{Code: MailCode, Key: MailTemplateKey})
+
+	return nil
 }
 
 func (setting *Setting) CreateMailUser(username, email string) (int64, error) {
@@ -210,6 +245,47 @@ func (setting *Setting) RemoveMailUser(id int) (int64, error) {
 	setting.Key = MailUserKey
 	setting.Id = id
 	return Db.Delete(setting)
+}
+
+type WebHook struct {
+	Url      string `json:"url"`
+	Template string `json:"template"`
+}
+
+func (setting *Setting) Webhook() (WebHook, error) {
+	list := make([]Setting, 0)
+	err := Db.Where("code = ?", WebhookCode).Find(&list)
+	webHook := WebHook{}
+	if err != nil {
+		return webHook, err
+	}
+
+	setting.formatWebhook(list, &webHook)
+
+	return webHook, err
+}
+
+func (setting *Setting) formatWebhook(list []Setting, webHook *WebHook) {
+	for _, v := range list {
+		switch v.Key {
+		case WebhookUrlKey:
+			webHook.Url = v.Value
+		case WebhookTemplateKey:
+			webHook.Template = v.Value
+		}
+
+	}
+}
+
+func (setting *Setting) UpdateWebHook(url, template string) error {
+	setting.Value = url
+
+	Db.Cols("value").Update(setting, Setting{Code: WebhookCode, Key: WebhookUrlKey})
+
+	setting.Value = template
+	Db.Cols("value").Update(setting, Setting{Code: WebhookCode, Key: WebhookTemplateKey})
+
+	return nil
 }
 
 // endregion

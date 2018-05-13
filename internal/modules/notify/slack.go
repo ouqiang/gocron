@@ -4,6 +4,7 @@ package notify
 
 import (
 	"fmt"
+	"html"
 	"strconv"
 	"strings"
 	"time"
@@ -34,6 +35,8 @@ func (slack *Slack) Send(msg Message) {
 	logger.Debugf("%+v", slackSetting)
 	channels := slack.getActiveSlackChannels(slackSetting, msg)
 	logger.Debugf("%+v", channels)
+	msg["content"] = parseNotifyTemplate(slackSetting.Template, msg)
+	msg["content"] = html.UnescapeString(msg["content"].(string))
 	for _, channel := range channels {
 		slack.send(msg, slackSetting.Url, channel)
 	}
@@ -76,5 +79,5 @@ func (slack *Slack) format(content string, channel string) string {
 	replaceChars := []string{"&amp;", "&lt;", "&gt;"}
 	content = utils.ReplaceStrings(content, specialChars, replaceChars)
 
-	return fmt.Sprintf(`{"text":"%s","username":"监控", "channel":"%s"}`, content, channel)
+	return fmt.Sprintf(`{"text":"%s","username":"gocron", "channel":"%s"}`, content, channel)
 }

@@ -30,7 +30,7 @@ export default {
   },
 
   remove (id, callback) {
-    httpClient.post(`/task/${id}`, {}, callback)
+    httpClient.post(`/task/remove/${id}`, {}, callback)
   },
 
   enable (id, callback) {

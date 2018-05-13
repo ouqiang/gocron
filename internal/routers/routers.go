@@ -83,16 +83,19 @@ func Register(m *macaron.Macaron) {
 	m.Group("/system", func() {
 		m.Group("/slack", func() {
 			m.Get("", manage.Slack)
-			m.Post("/url", manage.UpdateSlackUrl)
+			m.Post("/update", manage.UpdateSlack)
 			m.Post("/channel", manage.CreateSlackChannel)
 			m.Post("/channel/remove/:id", manage.RemoveSlackChannel)
 		})
 		m.Group("/mail", func() {
 			m.Get("", manage.Mail)
-			m.Post("/server", binding.Bind(manage.MailServerForm{}), manage.UpdateMailServer)
-			m.Post("/server/clear", manage.ClearMailServer)
+			m.Post("/update", binding.Bind(manage.MailServerForm{}), manage.UpdateMail)
 			m.Post("/user", manage.CreateMailUser)
 			m.Post("/user/remove/:id", manage.RemoveMailUser)
+		})
+		m.Group("/webhook", func() {
+			m.Get("", manage.WebHook)
+			m.Post("/update", manage.UpdateWebHook)
 		})
 		m.Get("/login-log", loginlog.Index)
 	})
