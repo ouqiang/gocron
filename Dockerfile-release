@@ -1,9 +1,0 @@
-FROM alpine:latest
-
-WORKDIR /usr/local/gocron
-
-COPY . .
-
-EXPOSE 5920
-
-ENTRYPOINT ["/usr/local/gocron/gocron", "web"]

@@ -48,7 +48,7 @@ build-vue:
 
 .PHONY: install-vue
 install-vue:
-	cp web/vue && yarn install
+	cd web/vue && yarn install
 
 .PHONY: statik
 statik:
