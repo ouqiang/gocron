@@ -102,10 +102,13 @@ export default {
       this.searchParams.page_size = pageSize
       this.search()
     },
-    search () {
+    search (callback = null) {
       hostService.list(this.searchParams, (data) => {
         this.hosts = data.data
         this.hostTotal = data.total
+        if (callback) {
+          callback()
+        }
       })
     },
     remove (item) {
@@ -128,7 +131,9 @@ export default {
       this.$router.push(path)
     },
     refresh () {
-      this.search()
+      this.search(() => {
+        this.$message.success('刷新成功')
+      })
     }
   }
 }

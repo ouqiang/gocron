@@ -109,10 +109,13 @@ export default {
       this.searchParams.page_size = pageSize
       this.search()
     },
-    search () {
+    search (callback = null) {
       userService.list(this.searchParams, (data) => {
         this.users = data.data
         this.userTotal = data.total
+        if (callback) {
+          callback()
+        }
       })
     },
     remove (item) {
@@ -132,7 +135,9 @@ export default {
       this.$router.push(path)
     },
     refresh () {
-      this.search()
+      this.search(() => {
+        this.$message.success('刷新成功')
+      })
     },
     editPassword (item) {
       this.$router.push(`/user/edit-password/${item.id}`)

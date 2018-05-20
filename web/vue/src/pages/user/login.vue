@@ -5,7 +5,8 @@
         :visible.sync="dialogVisible"
         :close-on-click-modal="false"
         :show-close="false"
-        :close-on-press-escape="false">
+        :close-on-press-escape="false"
+        width="40%">
         <el-form ref="form" :model="form" label-width="80px"
         :rules="formRules">
           <el-form-item label="用户名" prop="username" >

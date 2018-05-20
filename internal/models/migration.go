@@ -223,6 +223,7 @@ func (m *Migration) upgradeFor150(session *xorm.Session) error {
 		return err
 	}
 
+	settingModel.Id = 0
 	settingModel.Code = WebhookCode
 	settingModel.Key = WebhookUrlKey
 	settingModel.Value = ""
@@ -231,6 +232,7 @@ func (m *Migration) upgradeFor150(session *xorm.Session) error {
 		return err
 	}
 
+	settingModel.Id = 0
 	settingModel.Code = WebhookCode
 	settingModel.Key = WebhookTemplateKey
 	settingModel.Value = webhookTemplate

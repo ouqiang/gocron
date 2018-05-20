@@ -1,5 +1,3 @@
-
-
 .PHONY: build
 build: gocron node
 
@@ -40,6 +38,10 @@ enable-race:
 .PHONY: package
 package: build-vue statik
 	bash ./package.sh
+
+.PHONY: package-all
+package-all: build-vue statik
+	bash ./package.sh -p 'linux darwin windows'
 
 .PHONY: build-vue
 build-vue:

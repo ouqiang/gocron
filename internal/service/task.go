@@ -120,7 +120,7 @@ func (task Task) Initialize() {
 	for page < maxPage {
 		taskList, err := taskModel.ActiveList(page, pageSize)
 		if err != nil {
-			logger.Fatalf("定时任务初始化#获取任务列表错误-", err.Error())
+			logger.Fatalf("定时任务初始化#获取任务列表错误: %s", err)
 		}
 		if len(taskList) == 0 {
 			break

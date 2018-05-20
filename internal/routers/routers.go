@@ -27,10 +27,10 @@ import (
 	_ "github.com/ouqiang/gocron/internal/statik"
 )
 
-// URL前缀
-const urlPrefix = "/api"
-
-var staticDir = "public"
+const (
+	urlPrefix = "/api"
+	staticDir = "public"
+)
 
 var statikFS http.FileSystem
 
@@ -42,7 +42,7 @@ func init() {
 	}
 }
 
-// 路由注册
+// Register 路由注册
 func Register(m *macaron.Macaron) {
 	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
@@ -54,6 +54,7 @@ func Register(m *macaron.Macaron) {
 			ctx.WriteHeader(http.StatusInternalServerError)
 			return
 		}
+
 		io.Copy(ctx.Resp, file)
 
 	})

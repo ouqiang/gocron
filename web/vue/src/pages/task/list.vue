@@ -283,11 +283,14 @@ export default {
       this.searchParams.page_size = pageSize
       this.search()
     },
-    search () {
+    search (callback = null) {
       taskService.list(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
         this.taskTotal = tasks.total
         this.hosts = hosts.data
+        if (callback) {
+          callback()
+        }
       })
     },
     runTask (item) {
@@ -308,7 +311,9 @@ export default {
       this.$router.push(`/task/log?task_id=${item.id}`)
     },
     refresh () {
-      this.search()
+      this.search(() => {
+        this.$message.success('刷新成功')
+      })
     },
     toEdit (item) {
       let path = ''

@@ -103,8 +103,8 @@ init() {
     GIT_COMMIT_ID=`git_latest_commit`
     LDFLAGS="-w -X 'main.AppVersion=${VERSION}' -X 'main.BuildDate=`date '+%Y-%m-%d %H:%M:%S'`' -X 'main.GitCommit=${GIT_COMMIT_ID}'"
  
-    PACKAGE_DIR=${BINARY_NAME}_package
-    BUILD_DIR=${BINARY_NAME}_build
+    PACKAGE_DIR=${BINARY_NAME}-package
+    BUILD_DIR=${BINARY_NAME}-build
  
     if [[ -d ${BUILD_DIR} ]];then
         rm -rf ${BUILD_DIR}
@@ -178,7 +178,7 @@ run() {
 package_gocron() {
     BINARY_NAME='gocron'
     MAIN_FILE="./cmd/gocron/gocron.go"
-    INCLUDE_FILE=(Dockerfile-release README.md)
+    INCLUDE_FILE=()
 
 
     run

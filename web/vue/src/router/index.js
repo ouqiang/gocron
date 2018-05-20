@@ -160,10 +160,6 @@ router.beforeEach((to, from, next) => {
     next()
     return
   }
-  if (to.fullPath === '/task') {
-    next()
-    return
-  }
   if (store.getters.user.token) {
     if ((store.getters.user.isAdmin || to.meta.noNeedAdmin)) {
       next()

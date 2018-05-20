@@ -111,7 +111,7 @@
         </el-table-column>
         <el-table-column
           label="执行结果"
-          width="120">
+          width="120" v-if="this.isAdmin">
           <template slot-scope="scope">
             <el-button type="success"
                        v-if="scope.row.status === 2"
@@ -120,9 +120,21 @@
                        v-if="scope.row.status === 0"
                        @click="showTaskResult(scope.row)" >查看结果</el-button>
             <el-button type="danger"
-                       v-if="this.isAdmin && scope.row.status === 1 && scope.row.protocol === 2"
+                       v-if="scope.row.status === 1 && scope.row.protocol === 2"
                        @click="stopTask(scope.row)">停止任务
             </el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="执行结果"
+          width="120" v-else>
+          <template slot-scope="scope">
+            <el-button type="success"
+                       v-if="scope.row.status === 2"
+                       @click="showTaskResult(scope.row)">查看结果</el-button>
+            <el-button type="warning"
+                       v-if="scope.row.status === 0"
+                       @click="showTaskResult(scope.row)" >查看结果</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -213,10 +225,14 @@ export default {
       this.searchParams.page_size = pageSize
       this.search()
     },
-    search () {
+    search (callback = null) {
       taskLogService.list(this.searchParams, (data) => {
         this.logs = data.data
         this.logTotal = data.total
+
+        if (callback) {
+          callback()
+        }
       })
     },
     clearLog () {
@@ -228,7 +244,7 @@ export default {
       })
     },
     stopTask (item) {
-      taskLogService.stop(item.id, () => {
+      taskLogService.stop(item.id, item.task_id, () => {
         this.search()
       })
     },
@@ -238,7 +254,9 @@ export default {
       this.currentTaskResult.result = item.result
     },
     refresh () {
-      this.search()
+      this.search(() => {
+        this.$message.success('刷新成功')
+      })
     }
   }
 }

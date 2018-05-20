@@ -9,7 +9,7 @@ export default {
     httpClient.post('/task/log/clear', {}, callback)
   },
 
-  stop (id, callback) {
-    httpClient.post('/task/log/stop', {id}, callback)
+  stop (id, taskId, callback) {
+    httpClient.post('/task/log/stop', {id, task_id: taskId}, callback)
   }
 }

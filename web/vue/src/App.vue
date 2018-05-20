@@ -16,7 +16,7 @@
 </template>
 
 <script>
-
+import installService from './api/install'
 import appHeader from './components/common/header.vue'
 import appNavMenu from './components/common/navMenu.vue'
 import appFooter from './components/common/footer.vue'
@@ -26,7 +26,9 @@ export default {
   data () {
     return {}
   },
-
+  created () {
+    installService.store({})
+  },
   components: {
     appHeader,
     appNavMenu,

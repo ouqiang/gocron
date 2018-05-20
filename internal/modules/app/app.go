@@ -22,8 +22,6 @@ var (
 	ConfDir string // 配置目录
 	// LogDir 日志目录
 	LogDir string // 日志目录
-	// DataDir 数据目录
-	DataDir string // 存放session等
 	// AppConfig 配置文件
 	AppConfig string // 应用配置文件
 	// Installed 应用是否已安装
@@ -46,10 +44,9 @@ func InitEnv(versionString string) {
 	}
 	ConfDir = filepath.Join(AppDir, "/conf")
 	LogDir = filepath.Join(AppDir, "/log")
-	DataDir = filepath.Join(AppDir, "/data")
 	AppConfig = filepath.Join(ConfDir, "/app.ini")
 	VersionFile = filepath.Join(ConfDir, "/.version")
-	createDirIfNotExists(ConfDir, LogDir, DataDir)
+	createDirIfNotExists(ConfDir, LogDir)
 	Installed = IsInstalled()
 	VersionId = ToNumberVersion(versionString)
 }
@@ -107,7 +104,7 @@ func GetCurrentVersionId() int {
 
 // ToNumberVersion 把字符串版本号a.b.c转换为整数版本号abc
 func ToNumberVersion(versionString string) int {
-	if strings.HasPrefix("v", versionString) {
+	if strings.HasPrefix(versionString, "v") {
 		versionString = versionString[1:]
 	}
 	v := strings.Replace(versionString, ".", "", -1)

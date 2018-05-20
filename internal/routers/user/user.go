@@ -50,7 +50,7 @@ func Index(ctx *macaron.Context) string {
 
 // 解析查询参数
 func parseQueryParams(ctx *macaron.Context) models.CommonMap {
-	var params models.CommonMap = models.CommonMap{}
+	params := models.CommonMap{}
 	base.ParsePageAndPageSize(ctx, params)
 
 	return params
@@ -65,6 +65,9 @@ func Detail(ctx *macaron.Context) string {
 		logger.Error(err)
 	}
 	jsonResp := utils.JsonResponse{}
+	if userModel.Id == 0 {
+		return jsonResp.Success(utils.SuccessContent, nil)
+	}
 
 	return jsonResp.Success(utils.SuccessContent, userModel)
 }

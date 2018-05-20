@@ -14,7 +14,8 @@ RUN make install-vue \
 
 FROM alpine:3.7
 
-RUN addgroup -S app \
+RUN apk add --no-cache ca-certificates \
+    && addgroup -S app \
     && adduser -S -g app app
 
 WORKDIR /app
