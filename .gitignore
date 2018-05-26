@@ -34,7 +34,7 @@ profile/*
 /bin
 /web/public/static
 /web/public/index.html
-/gocron_package
-/gocron-node_package
+/gocron-package
+/gocron-node-package
 
 node_modules

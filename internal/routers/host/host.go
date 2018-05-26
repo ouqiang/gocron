@@ -18,7 +18,7 @@ import (
 )
 
 const testConnectionCommand = "echo hello"
-const testConnectionTimeout = 10
+const testConnectionTimeout = 5
 
 // Index 主机列表
 func Index(ctx *macaron.Context) string {

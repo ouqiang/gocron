@@ -9,7 +9,9 @@ set -o errexit
 set -o nounset
 # 管道中任一命令执行失败退出
 set -o pipefail
- 
+
+eval $(go env)
+
 # 二进制文件名
 BINARY_NAME=''
 # main函数所在文件
@@ -25,9 +27,9 @@ INPUT_OS=()
 # 外部输入的架构
 INPUT_ARCH=()
 # 未指定OS，默认值
-DEFAULT_OS='linux'
+DEFAULT_OS=${GOHOSTOS}
 # 未指定ARCH,默认值
-DEFAULT_ARCH='amd64'
+DEFAULT_ARCH=${GOHOSTARCH}
 # 支持的系统
 SUPPORT_OS=(linux darwin windows)
 # 支持的架构

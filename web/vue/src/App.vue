@@ -27,7 +27,11 @@ export default {
     return {}
   },
   created () {
-    installService.store({})
+    installService.status((data) => {
+      if (!data) {
+        this.$router.push('/install')
+      }
+    })
   },
   components: {
     appHeader,

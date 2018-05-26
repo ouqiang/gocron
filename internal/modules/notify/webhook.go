@@ -1,6 +1,7 @@
 package notify
 
 import (
+	"html"
 	"time"
 
 	"github.com/ouqiang/gocron/internal/models"
@@ -26,6 +27,7 @@ func (webHook *WebHook) Send(msg Message) {
 	msg["name"] = utils.EscapeJson(msg["name"].(string))
 	msg["output"] = utils.EscapeJson(msg["output"].(string))
 	msg["content"] = parseNotifyTemplate(webHookSetting.Template, msg)
+	msg["content"] = html.UnescapeString(msg["content"].(string))
 	webHook.send(msg, webHookSetting.Url)
 }
 

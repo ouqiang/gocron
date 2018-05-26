@@ -181,6 +181,9 @@ func UpdatePassword(ctx *macaron.Context) string {
 	if newPassword == "" || confirmNewPassword == "" {
 		return json.CommonFailure("请输入密码")
 	}
+	if newPassword != confirmNewPassword {
+		return json.CommonFailure("两次输入密码不一致")
+	}
 	userModel := new(models.User)
 	_, err := userModel.UpdatePassword(id, newPassword)
 	if err != nil {

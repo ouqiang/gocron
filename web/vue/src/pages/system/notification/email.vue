@@ -155,7 +155,7 @@ export default {
     },
     init () {
       this.username = ''
-      this.password = ''
+      this.email = ''
       notificationService.mail((data) => {
         this.form.host = data.host
         if (data.port) {

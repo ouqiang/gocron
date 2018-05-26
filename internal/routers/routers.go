@@ -61,6 +61,10 @@ func Register(m *macaron.Macaron) {
 	// 系统安装
 	m.Group("/install", func() {
 		m.Post("/store", binding.Bind(install.InstallForm{}), install.Store)
+		m.Get("/status", func(ctx *macaron.Context) string {
+			jsonResp := utils.JsonResponse{}
+			return jsonResp.Success("", app.Installed)
+		})
 	})
 
 	// 用户
@@ -174,7 +178,7 @@ func checkAppInstall(ctx *macaron.Context) {
 	if app.Installed {
 		return
 	}
-	if ctx.Req.URL.Path == "/install/store" || ctx.Req.URL.Path == "/" {
+	if strings.HasPrefix(ctx.Req.URL.Path, "/install") || ctx.Req.URL.Path == "/" {
 		return
 	}
 	jsonResp := utils.JsonResponse{}
@@ -218,7 +222,7 @@ func userAuth(ctx *macaron.Context) {
 	if strings.HasPrefix(uri, "/v1") {
 		return
 	}
-	excludePaths := []string{"", "/user/login"}
+	excludePaths := []string{"", "/user/login", "/install/status"}
 	for _, path := range excludePaths {
 		if uri == path {
 			return
@@ -245,6 +249,7 @@ func urlAuth(ctx *macaron.Context) {
 	// 普通用户允许访问的URL地址
 	allowPaths := []string{
 		"",
+		"/install/status",
 		"/task",
 		"/task/log",
 		"/host",
