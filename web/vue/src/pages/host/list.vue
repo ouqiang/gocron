@@ -53,6 +53,11 @@
           prop="port"
           label="端口">
         </el-table-column>
+        <el-table-column label="查看任务">
+          <template slot-scope="scope">
+            <el-button type="success" @click="toTasks(scope.row)">查看任务</el-button>
+          </template>
+        </el-table-column>
         <el-table-column
           prop="remark"
           label="备注">
@@ -134,6 +139,15 @@ export default {
       this.search(() => {
         this.$message.success('刷新成功')
       })
+    },
+    toTasks (item) {
+      this.$router.push(
+        {
+          path: '/task',
+          query: {
+            host_id: item.id
+          }
+        })
     }
   }
 }

@@ -230,6 +230,11 @@ export default {
   },
   components: {taskSidebar},
   created () {
+    const hostId = this.$route.query.host_id
+    if (hostId) {
+      this.searchParams.host_id = hostId
+    }
+
     this.search()
   },
   filters: {
