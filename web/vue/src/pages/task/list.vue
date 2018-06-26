@@ -287,7 +287,7 @@ export default {
       taskService.list(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
         this.taskTotal = tasks.total
-        this.hosts = hosts.data
+        this.hosts = hosts
         if (callback) {
           callback()
         }

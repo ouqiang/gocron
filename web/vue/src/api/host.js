@@ -6,6 +6,10 @@ export default {
     httpClient.get('/host', query, callback)
   },
 
+  all (query, callback) {
+    httpClient.get('/host/all', {}, callback)
+  },
+
   detail (id, callback) {
     httpClient.get(`/host/${id}`, {}, callback)
   },

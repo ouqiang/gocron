@@ -9,7 +9,7 @@ export default {
         params: query
       },
       {
-        uri: '/host'
+        uri: '/host/all'
       }
     ], callback)
   },
@@ -20,7 +20,7 @@ export default {
         uri: `/task/${id}`
       },
       {
-        uri: '/host'
+        uri: '/host/all'
       }
     ], callback)
   },
