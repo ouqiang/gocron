@@ -63,6 +63,24 @@
     * gocron `./bin/gocron web`
     * gocron-node `./bin/gocron-node`
 
+### 开发
+
+1. 安装Go1.9+, Node.js, Yarn
+2. 安装前端依赖 `make install-vue`
+3. 启动gocron, gocron-node `make run`
+4. 启动node server `cd web/vue && yarn run dev`, 访问地址 http://localhost:8080  
+
+访问http://localhost:8080, API请求会转发给gocron
+
+`make` 编译
+
+`make run` 编译并运行
+
+`make package` 打包 
+> 生成当前系统的压缩包 gocron-v1.5-darwin-amd64.tar.gz gocron-node-v1.5-darwin-amd64.tar.gz
+
+`make package-all` 生成Windows、Linux、Mac的压缩包
+
 ### 命令
 
 * gocron
