@@ -416,7 +416,7 @@ export default {
         this.cancel()
         return
       }
-      this.hosts = hosts.data || []
+      this.hosts = hosts || []
       if (!taskData) {
         return
       }

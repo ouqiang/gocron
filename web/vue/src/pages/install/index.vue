@@ -4,7 +4,7 @@
       <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 700px;">
         <h3>数据库配置</h3>
         <el-form-item label="数据库选择" prop="db_type">
-          <el-select v-model.trim="form.db_type">
+          <el-select v-model.trim="form.db_type" @change="update_port">
             <el-option
               v-for="item in dbList"
               :key="item.value"
@@ -127,21 +127,37 @@ export default {
           {type: 'email', required: true, message: '请输入管理员邮箱', trigger: 'blur'}
         ],
         admin_password: [
-          {required: true, message: '请输入管理员密码', trigger: 'blur'}
+          {required: true, message: '请输入管理员密码', trigger: 'blur'},
+          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
         ],
         confirm_admin_password: [
-          {required: true, message: '请再次输入管理员密码', trigger: 'blur'}
+          {required: true, message: '请再次输入管理员密码', trigger: 'blur'},
+          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
         ]
       },
       dbList: [
         {
           value: 'mysql',
           label: 'MySQL'
+        },
+        {
+          value: 'postgres',
+          label: 'PostgreSql'
         }
-      ]
+      ],
+      default_ports: {
+        'mysql': 3306,
+        'postgres': 5432
+      }
     }
   },
   methods: {
+    update_port (dbType) {
+      console.log(dbType)
+      console.log(this.default_ports[dbType])
+      this.form['db_port'] = this.default_ports[dbType]
+      console.log(this.form['db_port'])
+    },
     submit () {
       this.$refs['form'].validate((valid) => {
         if (!valid) {

@@ -99,6 +99,7 @@ func Register(m *macaron.Macaron) {
 		m.Get("/:id", host.Detail)
 		m.Post("/store", binding.Bind(host.HostForm{}), host.Store)
 		m.Get("", host.Index)
+		m.Get("/all", host.All)
 		m.Get("/ping/:id", host.Ping)
 		m.Post("/remove/:id", host.Remove)
 	})

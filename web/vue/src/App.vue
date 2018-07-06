@@ -61,6 +61,7 @@ export default {
     margin:0;
   }
   #main-container .el-main {
+    height: calc(100vh - 116px);
     margin:20px 20px 0 20px;
   }
   .el-aside .el-menu {
