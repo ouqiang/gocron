@@ -125,6 +125,18 @@
 			"revisionTime": "2016-03-02T07:53:16Z"
 		},
 		{
+			"checksumSHA1": "s6eyIXpJ7VAU06FM27GcEBM/5lo=",
+			"path": "github.com/lib/pq",
+			"revision": "90697d60dd844d5ef6ff15135d0203f65d2f53b8",
+			"revisionTime": "2018-05-23T17:54:26Z"
+		},
+		{
+			"checksumSHA1": "AU3fA8Sm33Vj9PBoRPSeYfxLRuE=",
+			"path": "github.com/lib/pq/oid",
+			"revision": "90697d60dd844d5ef6ff15135d0203f65d2f53b8",
+			"revisionTime": "2018-05-23T17:54:26Z"
+		},
+		{
 			"checksumSHA1": "TXREfPduAnd3j2nWhkqVXEcvufk=",
 			"path": "github.com/ouqiang/goutil",
 			"revision": "82b3d2997d337a2174b708d0ffe3f711ffb1eddf",
