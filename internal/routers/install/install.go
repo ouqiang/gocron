@@ -16,7 +16,7 @@ import (
 // 系统安装
 
 type InstallForm struct {
-	DbType               string `binding:"In(mysql)"`
+	DbType               string `binding:"In(mysql,postgres)"`
 	DbHost               string `binding:"Required;MaxSize(50)"`
 	DbPort               int    `binding:"Required;Range(1,65535)"`
 	DbUsername           string `binding:"Required;MaxSize(50)"`
@@ -141,6 +141,7 @@ func testDbConnection(form InstallForm) error {
 	s.Db.Port = form.DbPort
 	s.Db.User = form.DbUsername
 	s.Db.Password = form.DbPassword
+	s.Db.Database = form.DbName
 	s.Db.Charset = "utf8"
 	db, err := models.CreateTmpDb(&s)
 	if err != nil {

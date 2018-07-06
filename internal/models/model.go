@@ -6,6 +6,7 @@ import (
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -97,7 +98,7 @@ func CreateTmpDb(setting *setting.Setting) (*xorm.Engine, error) {
 	return xorm.NewEngine(setting.Db.Engine, dsn)
 }
 
-// 获取数据库引擎DSN  mysql,sqlite
+// 获取数据库引擎DSN  mysql,sqlite,postgres
 func getDbEngineDSN(setting *setting.Setting) string {
 	engine := strings.ToLower(setting.Db.Engine)
 	dsn := ""
@@ -110,6 +111,13 @@ func getDbEngineDSN(setting *setting.Setting) string {
 			setting.Db.Port,
 			setting.Db.Database,
 			setting.Db.Charset)
+	case "postgres":
+		dsn = fmt.Sprintf("user=%s password=%s host=%s port=%d dbname=%s sslmode=disable",
+			setting.Db.User,
+			setting.Db.Password,
+			setting.Db.Host,
+			setting.Db.Port,
+			setting.Db.Database)
 	}
 
 	return dsn
