@@ -63,6 +63,12 @@
     * gocron `./bin/gocron web`
     * gocron-node `./bin/gocron-node`
 
+
+### docker
+```shell
+docker run --name gocron -p 5920:5920 -d ouqg/gocron
+```
+
 ### 开发
 
 1. 安装Go1.9+, Node.js, Yarn
