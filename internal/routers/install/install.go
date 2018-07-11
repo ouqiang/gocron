@@ -1,9 +1,12 @@
 package install
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 
+	"github.com/go-sql-driver/mysql"
+	"github.com/lib/pq"
 	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -49,7 +52,7 @@ func Store(ctx *macaron.Context, form InstallForm) string {
 	}
 	err := testDbConnection(form)
 	if err != nil {
-		return json.CommonFailure("数据库连接失败", err)
+		return json.CommonFailure(err.Error())
 	}
 	// 写入数据库配置
 	err = writeConfig(form)
@@ -144,12 +147,25 @@ func testDbConnection(form InstallForm) error {
 	s.Db.Database = form.DbName
 	s.Db.Charset = "utf8"
 	db, err := models.CreateTmpDb(&s)
-	if err != nil {
-		return err
-	}
-
 	defer db.Close()
 	err = db.Ping()
+	if s.Db.Engine == "postgres" && err != nil {
+		msg := "数据库连接失败"
+		pgError, _ := err.(*pq.Error)
+		if pgError.Code == "3D000" {
+			msg = "数据库不存在"
+		} 
+		return errors.New(msg)
+	}
+
+	if s.Db.Engine == "mysql" && err != nil {
+		msg := "数据库连接失败"
+		mysqlError, _ := err.(*mysql.MySQLError)
+		if mysqlError.Number == 1049 {
+			msg = "数据库不存在"
+		}
+		return errors.New(msg)
+	}
 
 	return err
 
