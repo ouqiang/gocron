@@ -12,7 +12,7 @@ const AUTH_ERROR_CODE = 401
 // 应用未安装
 const APP_NOT_INSTALL_CODE = 801
 
-axios.defaults.baseURL = '/api'
+axios.defaults.baseURL = 'api'
 axios.defaults.timeout = 10000
 axios.defaults.responseType = 'json'
 axios.interceptors.request.use(config => {

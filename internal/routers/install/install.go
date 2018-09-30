@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/go-macaron/binding"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
-	"github.com/go-macaron/binding"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/setting"
@@ -150,21 +150,19 @@ func testDbConnection(form InstallForm) error {
 	defer db.Close()
 	err = db.Ping()
 	if s.Db.Engine == "postgres" && err != nil {
-		msg := "数据库连接失败"
-		pgError, _ := err.(*pq.Error)
-		if pgError.Code == "3D000" {
-			msg = "数据库不存在"
-		} 
-		return errors.New(msg)
+		pgError, ok := err.(*pq.Error)
+		if ok && pgError.Code == "3D000" {
+			err = errors.New("数据库不存在")
+		}
+		return err
 	}
 
 	if s.Db.Engine == "mysql" && err != nil {
-		msg := "数据库连接失败"
-		mysqlError, _ := err.(*mysql.MySQLError)
-		if mysqlError.Number == 1049 {
-			msg = "数据库不存在"
+		mysqlError, ok := err.(*mysql.MySQLError)
+		if ok && mysqlError.Number == 1049 {
+			err = errors.New("数据库不存在")
 		}
-		return errors.New(msg)
+		return err
 	}
 
 	return err

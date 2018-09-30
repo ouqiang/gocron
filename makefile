@@ -52,6 +52,10 @@ build-vue:
 install-vue:
 	cd web/vue && yarn install
 
+.PHONY: run-vue
+run-vue:
+	cd web/vue && yarn run dev
+
 .PHONY: statik
 statik:
 	go get github.com/rakyll/statik
