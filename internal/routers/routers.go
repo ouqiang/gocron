@@ -254,6 +254,7 @@ func urlAuth(ctx *macaron.Context) {
 		"/task",
 		"/task/log",
 		"/host",
+		"/host/all",
 		"/user/login",
 		"/user/editMyPassword",
 	}
