@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: gocron-agent
+  namespace: kube-system
+spec:
+  selector:
+    matchLabels:
+      daemon: gocron-agent
+  template:
+    metadata:
+      labels:
+        daemon: gocron-agent
+      name: gocron-agent
+    spec:
+      containers:
+      - name: gocron-agent
+        image: crontab-agent:0.5
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 5921
+          hostPort: 5921
+          name: gocron-agent
+          protocol: TCP
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /var/log
+          name: syslog
+      hostNetwork: true
+      hostPID: true
+      restartPolicy: Always
+      volumes:
+      - hostPath:
+          path: /var/log
+          type: Directory
+        name: syslog
