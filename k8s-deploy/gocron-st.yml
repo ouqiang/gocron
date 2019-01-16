@@ -1,0 +1,51 @@
+# 改为用StatefulSet部署，把配置目录挂载到外置存储，以防container down后重启
+# 如果使用历史数据库，需要先配置安装，然后在conf目录下创建install.lock文件，最后重启进程即可
+#
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: gocron
+  labels:
+    app: gocron
+spec:
+  ports:
+  - port: 5920
+    name: gocron
+  type: NodePort
+  selector:
+    app: gocron
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: gocron
+spec:
+  serviceName: "gocron"
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: gocron
+    spec:
+      securityContext:
+        fsGroup: 1000
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: gocron
+        image: ouqg/gocron:latest
+        ports:
+        - containerPort: 5920
+          name: gocron
+        volumeMounts:
+        - name: gocron-vol
+          mountPath: /app/conf
+  volumeClaimTemplates:
+  - metadata:
+      name: gocron-vol
+    spec:
+      storageClassName: rbd
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 100Mi
