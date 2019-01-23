@@ -74,6 +74,8 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 
 日志: /app/log/cron.log
 
+镜像不包含gocron-node, gocron-node需要和具体业务一起构建
+
 
 ### 开发
 
