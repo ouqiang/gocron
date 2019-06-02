@@ -25,11 +25,9 @@ var keepAlivePolicy = keepalive.EnforcementPolicy{
 }
 
 var keepAliveParams = keepalive.ServerParameters{
-	MaxConnectionIdle:     1 * time.Minute,
-	MaxConnectionAge:      2 * time.Hour,
-	MaxConnectionAgeGrace: 3 * time.Hour,
-	Time:    30 * time.Second,
-	Timeout: 3 * time.Second,
+	MaxConnectionIdle: 30 * time.Second,
+	Time:              30 * time.Second,
+	Timeout:           3 * time.Second,
 }
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error) {
