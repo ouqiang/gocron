@@ -8,6 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
+	macaron "gopkg.in/macaron.v1"
+
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/logger"
@@ -16,7 +18,6 @@ import (
 	"github.com/ouqiang/gocron/internal/service"
 	"github.com/ouqiang/goutil"
 	"github.com/urfave/cli"
-	"gopkg.in/macaron.v1"
 )
 
 var (
@@ -144,8 +145,7 @@ func setEnvironment(ctx *cli.Context) {
 
 // 捕捉信号
 func catchSignal() {
-	c := make(chan os.Signal)
-	// todo 配置热更新, windows 不支持 syscall.SIGUSR1, syscall.SIGUSR2
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
 	for {
 		s := <-c

@@ -2,17 +2,19 @@ package server
 
 import (
 	"net"
+	"os"
+	"os/signal"
+	"syscall"
 	"time"
-
-	"google.golang.org/grpc/keepalive"
 
 	"github.com/ouqiang/gocron/internal/modules/rpc/auth"
 	pb "github.com/ouqiang/gocron/internal/modules/rpc/proto"
 	"github.com/ouqiang/gocron/internal/modules/utils"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc/grpclog"
+	"google.golang.org/grpc/keepalive"
 )
 
 type Server struct{}
@@ -33,9 +35,10 @@ var keepAliveParams = keepalive.ServerParameters{
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error) {
 	defer func() {
 		if err := recover(); err != nil {
-			grpclog.Println(err)
+			log.Error(err)
 		}
 	}()
+	log.Infof("execute cmd start: [id: %d cmd: %s]", req.Id, req.Command)
 	output, err := utils.ExecShell(ctx, req.Command)
 	resp := new(pb.TaskResponse)
 	resp.Output = output
@@ -44,6 +47,7 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
 	} else {
 		resp.Error = ""
 	}
+	log.Infof("execute cmd end: [id: %d cmd: %s err: %s]", req.Id, req.Command, resp.Error)
 
 	return resp, nil
 }
@@ -51,10 +55,8 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
 func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	l, err := net.Listen("tcp", addr)
 	if err != nil {
-		grpclog.Fatal(err)
+		log.Fatal(err)
 	}
-
-	var s *grpc.Server
 	opts := []grpc.ServerOption{
 		grpc.KeepaliveParams(keepAliveParams),
 		grpc.KeepaliveEnforcementPolicy(keepAlivePolicy),
@@ -62,17 +64,35 @@ func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	if enableTLS {
 		tlsConfig, err := certificate.GetTLSConfigForServer()
 		if err != nil {
-			grpclog.Fatal(err)
+			log.Fatal(err)
 		}
 		opt := grpc.Creds(credentials.NewTLS(tlsConfig))
 		opts = append(opts, opt)
 	}
-	s = grpc.NewServer(opts...)
-	pb.RegisterTaskServer(s, Server{})
-	grpclog.Printf("server listen on %s", addr)
+	server := grpc.NewServer(opts...)
+	pb.RegisterTaskServer(server, Server{})
+	log.Infof("server listen on %s", addr)
 
-	err = s.Serve(l)
-	if err != nil {
-		grpclog.Fatal(err)
+	go func() {
+		err = server.Serve(l)
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
+	for {
+		s := <-c
+		log.Infoln("收到信号 -- ", s)
+		switch s {
+		case syscall.SIGHUP:
+			log.Infoln("收到终端断开信号, 忽略")
+		case syscall.SIGINT, syscall.SIGTERM:
+			log.Info("应用准备退出")
+			server.GracefulStop()
+			return
+		}
 	}
+
 }
