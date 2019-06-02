@@ -4,6 +4,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/ouqiang/goutil"
+
 	"github.com/go-macaron/binding"
 	"github.com/jakecoffman/cron"
 	"github.com/ouqiang/gocron/internal/models"
@@ -149,7 +151,9 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	}
 
 	if taskModel.Level == models.TaskLevelParent {
-		_, err = cron.Parse(form.Spec)
+		err = goutil.PanicToError(func() {
+			cron.Parse(form.Spec)
+		})
 		if err != nil {
 			return json.CommonFailure("crontab表达式解析失败", err)
 		}

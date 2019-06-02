@@ -9,6 +9,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/ouqiang/goutil"
+
 	"github.com/jakecoffman/cron"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -160,7 +162,9 @@ func (task Task) Add(taskModel models.Task) {
 	}
 
 	cronName := strconv.Itoa(taskModel.Id)
-	err := serviceCron.AddFunc(taskModel.Spec, taskFunc, cronName)
+	err := goutil.PanicToError(func() {
+		serviceCron.AddFunc(taskModel.Spec, taskFunc, cronName)
+	})
 	if err != nil {
 		logger.Error("添加任务到调度器失败#", err)
 	}

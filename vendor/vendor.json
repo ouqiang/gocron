@@ -113,10 +113,10 @@
 			"revision": ""
 		},
 		{
-			"checksumSHA1": "j22mTM0X/UI4kbff6RaPeMNH4XY=",
+			"checksumSHA1": "nzZPoKyx/lv8E/J7zZxuNQ5P1Bk=",
 			"path": "github.com/jakecoffman/cron",
-			"revision": "57ac9950da80b6e2c12df9042429278cf8c729eb",
-			"revisionTime": "2016-09-12T16:42:50Z"
+			"revision": "7e2009c226a5f6fb032692106d167ab0c3720692",
+			"revisionTime": "2019-01-06T20:08:28Z"
 		},
 		{
 			"checksumSHA1": "iKPMvbAueGfdyHcWCgzwKzm8WVo=",
@@ -153,12 +153,6 @@
 			"path": "github.com/rakyll/statik/fs",
 			"revision": "fcdcb7b85139b8b9ca1d8ef1d98d8593e90d117f",
 			"revisionTime": "2018-03-30T20:43:14Z"
-		},
-		{
-			"checksumSHA1": "cVGA2CJTJsCAVa5VKTM8k/ma/BU=",
-			"path": "github.com/silenceper/pool",
-			"revision": "e4c4536403d9765c8ea74cda2ee49dcb0848bc7a",
-			"revisionTime": "2016-11-14T14:21:55Z"
 		},
 		{
 			"checksumSHA1": "1keN4Q9F8uHk/Gt5YXG0oCEecKM=",

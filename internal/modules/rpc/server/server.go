@@ -2,6 +2,9 @@ package server
 
 import (
 	"net"
+	"time"
+
+	"google.golang.org/grpc/keepalive"
 
 	"github.com/ouqiang/gocron/internal/modules/rpc/auth"
 	pb "github.com/ouqiang/gocron/internal/modules/rpc/proto"
@@ -13,6 +16,19 @@ import (
 )
 
 type Server struct{}
+
+var keepAlivePolicy = keepalive.EnforcementPolicy{
+	MinTime:             10 * time.Second,
+	PermitWithoutStream: true,
+}
+
+var keepAliveParams = keepalive.ServerParameters{
+	MaxConnectionIdle:     1 * time.Minute,
+	MaxConnectionAge:      2 * time.Hour,
+	MaxConnectionAgeGrace: 3 * time.Hour,
+	Time:    30 * time.Second,
+	Timeout: 3 * time.Second,
+}
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error) {
 	defer func() {
@@ -39,21 +55,24 @@ func Start(addr string, enableTLS bool, certificate auth.Certificate) {
 	}
 
 	var s *grpc.Server
+	opts := []grpc.ServerOption{
+		grpc.KeepaliveParams(keepAliveParams),
+		grpc.KeepaliveEnforcementPolicy(keepAlivePolicy),
+	}
 	if enableTLS {
 		tlsConfig, err := certificate.GetTLSConfigForServer()
 		if err != nil {
 			grpclog.Fatal(err)
 		}
 		opt := grpc.Creds(credentials.NewTLS(tlsConfig))
-		s = grpc.NewServer(opt)
-		pb.RegisterTaskServer(s, Server{})
-		grpclog.Printf("listen %s with TLS", addr)
-	} else {
-		s = grpc.NewServer()
-		pb.RegisterTaskServer(s, Server{})
-		grpclog.Printf("listen %s", addr)
+		opts = append(opts, opt)
 	}
+	s = grpc.NewServer(opts...)
+	pb.RegisterTaskServer(s, Server{})
+	grpclog.Printf("server listen on %s", addr)
 
 	err = s.Serve(l)
-	grpclog.Fatal(err)
+	if err != nil {
+		grpclog.Fatal(err)
+	}
 }

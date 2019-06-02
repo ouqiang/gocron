@@ -42,28 +42,24 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error) {
 		}
 	}()
 	addr := fmt.Sprintf("%s:%d", ip, port)
-	conn, err := grpcpool.Pool.Get(addr)
+	c, err := grpcpool.Pool.Get(addr)
 	if err != nil {
 		return "", err
 	}
-	isConnClosed := false
-	defer func() {
-		if !isConnClosed {
-			grpcpool.Pool.Put(addr, conn)
-		}
-	}()
-	c := pb.NewTaskClient(conn)
 	if taskReq.Timeout <= 0 || taskReq.Timeout > 86400 {
 		taskReq.Timeout = 86400
 	}
 	timeout := time.Duration(taskReq.Timeout) * time.Second
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
 	taskUniqueKey := generateTaskUniqueKey(ip, port, taskReq.Id)
 	taskMap.Store(taskUniqueKey, cancel)
 	defer taskMap.Delete(taskUniqueKey)
+
 	resp, err := c.Run(ctx, taskReq)
 	if err != nil {
-		return parseGRPCError(err, conn, &isConnClosed)
+		return parseGRPCError(err)
 	}
 
 	if resp.Error == "" {
@@ -73,11 +69,9 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error) {
 	return resp.Output, errors.New(resp.Error)
 }
 
-func parseGRPCError(err error, conn *grpc.ClientConn, connClosed *bool) (string, error) {
+func parseGRPCError(err error) (string, error) {
 	switch grpc.Code(err) {
-	case codes.Unavailable, codes.Internal:
-		conn.Close()
-		*connClosed = true
+	case codes.Unavailable:
 		return "", errUnavailable
 	case codes.DeadlineExceeded:
 		return "", errors.New("执行超时, 强制结束")

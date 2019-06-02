@@ -22,7 +22,7 @@ type TaskLog struct {
 	StartTime  time.Time    `json:"start_time" xorm:"datetime created"`               // 开始执行时间
 	EndTime    time.Time    `json:"end_time" xorm:"datetime updated"`                 // 执行完成（失败）时间
 	Status     Status       `json:"status" xorm:"tinyint notnull index default 1"`    // 状态 0:执行失败 1:执行中  2:执行完毕 3:任务取消(上次任务未执行完成) 4:异步执行
-	Result     string       `json:"result" xorm:"mediumtext notnull default '' "`     // 执行结果
+	Result     string       `json:"result" xorm:"mediumtext notnull "`                // 执行结果
 	TotalTime  int          `json:"total_time" xorm:"-"`                              // 执行总时长
 	BaseModel  `json:"-" xorm:"-"`
 }
