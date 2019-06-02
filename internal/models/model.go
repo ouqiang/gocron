@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	macaron "gopkg.in/macaron.v1"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/go-xorm/core"
 	"github.com/go-xorm/xorm"
@@ -12,7 +14,6 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/setting"
-	"gopkg.in/macaron.v1"
 )
 
 type Status int8
@@ -78,7 +79,7 @@ func CreateDb() *xorm.Engine {
 	}
 	engine.SetMaxIdleConns(app.Setting.Db.MaxIdleConns)
 	engine.SetMaxOpenConns(app.Setting.Db.MaxOpenConns)
-	engine.DB().SetConnMaxLifetime(dbMaxLiftTime)
+	engine.SetConnMaxLifetime(dbMaxLiftTime)
 
 	if app.Setting.Db.Prefix != "" {
 		// 设置表前缀
@@ -110,7 +111,7 @@ func getDbEngineDSN(setting *setting.Setting) string {
 	dsn := ""
 	switch engine {
 	case "mysql":
-		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s",
+		dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=%s&allowNativePasswords=true",
 			setting.Db.User,
 			setting.Db.Password,
 			setting.Db.Host,

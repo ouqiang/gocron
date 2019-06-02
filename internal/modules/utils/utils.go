@@ -26,7 +26,7 @@ func RandAuthToken() string {
 // 生成长度为length的随机字符串
 func RandString(length int64) string {
 	sources := []byte("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
-	result := []byte{}
+	var result []byte
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
 	sourceLength := len(sources)
 	var i int64 = 0

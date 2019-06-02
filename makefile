@@ -1,3 +1,5 @@
+GO111MODULE=on
+
 .PHONY: build
 build: gocron node
 

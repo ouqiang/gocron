@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strconv"
 
+	macaron "gopkg.in/macaron.v1"
+
 	"github.com/go-macaron/binding"
 	"github.com/go-sql-driver/mysql"
 	"github.com/lib/pq"
@@ -13,7 +15,6 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/setting"
 	"github.com/ouqiang/gocron/internal/modules/utils"
 	"github.com/ouqiang/gocron/internal/service"
-	"gopkg.in/macaron.v1"
 )
 
 // 系统安装
@@ -107,7 +108,7 @@ func writeConfig(form InstallForm) error {
 		"db.database", form.DbName,
 		"db.prefix", form.DbTablePrefix,
 		"db.charset", "utf8",
-		"db.max.idle.conns", "30",
+		"db.max.idle.conns", "5",
 		"db.max.open.conns", "100",
 		"allow_ips", "",
 		"app.name", "定时任务管理系统", // 应用名称
