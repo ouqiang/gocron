@@ -104,9 +104,7 @@ func GetCurrentVersionId() int {
 
 // ToNumberVersion 把字符串版本号a.b.c转换为整数版本号abc
 func ToNumberVersion(versionString string) int {
-	if strings.HasPrefix(versionString, "v") {
-		versionString = versionString[1:]
-	}
+	versionString = strings.TrimPrefix(versionString, "v")
 	v := strings.Replace(versionString, ".", "", -1)
 	if len(v) < 3 {
 		v += "0"

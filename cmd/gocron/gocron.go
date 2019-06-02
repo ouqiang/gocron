@@ -35,7 +35,10 @@ func main() {
 	cliApp.Version, _ = goutil.FormatAppVersion(AppVersion, GitCommit, BuildDate)
 	cliApp.Commands = getCommands()
 	cliApp.Flags = append(cliApp.Flags, []cli.Flag{}...)
-	cliApp.Run(os.Args)
+	err := cliApp.Run(os.Args)
+	if err != nil {
+		logger.Fatal(err)
+	}
 }
 
 // getCommands

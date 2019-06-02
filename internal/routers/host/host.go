@@ -14,7 +14,7 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/utils"
 	"github.com/ouqiang/gocron/internal/routers/base"
 	"github.com/ouqiang/gocron/internal/service"
-	"gopkg.in/macaron.v1"
+	macaron "gopkg.in/macaron.v1"
 )
 
 const testConnectionCommand = "echo hello"
@@ -25,6 +25,9 @@ func Index(ctx *macaron.Context) string {
 	hostModel := new(models.Host)
 	queryParams := parseQueryParams(ctx)
 	total, err := hostModel.Total(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
 	hosts, err := hostModel.List(queryParams)
 	if err != nil {
 		logger.Error(err)

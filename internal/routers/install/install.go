@@ -148,6 +148,9 @@ func testDbConnection(form InstallForm) error {
 	s.Db.Database = form.DbName
 	s.Db.Charset = "utf8"
 	db, err := models.CreateTmpDb(&s)
+	if err != nil {
+		return err
+	}
 	defer db.Close()
 	err = db.Ping()
 	if s.Db.Engine == "postgres" && err != nil {

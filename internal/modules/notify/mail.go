@@ -54,7 +54,7 @@ func (mail *Mail) send(mailSetting models.Mail, toUsers []string, msg Message) {
 	gomailMessage.SetHeader("To", toUsers...)
 	gomailMessage.SetHeader("Subject", "gocron-定时任务通知")
 	gomailMessage.SetBody("text/html", body)
-	mailer := gomail.NewPlainDialer(mailSetting.Host, mailSetting.Port,
+	mailer := gomail.NewDialer(mailSetting.Host, mailSetting.Port,
 		mailSetting.User, mailSetting.Password)
 	maxTimes := 3
 	i := 0

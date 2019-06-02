@@ -63,6 +63,9 @@ statik:
 	go get github.com/rakyll/statik
 	go generate ./...
 
+.PHONY: lint
+	golangci-lint run
+
 .PHONY: clean
 clean:
 	rm bin/gocron

@@ -1,8 +1,0 @@
-language: go
-go:
-  - 1.9.x
-script: go test `go list ./... | grep -v vendor`
-
-notifications:
-  on_success: never
-  on_failure: always

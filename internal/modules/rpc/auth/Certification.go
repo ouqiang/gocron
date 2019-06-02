@@ -22,11 +22,14 @@ func (c Certificate) GetTLSConfigForServer() (*tls.Config, error) {
 		c.CertFile,
 		c.KeyFile,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	certPool := x509.NewCertPool()
 	bs, err := ioutil.ReadFile(c.CAFile)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to read client ca cert: %s", err))
+		return nil, fmt.Errorf("failed to read client ca cert: %s", err)
 	}
 
 	ok := certPool.AppendCertsFromPEM(bs)
@@ -48,11 +51,14 @@ func (c Certificate) GetTransportCredsForClient() (credentials.TransportCredenti
 		c.CertFile,
 		c.KeyFile,
 	)
+	if err != nil {
+		return nil, err
+	}
 
 	certPool := x509.NewCertPool()
 	bs, err := ioutil.ReadFile(c.CAFile)
 	if err != nil {
-		return nil, errors.New(fmt.Sprintf("failed to read ca cert: %s", err))
+		return nil, fmt.Errorf("failed to read ca cert: %s", err)
 	}
 
 	ok := certPool.AppendCertsFromPEM(bs)

@@ -132,8 +132,12 @@ func getDbEngineDSN(setting *setting.Setting) string {
 
 func keepDbAlived(engine *xorm.Engine) {
 	t := time.Tick(dbPingInterval)
+	var err error
 	for {
 		<-t
-		engine.Ping()
+		err = engine.Ping()
+		if err != nil {
+			logger.Infof("database ping: %s", err)
+		}
 	}
 }

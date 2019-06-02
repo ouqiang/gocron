@@ -71,11 +71,8 @@ func (user *User) Match(username, password string) bool {
 		return false
 	}
 	hashPassword := user.encryptPassword(password, user.Salt)
-	if hashPassword != user.Password {
-		return false
-	}
 
-	return true
+	return hashPassword == user.Password
 }
 
 // 获取用户详情

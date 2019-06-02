@@ -1,7 +1,6 @@
 package service
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"strconv"
@@ -234,7 +233,7 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	}
 	// 返回状态码非200，均为失败
 	if resp.StatusCode != http.StatusOK {
-		return resp.Body, errors.New(fmt.Sprintf("HTTP状态码非200-->%d", resp.StatusCode))
+		return resp.Body, fmt.Errorf("HTTP状态码非200-->%d", resp.StatusCode)
 	}
 
 	return resp.Body, err

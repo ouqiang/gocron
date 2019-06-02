@@ -5,7 +5,7 @@ import (
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/utils"
 	"github.com/ouqiang/gocron/internal/routers/base"
-	"gopkg.in/macaron.v1"
+	macaron "gopkg.in/macaron.v1"
 )
 
 func Index(ctx *macaron.Context) string {
@@ -13,6 +13,9 @@ func Index(ctx *macaron.Context) string {
 	params := models.CommonMap{}
 	base.ParsePageAndPageSize(ctx, params)
 	total, err := loginLogModel.Total()
+	if err != nil {
+		logger.Error(err)
+	}
 	loginLogs, err := loginLogModel.List(params)
 	if err != nil {
 		logger.Error(err)
