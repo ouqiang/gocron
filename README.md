@@ -55,8 +55,10 @@
 4. 浏览器访问 http://localhost:5920
 
 ### 源码安装
-- 安装Go 1.9+
+
+- 安装Go 1.11+
 - `go get -d github.com/ouqiang/gocron`
+- `export GO111MODULE=on` 
 - 编译 `make`
 - 启动
     * gocron `./bin/gocron web`
