@@ -53,7 +53,6 @@ func (p *GRPCPool) Get(addr string) (rpc.TaskClient, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.conns[addr] = client
 
 	return client.rpcClient, nil
 }
@@ -114,6 +113,8 @@ func (p *GRPCPool) factory(addr string) (*Client, error) {
 		conn:      conn,
 		rpcClient: rpc.NewTaskClient(conn),
 	}
+
+	p.conns[addr] = client
 
 	return client, nil
 }
