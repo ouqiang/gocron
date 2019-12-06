@@ -195,7 +195,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 
 	status, _ := taskModel.GetStatus(id)
 	if status == models.Enabled && taskModel.Level == models.TaskLevelParent {
-		addTaskToTimer(id)
+		go addTaskToTimer(id)
 	}
 
 	return json.Success("保存成功", nil)
