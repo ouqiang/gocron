@@ -129,6 +129,9 @@ func (task *Task) ActiveListByHostId(hostId int16) ([]Task, error) {
 	if err != nil {
 		return nil, err
 	}
+	if len(taskIds) == 0 {
+		return nil, nil
+	}
 	list := make([]Task, 0)
 	err = Db.Where("status = ?  AND level = ?", Enabled, TaskLevelParent).
 		In("id", taskIds...).
