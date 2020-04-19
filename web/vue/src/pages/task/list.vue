@@ -466,7 +466,7 @@ export default {
       })
     },
     jumpToLog (item) {
-      this.$router.push(`/task/log?task_id=${item.id}`)
+      this.$router.push(`/task-log?task_id=${item.id}`)
     },
     refresh () {
       this.search(() => {
