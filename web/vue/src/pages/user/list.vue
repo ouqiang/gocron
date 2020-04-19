@@ -127,7 +127,7 @@
           destroy-on-close
           :with-header="false"
           @close="editDrawerVisible = false"
-          size="30%">
+          size="40%">
           <edit :userid="userid" @complete="completeEdit" />
         </el-drawer>
       </div>
@@ -140,7 +140,7 @@
           destroy-on-close
           :with-header="false"
           @close="editPasswordDrawerVisible = false"
-          size="30%">
+          size="40%">
           <edit-password :userid="userid" @complete="completeEdit" />
         </el-drawer>
       </div>
@@ -239,6 +239,7 @@ export default {
     completeEdit () {
       this.editDrawerVisible = false
       this.editPasswordDrawerVisible = false
+      this.search()
     }
   }
 }
