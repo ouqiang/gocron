@@ -1,37 +1,49 @@
 <template>
-  <el-container >
-    <task-sidebar></task-sidebar>
-    <el-main>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="180px">
+  <div>
+    <el-main style="height:100vh;background-color:#f0f2f5" v-loading="taskDetailLoading">
+      <el-form ref="form" :model="form" :rules="formRules" label-width="160px" style="padding:0 20px">
         <el-input v-model="form.id" type="hidden"></el-input>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="任务名称" prop="name">
-              <el-input v-model.trim="form.name"></el-input>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="标签">
-              <el-input v-model.trim="form.tag" placeholder="通过标签将任务分组"></el-input>
-            </el-form-item>
-          </el-col>
-        </el-row>
+        <el-card>
+          <div slot="header" class="clearfix">
+            <span>基本信息</span>
+          </div>
+          <el-row>
+            <el-col :span="11">
+              <el-form-item label="任务名称" prop="name">
+                <el-input v-model.trim="form.name"></el-input>
+              </el-form-item>
+            </el-col>
+            <el-col :span="11">
+              <el-form-item label="标签">
+                <el-input v-model.trim="form.tag" placeholder="通过标签将任务分组"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-card>
+
+        <el-card style="margin-top:20px">
+          <div slot="header" class="clearfix">
+            <span>任务信息</span>
+          </div>
+          <!-- 提示 -->
         <el-row v-if="form.level === 1">
           <el-col>
             <el-alert
-              title="主任务可以配置多个子任务, 当主任务执行完成后，自动执行子任务
-任务类型新增后不能变更"
+              title="主任务可以配置多个子任务, 当主任务执行完成后，自动执行子任务 任务类型新增后不能变更"
               type="info"
+              show-icon
               :closable="false">
             </el-alert>
+            <br>
             <el-alert
-              title="强依赖: 主任务执行成功，才会运行子任务
-弱依赖: 无论主任务执行是否成功，都会运行子任务"
+              title="强依赖: 主任务执行成功，才会运行子任务 ；弱依赖: 无论主任务执行是否成功，都会运行子任务"
               type="info"
+              show-icon
               :closable="false">
             </el-alert> <br>
           </el-col>
         </el-row>
+        <!-- 表单 -->
         <el-row>
           <el-col :span="7">
             <el-form-item label="任务类型">
@@ -123,22 +135,32 @@
             </el-form-item>
           </el-col>
         </el-row>
+        </el-card>
+
+        <!-- 第三部分 -->
+        <el-card style="margin-top:20px">
+          <div slot="header" class="clearfix">
+            <span>执行信息</span>
+          </div>
         <el-row>
           <el-col>
             <el-alert
               title="任务执行超时强制结束, 取值0-86400(秒), 默认0, 不限制"
               type="info"
+              show-icon
               :closable="false">
             </el-alert>
+            <br>
             <el-alert
               title="单实例运行, 前次任务未执行完成，下次任务调度时间到了是否要执行, 即是否允许多进程执行同一任务"
               type="info"
+              show-icon
               :closable="false">
             </el-alert> <br>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="8">
             <el-form-item label="任务超时时间" prop="timeout">
               <el-input v-model.number.trim="form.timeout"></el-input>
             </el-form-item>
@@ -157,14 +179,14 @@
           </el-col>
         </el-row>
         <el-row>
-        <el-col :span="12">
+        <el-col :span="8">
           <el-form-item label="任务失败重试次数" prop="retry_times">
             <el-input v-model.number.trim="form.retry_times"
                       placeholder="0 - 10, 默认0，不重试"></el-input>
           </el-form-item>
         </el-col>
-        <el-col :span="12">
-          <el-form-item label="任务失败重试间隔时间" prop="retry_interval">
+        <el-col :span="8">
+          <el-form-item label="失败重试间隔时间" prop="retry_interval">
             <el-input v-model.number.trim="form.retry_interval" placeholder="0 - 3600 (秒), 默认0，执行系统默认策略"></el-input>
           </el-form-item>
         </el-col>
@@ -244,24 +266,28 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-form-item>
-          <el-button type="primary" @click="submit">保存</el-button>
-          <el-button @click="cancel">取消</el-button>
+        </el-card>
+        <el-form-item style="margin-top:20px;float:right">
+          <el-button type="primary" :loading="saveBtnLoading" @click="submit" style="width:150px">保存</el-button>
+          <el-button @click="cancel" style="width: 150px">取消</el-button>
         </el-form-item>
       </el-form>
     </el-main>
-  </el-container>
+  </div>
 </template>
 
 <script>
-import taskSidebar from './sidebar'
 import taskService from '../../api/task'
 import notificationService from '../../api/notification'
 
 export default {
   name: 'task-edit',
+  props: {
+    taskid: Number
+  },
   data () {
     return {
+      taskDetailLoading: false,
       form: {
         id: '',
         name: '',
@@ -394,7 +420,8 @@ export default {
       slackChannels: [],
       selectedHosts: [],
       selectedMailNotifyIds: [],
-      selectedSlackNotifyIds: []
+      selectedSlackNotifyIds: [],
+      saveBtnLoading: false
     }
   },
   computed: {
@@ -406,11 +433,11 @@ export default {
       return '请输入shell命令'
     }
   },
-  components: {taskSidebar},
   created () {
-    const id = this.$route.params.id
-
+    const id = this.taskid
+    if (id) this.taskDetailLoading = true
     taskService.detail(id, (taskData, hosts) => {
+      this.taskDetailLoading = false
       if (id && !taskData) {
         this.$message.error('数据不存在')
         this.cancel()
@@ -499,6 +526,7 @@ export default {
       })
     },
     save () {
+      this.saveBtnLoading = true
       if (this.form.protocol === 2 && this.selectedHosts.length > 0) {
         this.form.host_id = this.selectedHosts.join(',')
       }
@@ -509,12 +537,22 @@ export default {
         this.form.notify_receiver_id = this.selectedSlackNotifyIds.join(',')
       }
       taskService.update(this.form, () => {
-        this.$router.push('/task')
+        this.$message.success('保存成功')
+        this.saveBtnLoading = false
+        this.$refs.form.resetFields()
+        this.$emit('complete')
       })
     },
     cancel () {
-      this.$router.push('/task')
+      this.$refs.form.resetFields()
+      this.$emit('complete')
     }
   }
 }
 </script>
+
+<style>
+.el-drawer__header {
+  margin: 0;
+}
+</style>

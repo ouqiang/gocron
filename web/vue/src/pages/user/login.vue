@@ -6,23 +6,32 @@
         :close-on-click-modal="false"
         :show-close="false"
         :close-on-press-escape="false"
-        width="40%">
-        <el-form ref="form" :model="form" label-width="80px"
-        :rules="formRules">
-          <el-form-item label="用户名" prop="username" >
-            <el-col :span="16">
+        width="400px">
+        <el-form
+          ref="form"
+          :model="form"
+          label-width="0"
+          :rules="formRules"
+          style="padding:0 20px"
+        >
+          <el-form-item prop="username" >
+            <!-- <el-col :span="16"> -->
               <el-input v-model.trim="form.username"
                         placeholder="请输入用户名或邮箱">
+                         <i slot="prefix" class="el-input__icon el-icon-user"></i>
               </el-input>
-            </el-col>
+            <!-- </el-col> -->
           </el-form-item>
-          <el-form-item label="密码" prop="password">
-            <el-col :span="16">
-              <el-input v-model.trim="form.password" type="password" placeholder="请输入密码"></el-input>
-            </el-col>
+          <el-form-item prop="password">
+            <!-- <el-col :span="16"> -->
+              <el-input v-model.trim="form.password" type="password" placeholder="请输入密码">
+                 <i slot="prefix" class="el-input__icon el-icon-key"></i>
+              </el-input>
+            <!-- </el-col> -->
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" @click="submit">登录</el-button>
+
+            <el-button type="primary" @click="submit" style="width:100%">登录</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -42,10 +51,10 @@ export default {
       },
       formRules: {
         username: [
-          {required: true, message: '请输入用户名', trigger: 'blur'}
+          {required: true, message: '请输入用户名', trigger: ['change', 'blur']}
         ],
         password: [
-          {required: true, message: '请输入密码', trigger: 'blur'}
+          {required: true, message: '请输入密码', trigger: ['change', 'blur']}
         ]
       },
       dialogVisible: true

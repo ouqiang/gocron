@@ -1,7 +1,6 @@
 <template>
-  <el-container>
-    <el-main>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 500px;">
+  <div v-loading="pageLoading">
+      <el-form ref="uform" :model="form" :rules="formRules" label-width="100px" style="padding: 0 20px">
         <el-form-item>
           <el-input v-model="form.id" type="hidden"></el-input>
         </el-form-item>
@@ -11,7 +10,7 @@
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email"></el-input>
         </el-form-item>
-        <template v-if="!form.id">
+        <template v-if="form.is_admin">
           <el-form-item label="密码" prop="password">
             <el-input v-model="form.password" type="password"></el-input>
           </el-form-item>
@@ -32,20 +31,23 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submit()">保存</el-button>
-          <el-button @click="cancel">取消</el-button>
+          <el-button type="primary" @click="submit()" style="width:35%;float:right">保存</el-button>
+          <el-button @click="cancel" style="width:35%;float:right;margin-right:20px">取消</el-button>
         </el-form-item>
       </el-form>
-    </el-main>
-  </el-container>
+  </div>
 </template>
 
 <script>
 import userService from '../../api/user'
 export default {
   name: 'user-edit',
+  props: {
+    userid: Number
+  },
   data: function () {
     return {
+      pageLoading: false,
       form: {
         id: '',
         name: '',
@@ -66,17 +68,27 @@ export default {
           {required: true, message: '请输入密码', trigger: 'blur'}
         ],
         confirm_password: [
-          {required: true, message: '请再次输入密码', trigger: 'blur'}
+          {required: true, message: '请再次输入密码', trigger: 'blur'},
+          {
+            validator: (rules, value, callback) => {
+              if (this.form.password !== this.form.confirm_password) {
+                callback(new Error('两次密码必须一致'))
+              } else callback()
+            },
+            trigger: ['blur', 'change']
+          }
         ]
       }
     }
   },
   created () {
-    const id = this.$route.params.id
+    const id = this.userid
     if (!id) {
       return
     }
+    this.pageLoading = true
     userService.detail(id, (data) => {
+      this.pageLoading = false
       if (!data) {
         this.$message.error('数据不存在')
         return
@@ -99,11 +111,14 @@ export default {
     },
     save () {
       userService.update(this.form, () => {
-        this.$router.push('/user')
+        this.$message.success('保存成功')
+        this.saveBtnLoading = false
+        this.$refs.uform.resetFields()
+        this.$emit('complete')
       })
     },
     cancel () {
-      this.$router.push('/user')
+      this.$emit('complete')
     }
   }
 }

@@ -1,7 +1,14 @@
 <template>
-  <el-container>
-    <el-main>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 500px;">
+    <div
+      style="padding:20px"
+    >
+      <el-form ref="pform" :model="form" :rules="formRules" label-width="100px">
+        <el-form-item prop="id" style="display:none">
+          <el-input v-model="form.id" type="hidden"></el-input>
+        </el-form-item>
+        <el-form-item label="原密码" prop="old_password" v-if="isMe">
+          <el-input v-model="form.old_password" type="password"></el-input>
+        </el-form-item>
         <el-form-item label="新密码" prop="new_password">
           <el-input v-model="form.new_password" type="password"></el-input>
         </el-form-item>
@@ -13,22 +20,29 @@
           <el-button @click="cancel">取消</el-button>
         </el-form-item>
       </el-form>
-    </el-main>
-  </el-container>
+  </div>
 </template>
 
 <script>
 import userService from '../../api/user'
+import userInfo from '../../storage/user'
+
 export default {
-  name: 'user-edit-password',
+  name: 'user-edit-my-password',
+  props: {
+    userid: Number
+  },
   data: function () {
     return {
       form: {
-        id: '',
+        id: this.userid || '',
         new_password: '',
         confirm_new_password: ''
       },
       formRules: {
+        old_password: [
+          {required: true, message: '请输入原密码', trigger: 'blur'}
+        ],
         new_password: [
           {required: true, message: '请输入新密码', trigger: 'blur'}
         ],
@@ -38,16 +52,14 @@ export default {
       }
     }
   },
-  created () {
-    const id = this.$route.params.id
-    if (!id) {
-      return
+  computed: {
+    isMe () {
+      return +userInfo.getUid() === this.form.id
     }
-    this.form.id = id
   },
   methods: {
     submit () {
-      this.$refs['form'].validate((valid) => {
+      this.$refs['pform'].validate((valid) => {
         if (!valid) {
           return false
         }
@@ -55,12 +67,15 @@ export default {
       })
     },
     save () {
-      userService.editPassword(this.form, () => {
-        this.$router.push('/user')
+      userService.editMyPassword(this.form, () => {
+        this.$message.success('保存成功')
+        this.saveBtnLoading = false
+        this.$refs.pform.resetFields()
+        this.$emit('complete')
       })
     },
     cancel () {
-      this.$router.push('/user')
+      this.$emit('complete')
     }
   }
 }

@@ -17,14 +17,14 @@ Vue.directive('focus', {
   }
 })
 
-Vue.prototype.$appConfirm = function (callback) {
-  this.$confirm('确定执行此操作?', '提示', {
+Vue.prototype.$appConfirm = function (callback, title = '提示', content = '确定执行此操作?', type = 'warning') {
+  this.$confirm(content, title, {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning'
+    type
   }).then(() => {
     callback()
-  })
+  }).catch((e) => {})
 }
 
 Vue.filter('formatTime', function (time) {

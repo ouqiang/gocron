@@ -11,11 +11,10 @@ import HostList from '../pages/host/list'
 import HostEdit from '../pages/host/edit'
 
 import UserList from '../pages/user/list'
-import UserEdit from '../pages/user/edit'
 import UserLogin from '../pages/user/login'
 import UserEditPassword from '../pages/user/editPassword'
-import UserEditMyPassword from '../pages/user/editMyPassword'
 
+import NotificationTab from '../pages/system/notification/tab'
 import NotificationEmail from '../pages/system/notification/email'
 import NotificationSlack from '../pages/system/notification/slack'
 import NotificationWebhook from '../pages/system/notification/webhook'
@@ -98,16 +97,6 @@ const router = new Router({
       component: UserList
     },
     {
-      path: '/user/create',
-      name: 'user-create',
-      component: UserEdit
-    },
-    {
-      path: '/user/edit/:id',
-      name: 'user-edit',
-      component: UserEdit
-    },
-    {
       path: '/user/login',
       name: 'user-login',
       component: UserLogin,
@@ -121,31 +110,30 @@ const router = new Router({
       component: UserEditPassword
     },
     {
-      path: '/user/edit-my-password',
-      name: 'user-edit-my-password',
-      component: UserEditMyPassword,
-      meta: {
-        noNeedAdmin: true
-      }
-    },
-    {
-      path: '/system',
-      redirect: '/system/notification/email'
-    },
-    {
-      path: '/system/notification/email',
-      name: 'system-notification-email',
-      component: NotificationEmail
-    },
-    {
-      path: '/system/notification/slack',
-      name: 'system-notification-slack',
-      component: NotificationSlack
-    },
-    {
-      path: '/system/notification/webhook',
-      name: 'system-notification-webhook',
-      component: NotificationWebhook
+      path: '/system/notification',
+      component: NotificationTab,
+      children: [
+        {
+          path: '',
+          name: 'system-notification',
+          component: NotificationEmail
+        },
+        {
+          path: '/system/notification/email',
+          name: 'system-notification-email',
+          component: NotificationEmail
+        },
+        {
+          path: '/system/notification/slack',
+          name: 'system-notification-slack',
+          component: NotificationSlack
+        },
+        {
+          path: '/system/notification/webhook',
+          name: 'system-notification-webhook',
+          component: NotificationWebhook
+        }
+      ]
     },
     {
       path: '/system/login-log',

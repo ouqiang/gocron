@@ -1,14 +1,19 @@
 <template>
   <el-container>
-    <system-sidebar></system-sidebar>
-    <el-main>
-      <notification-tab></notification-tab>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 700px;">
-        <el-alert
-          title="通知内容推送到指定URL, POST请求, 设置Header[ Content-Type: application/json]"
-          type="info"
-          :closable="false">
-        </el-alert><br>
+    <!-- <system-sidebar></system-sidebar> -->
+    <!-- <el-main> -->
+      <div style="padding:20px;display:inline-block;background-color:#fff;width:100%;">
+      <!-- <notification-tab style="display:inline-block"></notification-tab> -->
+      <el-form ref="form" :model="form" :rules="formRules" label-width="80px" style="width:100%;">
+        <el-form-item>
+          <el-alert
+            title="通知内容推送到指定URL, POST请求, 设置Header[ Content-Type: application/json]"
+            type="info"
+            :closable="false"
+            show-icon>
+          </el-alert>
+        </el-form-item>
+
         <el-form-item label="URL" prop="url">
           <el-input v-model.trim="form.url"></el-input>
         </el-form-item>
@@ -24,13 +29,12 @@
           <el-button type="primary" @click="submit()">保存</el-button>
         </el-form-item>
       </el-form>
-    </el-main>
+      </div>
+    <!-- </el-main> -->
   </el-container>
 </template>
 
 <script>
-import systemSidebar from '../sidebar'
-import notificationTab from './tab'
 import notificationService from '../../../api/notification'
 export default {
   name: 'notification-webhook',
@@ -50,7 +54,6 @@ export default {
       }
     }
   },
-  components: {notificationTab, systemSidebar},
   created () {
     this.init()
   },
