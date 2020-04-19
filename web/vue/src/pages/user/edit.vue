@@ -31,7 +31,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submit()" style="width:35%;float:right">保存</el-button>
+          <el-button type="primary" @click="submit()" style="width:35%;float:right" :loading="saveBtnLoading">保存</el-button>
           <el-button @click="cancel" style="width:35%;float:right;margin-right:20px">取消</el-button>
         </el-form-item>
       </el-form>
@@ -48,6 +48,7 @@ export default {
   data: function () {
     return {
       pageLoading: false,
+      saveBtnLoading: false,
       form: {
         id: '',
         name: '',
@@ -102,7 +103,7 @@ export default {
   },
   methods: {
     submit () {
-      this.$refs['form'].validate((valid) => {
+      this.$refs['uform'].validate((valid) => {
         if (!valid) {
           return false
         }
@@ -110,15 +111,29 @@ export default {
       })
     },
     save () {
+      this.saveBtnLoading = true
       userService.update(this.form, () => {
         this.$message.success('保存成功')
         this.saveBtnLoading = false
-        this.$refs.uform.resetFields()
+        this.resetForm()
         this.$emit('complete')
       })
     },
     cancel () {
+      this.resetForm()
       this.$emit('complete')
+    },
+    resetForm () {
+      this.form = {
+        id: '',
+        name: '',
+        email: '',
+        is_admin: 0,
+        password: '',
+        confirm_password: '',
+        status: 1
+      }
+      this.saveBtnLoading = false
     }
   }
 }
