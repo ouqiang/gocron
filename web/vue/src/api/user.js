@@ -9,34 +9,34 @@ export default {
     httpClient.get(`/user/${id}`, {}, callback)
   },
 
-  update (data, callback) {
-    httpClient.post('/user/store', data, callback)
+  update (data, callback, failureCallback) {
+    httpClient.post('/user/store', data, callback, failureCallback)
   },
 
-  login (username, password, callback) {
-    httpClient.post('/user/login', {username, password}, callback)
+  login (username, password, callback, failureCallback) {
+    httpClient.post('/user/login', {username, password}, callback, failureCallback)
   },
 
-  enable (id, callback) {
-    httpClient.post(`/user/enable/${id}`, {}, callback)
+  enable (id, callback, failureCallback) {
+    httpClient.post(`/user/enable/${id}`, {}, callback, failureCallback)
   },
 
-  disable (id, callback) {
-    httpClient.post(`/user/disable/${id}`, {}, callback)
+  disable (id, callback, failureCallback) {
+    httpClient.post(`/user/disable/${id}`, {}, callback, failureCallback)
   },
 
-  remove (id, callback) {
-    httpClient.post(`/user/remove/${id}`, {}, callback)
+  remove (id, callback, failureCallback) {
+    httpClient.post(`/user/remove/${id}`, {}, callback, failureCallback)
   },
 
-  editPassword (data, callback) {
+  editPassword (data, callback, failureCallback) {
     httpClient.post(`/user/editPassword/${data.id}`, {
       'new_password': data.new_password,
       'confirm_new_password': data.confirm_new_password
-    }, callback)
+    }, callback, failureCallback)
   },
 
-  editMyPassword (data, callback) {
-    httpClient.post(`/user/editMyPassword`, data, callback)
+  editMyPassword (data, callback, failureCallback) {
+    httpClient.post(`/user/editMyPassword`, data, callback, failureCallback)
   }
 }
