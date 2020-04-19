@@ -1,6 +1,6 @@
 <template>
   <div style="padding:0 20px" v-loading="pageLoading">
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px">
+      <el-form ref="hform" :model="form" :rules="formRules" label-width="100px">
         <el-form-item style="visiblity:hidden">
           <el-input v-model="form.id" type="hidden"></el-input>
         </el-form-item>
@@ -62,32 +62,33 @@ export default {
       }
     }
   },
-  created () {
-    const id = this.hostid
-    if (!id) {
-      return
-    }
-    this.pageLoading = true
-    hostService.detail(id, (data) => {
-      this.pageLoading = false
-      if (!data) {
-        this.$message.error('数据不存在')
-        this.cancel()
-        return
-      }
-      this.form.id = data.id
-      this.form.name = data.name
-      this.form.port = data.port
-      this.form.alias = data.alias
-      this.form.remark = data.remark
-    })
-  },
   mounted () {
     this.$refs.alias.focus()
+    this.fetchData()
   },
   methods: {
+    fetchData () {
+      const id = this.hostid
+      if (!id) {
+        return
+      }
+      this.pageLoading = true
+      hostService.detail(id, (data) => {
+        this.pageLoading = false
+        if (!data) {
+          this.$message.error('数据不存在')
+          this.cancel()
+          return
+        }
+        this.form.id = data.id
+        this.form.name = data.name
+        this.form.port = data.port
+        this.form.alias = data.alias
+        this.form.remark = data.remark
+      })
+    },
     submit () {
-      this.$refs['form'].validate((valid) => {
+      this.$refs['hform'].validate((valid) => {
         if (!valid) {
           return false
         }
@@ -99,12 +100,29 @@ export default {
       hostService.update(this.form, () => {
         this.saveBtnLoading = false
         this.$message.success('保存成功')
-        this.$refs.form.resetFields()
+        this.resetForm()
         this.$emit('complete')
       })
     },
     cancel () {
+      this.resetForm()
       this.$emit('complete')
+    },
+    resetForm () {
+      this.form = {
+        id: '',
+        name: '',
+        port: 5921,
+        alias: '',
+        remark: ''
+      }
+    }
+  },
+  watch: {
+    hostid (newVal, oldVal) {
+      if (newVal !== oldVal) {
+        this.fetchData()
+      }
     }
   }
 }
