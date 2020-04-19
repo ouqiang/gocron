@@ -539,13 +539,37 @@ export default {
       taskService.update(this.form, () => {
         this.$message.success('保存成功')
         this.saveBtnLoading = false
-        this.$refs.form.resetFields()
+        this.resetForm()
         this.$emit('complete')
       })
     },
     cancel () {
-      this.$refs.form.resetFields()
+      this.resetForm()
       this.$emit('complete')
+    },
+    resetForm () {
+      this.form = {
+        id: '',
+        name: '',
+        tag: '',
+        level: 1,
+        dependency_status: 1,
+        dependency_task_id: '',
+        spec: '',
+        protocol: 2,
+        http_method: 1,
+        command: '',
+        host_id: '',
+        timeout: 0,
+        multi: 2,
+        notify_status: 1,
+        notify_type: 2,
+        notify_receiver_id: '',
+        notify_keyword: '',
+        retry_times: 0,
+        retry_interval: 0,
+        remark: ''
+      }
     }
   }
 }
