@@ -4,14 +4,12 @@ import store from '../store/index'
 import NotFound from '../components/common/notFound'
 
 import TaskList from '../pages/task/list'
-import TaskEdit from '../pages/task/edit'
 import TaskLog from '../pages/taskLog/list'
 
 import HostList from '../pages/host/list'
 
 import UserList from '../pages/user/list'
 import UserLogin from '../pages/user/login'
-import UserEditPassword from '../pages/user/editPassword'
 
 import NotificationTab from '../pages/system/notification/tab'
 import NotificationEmail from '../pages/system/notification/email'
@@ -55,17 +53,7 @@ const router = new Router({
       }
     },
     {
-      path: '/task/create',
-      name: 'task-create',
-      component: TaskEdit
-    },
-    {
-      path: '/task/edit/:id',
-      name: 'task-edit',
-      component: TaskEdit
-    },
-    {
-      path: '/task/log',
+      path: '/task-log',
       name: 'task-log',
       component: TaskLog,
       meta: {
@@ -94,19 +82,9 @@ const router = new Router({
       }
     },
     {
-      path: '/user/edit-password/:id',
-      name: 'user-edit-password',
-      component: UserEditPassword
-    },
-    {
       path: '/system/notification',
       component: NotificationTab,
       children: [
-        {
-          path: '',
-          name: 'system-notification',
-          component: NotificationEmail
-        },
         {
           path: '/system/notification/email',
           name: 'system-notification-email',
