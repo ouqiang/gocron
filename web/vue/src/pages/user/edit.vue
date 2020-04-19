@@ -5,12 +5,12 @@
           <el-input v-model="form.id" type="hidden"></el-input>
         </el-form-item>
         <el-form-item label="用户名" prop="name">
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="form.name" ref="uname"></el-input>
         </el-form-item>
         <el-form-item label="邮箱" prop="email">
           <el-input v-model="form.email"></el-input>
         </el-form-item>
-        <template v-if="form.is_admin">
+        <template v-if="!form.id">
           <el-form-item label="密码" prop="password">
             <el-input v-model="form.password" type="password"></el-input>
           </el-form-item>
@@ -63,7 +63,7 @@ export default {
           {required: true, message: '请输入用户名', trigger: 'blur'}
         ],
         email: [
-          {type: 'email', required: true, message: '请输入有效邮箱地址', trigger: 'blur'}
+          {type: 'email', required: true, message: '请输入有效邮箱地址', trigger: ['blur', 'change']}
         ],
         password: [
           {required: true, message: '请输入密码', trigger: 'blur'}
@@ -100,6 +100,9 @@ export default {
       this.form.is_admin = data.is_admin
       this.form.status = data.status
     })
+  },
+  mounted () {
+    this.$refs.uname.focus()
   },
   methods: {
     submit () {
