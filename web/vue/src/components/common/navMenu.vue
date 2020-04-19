@@ -11,7 +11,7 @@
       <el-submenu index="/task">
         <template slot="title">任务管理</template>
         <el-menu-item index="/task">任务列表</el-menu-item>
-        <el-menu-item index="/task/log">任务日志</el-menu-item>
+        <el-menu-item index="/task-log">任务日志</el-menu-item>
       </el-submenu>
       <el-menu-item index="/host">任务节点</el-menu-item>
       <el-menu-item v-if="this.$store.getters.user.isAdmin" index="/user">用户管理</el-menu-item>
@@ -74,8 +74,10 @@ export default {
       if (this.$route.path === '/') {
         return '/task'
       }
-      const segments = this.$route.path.split('/')
-      return `/${segments[1]}`
+      if (this.$route.path.includes('/system/notification/')) {
+        return '/system/notification/email'
+      }
+      return this.$route.path
     },
     userID () {
       return +userInfo.getUid()
