@@ -39,17 +39,13 @@
 export default {
   name: 'notification-tab',
   data () {
-    return {
-      activeName: ''
-    }
+    return {}
   },
-  created () {
-    const segments = this.$route.path.split('/')
-    if (segments.length !== 4) {
-      return 'email'
+  computed: {
+    activeName () {
+      const segments = this.$route.path.split('/')
+      return segments[3]
     }
-    console.log(segments[3])
-    this.activeName = segments[3]
   },
   mounted () {
     // 动态设置高度
