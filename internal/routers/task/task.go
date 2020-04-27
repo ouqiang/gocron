@@ -251,7 +251,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 	json := utils.JsonResponse{}
 	taskModel := new(models.Task)
 	_, err := taskModel.Update(id, models.CommonMap{
-		"Status": status,
+		"status": status,
 	})
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent, err)
