@@ -163,7 +163,7 @@ func changeStatus(ctx *macaron.Context, status models.Status) string {
 	json := utils.JsonResponse{}
 	userModel := new(models.User)
 	_, err := userModel.Update(id, models.CommonMap{
-		"Status": status,
+		"status": status,
 	})
 	if err != nil {
 		return json.CommonFailure(utils.FailureContent, err)
