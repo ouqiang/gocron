@@ -1,6 +1,7 @@
 FROM golang:1.15-alpine as builder
 
-RUN apk update \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk update \
     && apk add --no-cache git ca-certificates make bash yarn nodejs
 
 RUN go env -w GO111MODULE=on && \
@@ -18,7 +19,8 @@ RUN git clone https://github.com/ouqiang/gocron.git \
 
 FROM alpine:3.12
 
-RUN apk add --no-cache ca-certificates tzdata \
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk add --no-cache ca-certificates tzdata \
     && addgroup -S app \
     && adduser -S -g app app
 

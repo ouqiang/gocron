@@ -1,0 +1,5 @@
+{{- if .Values.service.enabled -}}
+Application should be accessible at: {{ .Values.service.url }}
+{{- else -}}
+Application will be accessible at: {{ .Values.service.url }} when you deploy stable track.
+{{- end -}}

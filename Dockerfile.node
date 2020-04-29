@@ -1,0 +1,35 @@
+FROM golang:1.11-alpine3.8 as builder
+
+WORKDIR /go/src/github.com/ouqiang/gocron
+
+COPY . .
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk update \
+    && apk add --no-cache git ca-certificates gcc make bash nodejs yarn musl-dev
+
+ENV GO111MODULE="on" 
+ENV GOPROXY=https://goproxy.cn
+RUN make install-vue \
+    && make build-vue \
+    && make statik \
+    && CGO_ENABLED=0 make node
+
+FROM alpine:3.8
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
+    && apk add --no-cache ca-certificates tzdata bash \
+    && addgroup -S app \
+    && adduser -S -g app app
+
+WORKDIR /app
+
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime 
+
+COPY --chown=app:app --from=builder /go/src/github.com/ouqiang/gocron/bin/gocron-node .
+
+EXPOSE 5921
+
+USER app
+
+ENTRYPOINT ["/app/gocron-node"]

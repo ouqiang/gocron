@@ -1,0 +1,72 @@
+# Default values for chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+image:
+  repository: loongcn/gocron
+  tag: 1.0
+  pullPolicy: IfNotPresent
+
+# define environment variables here as a map of key: value
+env:
+
+configName: gocron-config
+
+configVolume:
+  enabled: false
+  data: ""
+
+podAnnotations: {}
+application:
+  track: stable
+  tier: gocron
+  migrateCommand:
+  initializeCommand:
+  secretName:
+  secretChecksum:
+gitlab:
+  app:
+  env:
+service:
+  enabled: true
+  annotations: {}
+  name: gocron
+  type: ClusterIP
+  url: http://gocron.domain.com
+  additionalHosts:
+  commonName:
+  externalPort: 5920
+  internalPort: 5920
+ingress:
+  tls:
+    enabled: true
+    secretName: "wildcard.domain.com""
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+livenessProbe:
+  path: "/"
+  initialDelaySeconds: 15
+  timeoutSeconds: 15
+  scheme: "HTTP"
+readinessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+  scheme: "HTTP"
+resources:
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 10m
+#    memory: 64Mi
+
+## Configure PodDisruptionBudget
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+#
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1
+persistentvolumeclaim:
+  size: 1Gi
