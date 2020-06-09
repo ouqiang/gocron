@@ -33,8 +33,8 @@
         </el-form-item>
       </el-form>
       <el-row type="flex" justify="end">
-        <el-col :span="3">
-          <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空日志</el-button>
+        <el-col :span="4">
+          <el-button type="danger" v-if="this.$store.getters.user.isAdmin" @click="clearLog">清空{{ searchParams.task_id == '' ? "所有": "当前"}}任务日志</el-button>
         </el-col>
         <el-col :span="2">
           <el-button type="info" @click="refresh">刷新</el-button>
@@ -237,7 +237,7 @@ export default {
     },
     clearLog () {
       this.$appConfirm(() => {
-        taskLogService.clear(() => {
+        taskLogService.clear(this.searchParams.task_id, () => {
           this.searchParams.page = 1
           this.search()
         })
