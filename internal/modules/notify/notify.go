@@ -69,6 +69,7 @@ func parseNotifyTemplate(notifyTemplate string, msg Message) string {
 		"TaskName": msg["name"],
 		"Status":   msg["status"],
 		"Result":   msg["output"],
+		"Remark": msg["remark"],
 	})
 
 	return buf.String()
