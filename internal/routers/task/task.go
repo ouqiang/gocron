@@ -137,8 +137,8 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		}
 	}
 
-	if taskModel.RetryTimes > 10 || taskModel.RetryTimes < 0 {
-		return json.CommonFailure("任务重试次数取值0-10")
+	if taskModel.RetryTimes > 100 || taskModel.RetryTimes < 0 {
+		return json.CommonFailure("任务重试次数取值0-100")
 	}
 
 	if taskModel.RetryInterval > 3600 || taskModel.RetryInterval < 0 {

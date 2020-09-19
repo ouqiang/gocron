@@ -235,7 +235,9 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	if resp.StatusCode != http.StatusOK {
 		return resp.Body, fmt.Errorf("HTTP状态码非200-->%d", resp.StatusCode)
 	}
-
+	if strings.Contains(resp.Body,taskModel.NotifyKeyword)==false{
+		return resp.Body,fmt.Errorf("关键字匹配错误-->%s", taskModel.NotifyKeyword)
+	}
 	return resp.Body, err
 }
 
