@@ -16,7 +16,7 @@ RUN git clone https://github.com/ouqiang/gocron.git \
     && make statik \
     && CGO_ENABLED=0 make gocron
 
-FROM alpine:3.7
+FROM alpine:3.12
 
 RUN apk add --no-cache ca-certificates tzdata \
     && addgroup -S app \
