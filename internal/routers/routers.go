@@ -54,9 +54,7 @@ func Register(m *macaron.Macaron) {
 			ctx.WriteHeader(http.StatusInternalServerError)
 			return
 		}
-
 		io.Copy(ctx.Resp, file)
-
 	})
 	// 系统安装
 	m.Group("/install", func() {
@@ -232,7 +230,6 @@ func userAuth(ctx *macaron.Context) {
 	jsonResp := utils.JsonResponse{}
 	data := jsonResp.Failure(utils.AuthError, "认证失败")
 	ctx.Write([]byte(data))
-
 }
 
 // URL权限验证
