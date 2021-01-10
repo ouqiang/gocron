@@ -223,7 +223,7 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	if taskModel.HttpMethod == models.TaskHTTPMethodGet {
 		resp = httpclient.Get(taskModel.Command, taskModel.Timeout)
 	} else {
-		urlFields := strings.Split(taskModel.Command, "?")
+		urlFields := strings.Split(taskModel.Command, "@@")
 		taskModel.Command = urlFields[0]
 		var params string
 		if len(urlFields) >= 2 {
