@@ -18,7 +18,7 @@ RUN make install-vue \
 FROM alpine:3.8
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk add --no-cache ca-certificates tzdata bash \
+    && apk add --no-cache ca-certificates tzdata bash curl \
     && addgroup -S app \
     && adduser -S -g app app
 

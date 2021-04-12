@@ -48,10 +48,12 @@ livenessProbe:
   path: "/"
   initialDelaySeconds: 15
   timeoutSeconds: 15
+  scheme: "HTTP"
 readinessProbe:
   path: "/"
   initialDelaySeconds: 5
   timeoutSeconds: 3
+  scheme: "HTTP"
 resources:
 #  limits:
 #    cpu: 100m

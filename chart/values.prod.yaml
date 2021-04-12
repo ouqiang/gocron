@@ -3,14 +3,14 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 image:
-  repository: registry-vpc.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron-node
+  repository: registry-vpc.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron
   tag: beebird-1.0
   pullPolicy: IfNotPresent
 
 # define environment variables here as a map of key: value
 env:
 
-configName: 
+configName: gocron-config
 
 configVolume:
   enabled: false
@@ -19,7 +19,7 @@ configVolume:
 podAnnotations: {}
 application:
   track: stable
-  tier: gocron-node
+  tier: gocron
   migrateCommand:
   initializeCommand:
   secretName:
@@ -30,28 +30,29 @@ gitlab:
 service:
   enabled: true
   annotations: {}
-  name: gocron-node
+  name: gocron
   type: ClusterIP
-  url: 
+  url: http://gocron.labs.luedongtech.com
   additionalHosts:
   commonName:
-  externalPort: 5921
-  internalPort: 5921
+  externalPort: 5920
+  internalPort: 5920
 ingress:
-  enabled: false
   tls:
-    enabled: false
-    secretName: ""
+    enabled: true
+    secretName: "wildcard.labs.luedongtech.com"
   annotations:
-    kubernetes.io/ingress.class: ""
+    kubernetes.io/ingress.class: "nginx-intl"
 livenessProbe:
   path: "/"
   initialDelaySeconds: 15
   timeoutSeconds: 15
+  scheme: "HTTP"
 readinessProbe:
   path: "/"
   initialDelaySeconds: 5
   timeoutSeconds: 3
+  scheme: "HTTP"
 resources:
 #  limits:
 #    cpu: 100m
@@ -67,3 +68,5 @@ podDisruptionBudget:
   enabled: false
   # minAvailable: 1
   maxUnavailable: 1
+persistentvolumeclaim:
+  size: 1Gi
