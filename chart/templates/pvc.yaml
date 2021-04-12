@@ -1,0 +1,11 @@
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: gocron-vol
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.persistentvolumeclaim.size }}
+  storageClassName: {{ .Values.persistentvolumeclaim.storageclass }}

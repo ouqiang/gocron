@@ -1,0 +1,69 @@
+# Default values for chart.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 1
+image:
+  repository: registry-vpc.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron-node
+  tag: beebird-1.0
+  pullPolicy: IfNotPresent
+
+# define environment variables here as a map of key: value
+env:
+
+configName: 
+
+configVolume:
+  enabled: false
+  data: ""
+
+podAnnotations: {}
+application:
+  track: stable
+  tier: gocron-node
+  migrateCommand:
+  initializeCommand:
+  secretName:
+  secretChecksum:
+gitlab:
+  app:
+  env:
+service:
+  enabled: true
+  annotations: {}
+  name: gocron-node
+  type: ClusterIP
+  url: 
+  additionalHosts:
+  commonName:
+  externalPort: 5921
+  internalPort: 5921
+ingress:
+  enabled: false
+  tls:
+    enabled: false
+    secretName: ""
+  annotations:
+    kubernetes.io/ingress.class: ""
+livenessProbe:
+  path: "/"
+  initialDelaySeconds: 15
+  timeoutSeconds: 15
+readinessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  timeoutSeconds: 3
+resources:
+#  limits:
+#    cpu: 100m
+#    memory: 128Mi
+#  requests:
+#    cpu: 10m
+#    memory: 64Mi
+
+## Configure PodDisruptionBudget
+## ref: https://kubernetes.io/docs/concepts/workloads/pods/disruptions/
+#
+podDisruptionBudget:
+  enabled: false
+  # minAvailable: 1
+  maxUnavailable: 1

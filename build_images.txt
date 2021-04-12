@@ -1,0 +1,6 @@
+# build for tencentcloud
+docker build -t registry.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron:beebird-2.0 -f Dockerfile.gocron . 
+docker built -t registry.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron-node:beebird-2.0 -f Dockerfile.node . 
+# build for alicloud
+#docker build -t registry-vpc.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron:beebird-2.0 -f Dockerfile.gocron . 
+#docker built -t registry-vpc.cn-hangzhou.aliyuncs.com/luedong_k8s/gocron-node:beebird-2.0 -f Dockerfile.node . 

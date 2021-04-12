@@ -20,17 +20,18 @@ RUN git clone https://github.com/ouqiang/gocron.git \
 FROM alpine:3.12
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
-    && apk add --no-cache ca-certificates tzdata \
+    && apk add --no-cache ca-certificates tzdata bash curl \
     && addgroup -S app \
     && adduser -S -g app app
 
-RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-
 WORKDIR /app
 
-COPY --from=builder /app/gocron/bin/gocron .
+RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
+    && mkdir -p /app/log /app/conf \
+    && ln -s /dev/stdout ./log/cron.log \
+    && chown -R app:app ./
 
-RUN chown -R app:app ./
+COPY --chown=app:app --from=builder /app/gocron/bin/gocron .
 
 EXPOSE 5920
 
