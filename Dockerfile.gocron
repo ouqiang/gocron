@@ -1,21 +1,23 @@
-FROM golang:1.11-alpine3.8 as builder
-
-WORKDIR /go/src/github.com/ouqiang/gocron
-
-COPY . .
+FROM golang:1.15-alpine as builder
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
     && apk update \
-    && apk add --no-cache git ca-certificates gcc make bash nodejs yarn musl-dev
+    && apk add --no-cache git ca-certificates make bash yarn nodejs
 
-ENV GO111MODULE="on" 
-ENV GOPROXY=https://goproxy.cn
-RUN make install-vue \
+RUN go env -w GO111MODULE=on && \
+    go env -w GOPROXY=https://goproxy.cn,direct
+
+WORKDIR /app
+
+RUN git clone https://github.com/ouqiang/gocron.git \
+    && cd gocron \
+    && yarn config set ignore-engines true \
+    && make install-vue \
     && make build-vue \
     && make statik \
     && CGO_ENABLED=0 make gocron
 
-FROM alpine:3.8
+FROM alpine:3.12
 
 RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositories \
     && apk add --no-cache ca-certificates tzdata bash curl \
@@ -25,11 +27,11 @@ RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.ustc.edu.cn/g' /etc/apk/repositorie
 WORKDIR /app
 
 RUN cp /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
-    && mkdir -p /app/log \
+    && mkdir -p /app/log /app/conf \
     && ln -s /dev/stdout ./log/cron.log \
     && chown -R app:app ./
 
-COPY --chown=app:app --from=builder /go/src/github.com/ouqiang/gocron/bin/gocron .
+COPY --chown=app:app --from=builder /app/gocron/bin/gocron .
 
 EXPOSE 5920
 

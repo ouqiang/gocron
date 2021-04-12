@@ -1,5 +1,5 @@
 {{- if not .Values.application.initializeCommand -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   #name: {{ template "trackableappname" . }}
@@ -15,6 +15,13 @@ metadata:
     release: {{ .Release.Name }}
     heritage: {{ .Release.Service }}
 spec:
+  selector:
+    matchLabels:
+      app: {{ template "appname" . }}
+      track: "{{ .Values.application.track }}"
+      tier: "{{ .Values.application.tier }}"
+      release: {{ .Release.Name }}
+
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
@@ -31,6 +38,9 @@ spec:
         tier: "{{ .Values.application.tier }}"
         release: {{ .Release.Name }}
     spec:
+      securityContext:
+        runAsUser: 100
+        fsGroup: 100
       imagePullSecrets:
 {{ toYaml .Values.image.secrets | indent 10 }}
       containers:
