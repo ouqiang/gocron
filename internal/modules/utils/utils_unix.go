@@ -4,7 +4,9 @@ package utils
 
 import (
 	"errors"
+	"github.com/ouqiang/gocron/internal/modules/logger"
 	"os/exec"
+	"sync/atomic"
 	"syscall"
 
 	"golang.org/x/net/context"
@@ -21,15 +23,20 @@ func ExecShell(ctx context.Context, command string) (string, error) {
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
 	}
+	var flag atomic.Value
 	resultChan := make(chan Result)
 	go func() {
 		output, err := cmd.CombinedOutput()
+		if flag.Load() != nil && flag.Load().(bool) {
+			return
+		}
 		resultChan <- Result{string(output), err}
 	}()
 	select {
 	case <-ctx.Done():
-		if cmd.Process.Pid > 0 {
-			syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		flag.Store(true)
+		if err := cmd.Process.Kill(); err != nil {
+			logger.Errorf("Process kill pid:%d err:%v", cmd.Process.Pid, err)
 		}
 		return "", errors.New("timeout killed")
 	case result := <-resultChan:
