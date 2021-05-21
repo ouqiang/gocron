@@ -55,6 +55,10 @@ func request(req *http.Request, timeout int) ResponseWrapper {
 	}
 	setRequestHeader(req)
 	resp, err := client.Do(req)
+	if resp == nil{
+		wrapper.Body = fmt.Sprintf("执行HTTP请求超时")
+		return wrapper
+	}
 	if err != nil {
 		wrapper.Body = fmt.Sprintf("执行HTTP请求错误-%s", err.Error())
 		return wrapper
