@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	macaron "gopkg.in/macaron.v1"
 
@@ -27,6 +28,11 @@ type InstallForm struct {
 	DbPassword           string `binding:"Required;MaxSize(30)"`
 	DbName               string `binding:"Required;MaxSize(50)"`
 	DbTablePrefix        string `binding:"MaxSize(20)"`
+	DbSslmode            string `binding:"In(,false,true,skip-verify)"`
+	DbSslCaFile          string `binding:"MaxSize(255)"`
+	DbSslCertFile        string `binding:"MaxSize(255)"`
+	DbSslKeyFile         string `binding:"MaxSize(255)"`
+	DbSslServerName      string `binding:"MaxSize(255)"`
 	AdminUsername        string `binding:"Required;MinSize(3)"`
 	AdminPassword        string `binding:"Required;MinSize(6)"`
 	ConfirmAdminPassword string `binding:"Required;MinSize(6)"`
@@ -38,7 +44,11 @@ func (f InstallForm) Error(ctx *macaron.Context, errs binding.Errors) {
 		return
 	}
 	json := utils.JsonResponse{}
-	content := json.CommonFailure("表单验证失败, 请检测输入")
+	newErrs := make([]error, len(errs))
+    for i, e := range errs {
+        newErrs[i] = fmt.Errorf("表单验证失败-Fields: %s, Kind: %s, Error: %s", strings.Join(e.Fields(), ", "), e.Kind(), e.Error())
+    }
+	content := json.CommonFailure("表单验证失败, 请检测输入", newErrs...)
 	ctx.Write([]byte(content))
 }
 
@@ -108,6 +118,11 @@ func writeConfig(form InstallForm) error {
 		"db.database", form.DbName,
 		"db.prefix", form.DbTablePrefix,
 		"db.charset", "utf8",
+		"db.sslmode", form.DbSslmode,
+		"db.ssl_ca_file", form.DbSslCaFile,
+		"db.ssl_cert_file", form.DbSslCertFile,
+		"db.ssl_key_file", form.DbSslKeyFile,
+		"db.ssl_server_name", form.DbSslServerName,
 		"db.max.idle.conns", "5",
 		"db.max.open.conns", "100",
 		"allow_ips", "",
@@ -146,6 +161,11 @@ func testDbConnection(form InstallForm) error {
 	s.Db.User = form.DbUsername
 	s.Db.Password = form.DbPassword
 	s.Db.Database = form.DbName
+	s.Db.Sslmode = form.DbSslmode
+	s.Db.SslCaFile = form.DbSslCaFile
+	s.Db.SslCertFile = form.DbSslCertFile
+	s.Db.SslKeyFile = form.DbSslKeyFile
+	s.Db.SslServerName = form.DbSslServerName
 	s.Db.Charset = "utf8"
 	db, err := models.CreateTmpDb(&s)
 	if err != nil {
