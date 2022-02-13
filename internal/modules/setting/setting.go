@@ -22,6 +22,12 @@ type Setting struct {
 		Charset      string
 		MaxIdleConns int
 		MaxOpenConns int
+
+		Sslmode       string
+		SslCaFile     string
+		SslCertFile   string
+		SslKeyFile    string
+		SslServerName string
 	}
 	AllowIps      string
 	AppName       string
@@ -58,6 +64,12 @@ func Read(filename string) (*Setting, error) {
 	s.Db.Charset = section.Key("db.charset").MustString("utf8")
 	s.Db.MaxIdleConns = section.Key("db.max.idle.conns").MustInt(30)
 	s.Db.MaxOpenConns = section.Key("db.max.open.conns").MustInt(100)
+
+	s.Db.Sslmode = section.Key("db.sslmode").MustString("")
+	s.Db.SslCaFile = section.Key("db.ssl_ca_file").MustString("")
+	s.Db.SslCertFile = section.Key("db.ssl_cert_file").MustString("")
+	s.Db.SslKeyFile = section.Key("db.ssl_key_file").MustString("")
+	s.Db.SslServerName = section.Key("db.ssl_server_name").MustString("")
 
 	s.AllowIps = section.Key("allow_ips").MustString("")
 	s.AppName = section.Key("app.name").MustString("定时任务管理系统")

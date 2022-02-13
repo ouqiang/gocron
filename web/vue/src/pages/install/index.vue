@@ -1,7 +1,13 @@
 <template>
   <el-container>
     <el-main>
-      <el-form ref="form" :model="form" :rules="formRules" label-width="100px" style="width: 700px;">
+      <el-form
+        ref="form"
+        :model="form"
+        :rules="formRules"
+        label-width="100px"
+        style="width: 700px"
+      >
         <h3>数据库配置</h3>
         <el-form-item label="数据库选择" prop="db_type">
           <el-select v-model.trim="form.db_type" @change="update_port">
@@ -9,7 +15,8 @@
               v-for="item in dbList"
               :key="item.value"
               :label="item.label"
-              :value="item.value">
+              :value="item.value"
+            >
             </el-option>
           </el-select>
         </el-form-item>
@@ -40,12 +47,61 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="数据库名称" prop="db_name">
-              <el-input v-model="form.db_name" placeholder="如果数据库不存在, 需提前创建"></el-input>
+              <el-input
+                v-model="form.db_name"
+                placeholder="如果数据库不存在, 需提前创建"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="表前缀" prop="db_table_prefix">
               <el-input v-model="form.db_table_prefix"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="SSL模式" prop="db_sslmode">
+              <el-input
+                v-model="form.db_sslmode"
+                placeholder=",false,true,skip-verify"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="SSL CA证书" prop="db_ssl_ca_file">
+              <el-input
+                v-model="form.db_ssl_ca_file"
+                placeholder="/app/conf/db.server-ca.pem"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="SSL证书" prop="db_ssl_cert_file">
+              <el-input
+                v-model="form.db_ssl_cert_file"
+                placeholder="/app/conf/db.client-cert.pem"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="SSL私钥" prop="db_ssl_key_file">
+              <el-input
+                v-model="form.db_ssl_key_file"
+                placeholder="/app/conf/db.client-key.pem"
+              ></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="SSL SN" prop="db_ssl_server_name">
+              <el-input
+                v-model="form.db_ssl_server_name"
+                placeholder="<gcp-project-id>:<cloud-sql-instance>"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -65,12 +121,18 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="密码" prop="admin_password">
-              <el-input v-model="form.admin_password" type="password"></el-input>
+              <el-input
+                v-model="form.admin_password"
+                type="password"
+              ></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="确认密码" prop="confirm_admin_password">
-              <el-input v-model="form.confirm_admin_password" type="password"></el-input>
+              <el-input
+                v-model="form.confirm_admin_password"
+                type="password"
+              ></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -96,43 +158,57 @@ export default {
         db_password: '',
         db_name: '',
         db_table_prefix: '',
+        db_sslmode: '',
+        db_ssl_ca_file: '',
+        db_ssl_cert_file: '',
+        db_ssl_key_file: '',
+        db_ssl_server_name: '',
         admin_username: '',
         admin_password: '',
         confirm_admin_password: '',
         admin_email: ''
       },
       formRules: {
-        db_type: [
-          {required: true, message: '请选择数据库', trigger: 'blur'}
-        ],
+        db_type: [{ required: true, message: '请选择数据库', trigger: 'blur' }],
         db_host: [
-          {required: true, message: '请输入数据库主机名', trigger: 'blur'}
+          { required: true, message: '请输入数据库主机名', trigger: 'blur' }
         ],
         db_port: [
-          {type: 'number', required: true, message: '请输入数据库端口', trigger: 'blur'}
+          {
+            type: 'number',
+            required: true,
+            message: '请输入数据库端口',
+            trigger: 'blur'
+          }
         ],
         db_username: [
-          {required: true, message: '请输入数据库用户名', trigger: 'blur'}
+          { required: true, message: '请输入数据库用户名', trigger: 'blur' }
         ],
         db_password: [
-          {required: true, message: '请输入数据库密码', trigger: 'blur'}
+          { required: true, message: '请输入数据库密码', trigger: 'blur' }
         ],
         db_name: [
-          {required: true, message: '请输入数据库名称', trigger: 'blur'}
+          { required: true, message: '请输入数据库名称', trigger: 'blur' }
         ],
         admin_username: [
-          {required: true, message: '请输入管理员账号', trigger: 'blur'}
+          { required: true, message: '请输入管理员账号', trigger: 'blur' },
+          { min: 3, message: '长度至少3个字符', trigger: 'blur' }
         ],
         admin_email: [
-          {type: 'email', required: true, message: '请输入管理员邮箱', trigger: 'blur'}
+          {
+            type: 'email',
+            required: true,
+            message: '请输入管理员邮箱',
+            trigger: 'blur'
+          }
         ],
         admin_password: [
-          {required: true, message: '请输入管理员密码', trigger: 'blur'},
-          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
+          { required: true, message: '请输入管理员密码', trigger: 'blur' },
+          { min: 6, message: '长度至少6个字符', trigger: 'blur' }
         ],
         confirm_admin_password: [
-          {required: true, message: '请再次输入管理员密码', trigger: 'blur'},
-          {min: 6, message: '长度至少6个字符', trigger: 'blur'}
+          { required: true, message: '请再次输入管理员密码', trigger: 'blur' },
+          { min: 6, message: '长度至少6个字符', trigger: 'blur' }
         ]
       },
       dbList: [
@@ -146,8 +222,8 @@ export default {
         }
       ],
       default_ports: {
-        'mysql': 3306,
-        'postgres': 5432
+        mysql: 3306,
+        postgres: 5432
       }
     }
   },

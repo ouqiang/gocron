@@ -50,7 +50,7 @@ func Register(m *macaron.Macaron) {
 	m.Get("/", func(ctx *macaron.Context) {
 		file, err := statikFS.Open("/index.html")
 		if err != nil {
-			logger.Error("读取首页文件失败: %s", err)
+			logger.Errorf("读取首页文件失败: %s", err)
 			ctx.WriteHeader(http.StatusInternalServerError)
 			return
 		}
