@@ -286,6 +286,7 @@ func parseQueryParams(ctx *macaron.Context) models.CommonMap {
 	params["Name"] = ctx.QueryTrim("name")
 	params["Protocol"] = ctx.QueryInt("protocol")
 	params["Tag"] = ctx.QueryTrim("tag")
+	params["Command"] = ctx.QueryTrim("command")
 	status := ctx.QueryInt("status")
 	if status >= 0 {
 		status -= 1

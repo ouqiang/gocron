@@ -10,6 +10,9 @@
         <el-form-item label="任务名称">
           <el-input v-model.trim="searchParams.name"></el-input>
         </el-form-item>
+        <el-form-item label="任务命令">
+          <el-input v-model.trim="searchParams.command"></el-input>
+        </el-form-item>
         <el-form-item label="标签">
           <el-input v-model.trim="searchParams.tag"></el-input>
         </el-form-item>
@@ -203,7 +206,8 @@ export default {
         name: '',
         tag: '',
         host_id: '',
-        status: ''
+        status: '',
+        command: ''
       },
       isAdmin: this.$store.getters.user.isAdmin,
       protocolList: [
