@@ -273,4 +273,10 @@ func (task *Task) parseWhere(session *xorm.Session, params CommonMap) {
 	if ok && tag.(string) != "" {
 		session.And("tag = ? ", tag)
 	}
+
+	// 通过命令查询
+	command, ok := params["Command"]
+	if ok && command.(string) != "" {
+		session.And("t.command LIKE ?", "%"+command.(string)+"%")
+	}
 }
