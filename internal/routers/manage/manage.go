@@ -2,11 +2,11 @@ package manage
 
 import (
 	"encoding/json"
+	"gopkg.in/macaron.v1"
 
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/utils"
-	"gopkg.in/macaron.v1"
 )
 
 func Slack(ctx *macaron.Context) string {
@@ -125,6 +125,37 @@ func UpdateWebHook(ctx *macaron.Context) string {
 	err := settingModel.UpdateWebHook(url, template)
 
 	return utils.JsonResponseByErr(err)
+}
+
+func LdapSetting(ctx *macaron.Context) string {
+	settingModel := new(models.Setting)
+	settings, _ := settingModel.LdapSettings()
+
+	jsonResp := utils.JsonResponse{}
+	return jsonResp.Success(utils.SuccessContent, settings)
+}
+
+type LdapSettingForm struct {
+	Enable       string `form:"enable"`
+	Url          string `form:"url" binding:"Required"`
+	BindDn       string `form:"bindDn" binding:"Required"`
+	BindPassword string `form:"bindPassword" binding:"Required"`
+	BaseDn       string `form:"baseDn" binding:"Required"`
+	FilterRule   string `form:"filterRule" binding:"Required"`
+}
+
+func UpdateLdapSetting(ctx *macaron.Context, form LdapSettingForm) string {
+	settingModel := new(models.Setting)
+
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyEnable, form.Enable)
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyUrl, form.Url)
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyBindDn, form.BindDn)
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyBindPassword, form.BindPassword)
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyBaseDn, form.BaseDn)
+	_ = settingModel.Set(models.LdapCode, models.LdapKeyFilterRule, form.FilterRule)
+
+	jsonResp := utils.JsonResponse{}
+	return jsonResp.Success(utils.SuccessContent, nil)
 }
 
 // endregion

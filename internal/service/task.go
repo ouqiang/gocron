@@ -463,11 +463,11 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 
 // 执行具体任务
 func execJob(handler Handler, taskModel models.Task, taskUniqueId int64) TaskResult {
-	defer func() {
+	/*defer func() {
 		if err := recover(); err != nil {
 			logger.Error("panic#service/task.go:execJob#", err)
 		}
-	}()
+	}()*/
 	// 默认只运行任务一次
 	var execTimes int8 = 1
 	if taskModel.RetryTimes > 0 {

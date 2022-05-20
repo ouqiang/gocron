@@ -31,11 +31,11 @@ var keepAliveParams = keepalive.ServerParameters{
 }
 
 func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse, error) {
-	defer func() {
+/*	defer func() {
 		if err := recover(); err != nil {
 			log.Error(err)
 		}
-	}()
+	}()*/
 	log.Infof("execute cmd start: [id: %d cmd: %s]", req.Id, req.Command)
 	output, err := utils.ExecShell(ctx, req.Command)
 	resp := new(pb.TaskResponse)

@@ -55,6 +55,11 @@ func Register(m *macaron.Macaron) {
 			return
 		}
 
+		logger.Info(file)
+
+		stat, _ := file.Stat()
+		ctx.Resp.Header().Add("file-path", stat.Name())
+
 		io.Copy(ctx.Resp, file)
 
 	})
@@ -122,6 +127,13 @@ func Register(m *macaron.Macaron) {
 			m.Get("", manage.WebHook)
 			m.Post("/update", manage.UpdateWebHook)
 		})
+
+		m.Group("/ldap", func() {
+			m.Get("",manage.LdapSetting)
+			m.Post("/update", binding.Bind(manage.LdapSettingForm{}), manage.UpdateLdapSetting)
+		})
+
+
 		m.Get("/login-log", loginlog.Index)
 	})
 

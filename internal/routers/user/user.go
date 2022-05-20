@@ -2,6 +2,7 @@ package user
 
 import (
 	"errors"
+	"github.com/ouqiang/gocron/internal/service"
 	"strings"
 	"time"
 
@@ -229,9 +230,32 @@ func ValidateLogin(ctx *macaron.Context) string {
 		return json.CommonFailure("用户名、密码不能为空")
 	}
 	userModel := new(models.User)
-	if !userModel.Match(username, password) {
-		return json.CommonFailure("用户名或密码错误")
+
+	check := userModel.Match(username, password)
+	s := new(models.Setting).Get(models.LdapCode,models.LdapKeyEnable)
+
+	if !check {
+		if s.Value != "1" {
+			return json.CommonFailure("用户名或密码错误")
+		}
+
+		//ldap校验
+		ldapService := service.LdapService{}
+		if !ldapService.Match(username, password) {
+			return json.CommonFailure("Ldap验证失败")
+		}
+		//验证用户在系统是否存在
+		b, _ := models.Db.Where("`name` = ?",username).Limit(1).Get(userModel)
+		if !b {
+			//新建用户
+			userModel.Name = username
+			userModel.Password = password
+			userModel.Email = username + "@t.com"
+			userModel.IsAdmin = 0
+			_, _ = userModel.Create()
+		}
 	}
+
 	loginLogModel := new(models.LoginLog)
 	loginLogModel.Username = userModel.Name
 	loginLogModel.Ip = ctx.RemoteAddr()

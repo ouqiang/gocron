@@ -21,8 +21,9 @@ import (
 )
 
 var (
-	AppVersion           = "1.5"
-	BuildDate, GitCommit string
+	AppVersion = "1.5"
+	GitCommit  string
+	BuildDate  string
 )
 
 // web服务器默认端口

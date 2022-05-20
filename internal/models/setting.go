@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
+	"strings"
 )
 
 type Setting struct {
@@ -53,6 +55,16 @@ const (
 	WebhookCode        = "webhook"
 	WebhookTemplateKey = "template"
 	WebhookUrlKey      = "url"
+)
+
+const (
+	LdapCode            = "ldap"
+	LdapKeyEnable       = "enable"
+	LdapKeyUrl          = "url"
+	LdapKeyBindDn       = "bind-dn"
+	LdapKeyBindPassword = "bind-password"
+	LdapKeyBaseDn       = "base-dn"
+	LdapKeyFilterRule   = "filter-rule"
 )
 
 // 初始化基本字段 邮件、slack等
@@ -291,4 +303,40 @@ func (setting *Setting) UpdateWebHook(url, template string) error {
 	return nil
 }
 
+func (setting *Setting) LdapSettings() (map[string]string, error) {
+	var settings []Setting
+	err := Db.AllCols().Where("`code` = ?", LdapCode).Find(&settings)
+
+	var res = make(map[string]string, 0)
+	for _, v := range settings {
+		//re, _ := regexp.Compile("^[a-z]|(-[a-z])")
+		re, _ := regexp.Compile("(-[a-z])")
+
+		key := re.ReplaceAllStringFunc(v.Key, func(s string) string {
+			return strings.Replace(strings.ToUpper(s), "-", "", -1)
+		})
+		res[key] = v.Value
+	}
+	return res, err
+}
+
+func (setting *Setting) Get(code, key string) Setting {
+	s := Setting{}
+	_, _ = Db.Where("`code` = ? and `key` = ?", code, key).Get(&s)
+
+	return s
+}
+
+func (setting *Setting) Set(code, key string, value string) error {
+	s := setting.Get(code, key)
+	var err error
+	if s.Id > 0 {
+		//update
+		_, err = Db.Cols("value").Update(Setting{Value: value}, Setting{Code: code, Key: key})
+	} else {
+		//insert
+		_, err = Db.Insert(Setting{Code: code, Key: key, Value: value})
+	}
+	return err
+}
 // endregion
