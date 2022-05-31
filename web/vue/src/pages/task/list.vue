@@ -50,6 +50,7 @@
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="search()">搜索</el-button>
+          <el-button @click="resetSearch()">重置</el-button>
         </el-form-item>
       </el-row>
     </el-form>
@@ -195,7 +196,7 @@ export default {
       tasks: [],
       hosts: [],
       taskTotal: 0,
-      searchParams: {
+      defaultSearchParams: {
         page_size: 20,
         page: 1,
         id: '',
@@ -205,6 +206,7 @@ export default {
         host_id: '',
         status: ''
       },
+      searchParams: {},
       isAdmin: this.$store.getters.user.isAdmin,
       protocolList: [
         {
@@ -230,11 +232,17 @@ export default {
   },
   components: {taskSidebar},
   created () {
+    this.searchParams = Object.assign({}, this.defaultSearchParams)
+    let params = localStorage.getItem('task:search')
+    if (params) {
+      params = JSON.parse(params)
+      this.searchParams = Object.assign(this.searchParams, params)
+    }
+
     const hostId = this.$route.query.host_id
     if (hostId) {
       this.searchParams.host_id = hostId
     }
-
     this.search()
   },
   filters: {
@@ -264,6 +272,9 @@ export default {
     }
   },
   methods: {
+    saveSearchParams () {
+      localStorage.setItem('task:search', JSON.stringify(this.searchParams))
+    },
     changeStatus (item) {
       if (item.status) {
         taskService.enable(item.id)
@@ -289,6 +300,7 @@ export default {
       this.search()
     },
     search (callback = null) {
+      this.saveSearchParams()
       taskService.list(this.searchParams, (tasks, hosts) => {
         this.tasks = tasks.data
         this.taskTotal = tasks.total
@@ -297,6 +309,11 @@ export default {
           callback()
         }
       })
+    },
+    resetSearch () {
+      this.searchParams = Object.assign({}, this.defaultSearchParams)
+      localStorage.removeItem('task:search')
+      this.search()
     },
     runTask (item) {
       this.$appConfirm(() => {
