@@ -238,10 +238,10 @@ export default {
       params = JSON.parse(params)
       this.searchParams = Object.assign(this.searchParams, params)
     }
-
+    console.log(this.searchParams)
     const hostId = this.$route.query.host_id
     if (hostId) {
-      this.searchParams.host_id = hostId
+      this.searchParams.host_id = Number(hostId)
     }
     this.search()
   },
