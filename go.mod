@@ -18,7 +18,7 @@ require (
 	github.com/jakecoffman/cron v0.0.0-20190106200828-7e2009c226a5
 	github.com/lib/pq v1.1.1
 	github.com/ouqiang/goutil v1.1.1
-	github.com/rakyll/statik v0.1.6
+	github.com/rakyll/statik v0.1.7
 	github.com/sirupsen/logrus v1.4.2
 	github.com/urfave/cli v1.20.0
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
