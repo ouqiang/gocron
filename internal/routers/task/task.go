@@ -198,7 +198,9 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		addTaskToTimer(id)
 	}
 
-	return json.Success("保存成功", nil)
+	return json.Success("保存成功", map[string]interface{}{
+		"taskId": id,
+	})
 }
 
 // 删除任务

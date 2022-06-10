@@ -219,6 +219,9 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
 		taskModel.Timeout = HttpExecTimeout
 	}
+	if strings.Contains(taskModel.Command, "{{.TaskId}}") {
+		taskModel.Command = strings.ReplaceAll(taskModel.Command, "{{.TaskId}}", strconv.Itoa(taskModel.Id))
+	}
 	var resp httpclient.ResponseWrapper
 	if taskModel.HttpMethod == models.TaskHTTPMethodGet {
 		resp = httpclient.Get(taskModel.Command, taskModel.Timeout)
@@ -456,7 +459,7 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"output":           taskResult.Result,
 		"status":           statusName,
 		"task_id":          taskModel.Id,
-		"remark":  			taskModel.Remark,
+		"remark":           taskModel.Remark,
 	}
 	notify.Push(msg)
 }
