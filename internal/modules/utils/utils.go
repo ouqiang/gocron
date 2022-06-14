@@ -13,6 +13,12 @@ import (
 	"github.com/Tang-RoseChild/mahonia"
 )
 
+const (
+	Error   = "error"
+	Running = "running"
+	Stop    = "stop"
+)
+
 func RandAuthToken() string {
 	buf := make([]byte, 32)
 	_, err := crand.Read(buf)

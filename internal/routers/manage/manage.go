@@ -54,7 +54,7 @@ func RemoveSlackChannel(ctx *macaron.Context) string {
 
 // endregion
 
-// region 邮件
+// Mail region 邮件
 func Mail(ctx *macaron.Context) string {
 	settingModel := new(models.Setting)
 	mail, err := settingModel.Mail()

@@ -16,6 +16,8 @@ type response struct {
 
 type JsonResponse struct{}
 
+var JsonResp JsonResponse
+
 const ResponseSuccess = 0
 const ResponseFailure = 1
 const UnauthorizedError = 403

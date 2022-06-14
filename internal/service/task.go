@@ -104,7 +104,7 @@ type TaskResult struct {
 	RetryTimes int8
 }
 
-// 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
+// Initialize 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task Task) Initialize() {
 	serviceCron = cron.New()
 	serviceCron.Start()
@@ -185,7 +185,7 @@ func (task Task) NextRunTime(taskModel models.Task) time.Time {
 	return time.Time{}
 }
 
-// 停止运行中的任务
+// Stop 停止运行中的任务
 func (task Task) Stop(ip string, port int, id int64) {
 	rpcClient.Stop(ip, port, id)
 }
@@ -194,13 +194,13 @@ func (task Task) Remove(id int) {
 	serviceCron.RemoveJob(strconv.Itoa(id))
 }
 
-// 等待所有任务结束后退出
+// WaitAndExit 等待所有任务结束后退出
 func (task Task) WaitAndExit() {
 	serviceCron.Stop()
 	taskCount.Exit()
 }
 
-// 直接运行任务
+// Run 直接运行任务
 func (task Task) Run(taskModel models.Task) {
 	go createJob(taskModel)()
 }
@@ -209,10 +209,10 @@ type Handler interface {
 	Run(taskModel models.Task, taskUniqueId int64) (string, error)
 }
 
-// HTTP任务
+// HTTPHandler HTTP任务
 type HTTPHandler struct{}
 
-// http任务执行时间不超过300秒
+// HttpExecTimeout http任务执行时间不超过300秒
 const HttpExecTimeout = 300
 
 func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result string, err error) {
@@ -249,7 +249,7 @@ func (h *RPCHandler) Run(taskModel models.Task, taskUniqueId int64) (result stri
 	taskRequest.Id = taskUniqueId
 	resultChan := make(chan TaskResult, len(taskModel.Hosts))
 	for _, taskHost := range taskModel.Hosts {
-		go func(th models.TaskHostDetail) {
+		go func(th models.HostDetail) {
 			output, err := rpcClient.Exec(th.Name, th.Port, taskRequest)
 			errorMessage := ""
 			if err != nil {
@@ -456,18 +456,18 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"output":           taskResult.Result,
 		"status":           statusName,
 		"task_id":          taskModel.Id,
-		"remark":  			taskModel.Remark,
+		"remark":           taskModel.Remark,
 	}
 	notify.Push(msg)
 }
 
 // 执行具体任务
 func execJob(handler Handler, taskModel models.Task, taskUniqueId int64) TaskResult {
-	/*defer func() {
+	defer func() {
 		if err := recover(); err != nil {
 			logger.Error("panic#service/task.go:execJob#", err)
 		}
-	}()*/
+	}()
 	// 默认只运行任务一次
 	var execTimes int8 = 1
 	if taskModel.RetryTimes > 0 {

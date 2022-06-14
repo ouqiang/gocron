@@ -5,8 +5,8 @@ export default {
     httpClient.get('/task/log', query, callback)
   },
 
-  clear (callback) {
-    httpClient.post('/task/log/clear', {}, callback)
+  clear (data,callback) {
+    httpClient.post('/task/log/clear', data, callback)
   },
 
   stop (id, taskId, callback) {

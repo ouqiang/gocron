@@ -139,10 +139,11 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 
 新功能开发
 --------
-* LDAP用户认证
++ LDAP用户认证
 * 添加项目管理，项目和主机,任务关联
-* 权限管理
+* 权限管理 (角色: 角色)
 * 进程管理(队列消费程序)
+* Vue3+ElementPlus 重构前端页面
 
 v1.5
 --------

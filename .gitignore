@@ -25,6 +25,7 @@ _testmain.go
 
 .DS_Store
 .idea
+.vscode
 log
 data
 conf
@@ -36,5 +37,9 @@ profile/*
 /web/public/index.html
 /gocron-package
 /gocron-node-package
+cmd/debug
+
+/process.*
+package-lock.json
 
 node_modules

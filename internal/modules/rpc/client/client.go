@@ -60,6 +60,9 @@ func Exec(ip string, port int, taskReq *pb.TaskRequest) (string, error) {
 
 	resp, err := c.Run(ctx, taskReq)
 	if err != nil {
+		if status.Code(err) == codes.Unavailable {
+			grpcpool.Pool.Release(addr) // 链接不可用,释放链接
+		}
 		return parseGRPCError(err)
 	}
 

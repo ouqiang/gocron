@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/go-xorm/xorm"
@@ -61,9 +62,24 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 	return list, err
 }
 
-// 清空表
-func (taskLog *TaskLog) Clear() (int64, error) {
-	return Db.Where("1=1").Delete(taskLog)
+// Clear 根据条件清空日志表
+func (taskLog *TaskLog) Clear(filter CommonMap) (int64, error) {
+	session := Db.Where("1=1")
+	taskId, ok := filter["taskId"]
+	if ok && taskId != "" {
+		session.Where("task_id = ?", taskId)
+	}
+	status, ok := filter["status"]
+	if ok && status != "" {
+		value, _ := strconv.Atoi(status.(string))
+		session.Where("status = ?", value-1)
+	}
+	protocol, ok := filter["protocol"]
+	if ok && protocol != "" {
+		session.Where("protocol = ?", protocol)
+	}
+
+	return session.Delete(taskLog)
 }
 
 // 删除N个月前的日志

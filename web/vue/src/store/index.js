@@ -1,12 +1,12 @@
-import vue from 'vue'
 import vuex from 'vuex'
 import userStorage from '../storage/user'
 
-vue.use(vuex)
 export default new vuex.Store({
   state: {
     hiddenNavMenu: false,
-    user: userStorage.get()
+    user: userStorage.get(),
+    currentPath: '',
+    breadcrumb: []
   },
   getters: {
     user (state) {
@@ -29,6 +29,12 @@ export default new vuex.Store({
       userStorage.setUsername(user.username)
       userStorage.setIsAdmin(user.isAdmin)
       state.user = user
+    },
+    setCurrentPath(state, path) {
+      state.currentPath = path
+    },
+    setBreadcrumb(state, breadcrumb) {
+      this.state.breadcrumb = breadcrumb
     },
     logout (state) {
       userStorage.clear()

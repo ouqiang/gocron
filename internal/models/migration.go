@@ -50,6 +50,7 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		migration.upgradeFor130,
 		migration.upgradeFor140,
 		migration.upgradeFor150,
+		migration.upgradeFor200,
 	}
 
 	startIndex := -1
@@ -234,4 +235,47 @@ func (m *Migration) upgradeFor150(session *xorm.Session) error {
 	logger.Info("已升级到v1.5\n")
 
 	return nil
+}
+
+//升级到v2.0.0
+func (m *Migration) upgradeFor200(session *xorm.Session) error {
+	logger.Info("开始升级到v2.0.0")
+	err := session.CreateTable(Project{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	err = session.CreateTable(ProjectHost{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	err = session.CreateTable(OperateLog{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	err = session.CreateTable(Process{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	err = session.CreateTable(ProcessWorker{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	err = session.CreateTable(ProcessHost{})
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+
+	_, err = session.Query(fmt.Sprintf("alter table `%stask` add project_id int default 0 not null;", TablePrefix))
+	if err != nil {
+		logger.Info("升级到v2.0.0失败\n", err)
+		return err
+	}
+	logger.Info("已升级到v2.0.0\n")
+	return err
 }

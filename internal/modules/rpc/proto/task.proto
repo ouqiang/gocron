@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package rpc;
+option go_package="./;rpc";
 
 service Task {
     rpc Run(TaskRequest) returns (TaskResponse) {}

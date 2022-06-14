@@ -1,5 +1,7 @@
 // Command gocron
+//go:generate node ../../web/vue/build/build.js
 //go:generate statik -src=../../web/vue/dist -dest=../../internal -f
+//go:generate protoc --proto_path=../../internal/modules/rpc/proto --go_out=../../internal/modules/rpc/proto --go-grpc_out=../../internal/modules/rpc/proto --go-grpc_opt=require_unimplemented_servers=false ../../internal/modules/rpc/proto/process.proto
 
 package main
 
@@ -26,7 +28,7 @@ var (
 	BuildDate  string
 )
 
-// web服务器默认端口
+// DefaultPort web服务器默认端口
 const DefaultPort = 5920
 
 func main() {
@@ -108,6 +110,8 @@ func initModule() {
 
 	// 初始化定时任务
 	service.ServiceTask.Initialize()
+
+	service.ProcessServiceImpl.Initialize()
 }
 
 // 解析端口

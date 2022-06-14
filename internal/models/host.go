@@ -4,9 +4,9 @@ import (
 	"github.com/go-xorm/xorm"
 )
 
-// 主机
+// Host 主机
 type Host struct {
-	Id        int16  `json:"id" xorm:"smallint pk autoincr"`
+	Id        int    `json:"id" xorm:"int pk autoincr"`
 	Name      string `json:"name" xorm:"varchar(64) notnull"`                // 主机名称
 	Alias     string `json:"alias" xorm:"varchar(32) notnull default '' "`   // 主机别名
 	Port      int    `json:"port" xorm:"notnull default 5921"`               // 主机端口
@@ -15,8 +15,8 @@ type Host struct {
 	Selected  bool `json:"-" xorm:"-"`
 }
 
-// 新增
-func (host *Host) Create() (insertId int16, err error) {
+// Create 新增
+func (host *Host) Create() (insertId int, err error) {
 	_, err = Db.Insert(host)
 	if err == nil {
 		insertId = host.Id
@@ -25,7 +25,7 @@ func (host *Host) Create() (insertId int16, err error) {
 	return
 }
 
-func (host *Host) UpdateBean(id int16) (int64, error) {
+func (host *Host) UpdateBean(id int) (int64, error) {
 	return Db.ID(id).Cols("name,alias,port,remark").Update(host)
 }
 
@@ -45,7 +45,7 @@ func (host *Host) Find(id int) error {
 	return err
 }
 
-func (host *Host) NameExists(name string, id int16) (bool, error) {
+func (host *Host) NameExists(name string, id int) (bool, error) {
 	if id == 0 {
 		count, err := Db.Where("name = ?", name).Count(host)
 		return count > 0, err

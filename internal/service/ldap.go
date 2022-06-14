@@ -9,7 +9,7 @@ import (
 
 type LdapService struct{}
 
-func (ldapService *LdapService) Match(username, password string) bool {
+func (ldapService LdapService) Match(username, password string) bool {
 	settings := models.Setting{}
 	l, err := ldap.DialURL(settings.Get(models.LdapCode, models.LdapKeyUrl).Value)
 	if err != nil {

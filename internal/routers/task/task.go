@@ -30,6 +30,7 @@ type TaskForm struct {
 	Multi            int8                  `binding:"In(1,2)"`
 	RetryTimes       int8
 	RetryInterval    int16
+	ProjectId        int
 	HostId           string
 	Tag              string
 	Remark           string
@@ -76,7 +77,7 @@ func Index(ctx *macaron.Context) string {
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
 	taskModel := new(models.Task)
-	task, err := taskModel.Detail(id)
+	task, err := taskModel.Get(id)
 	jsonResp := utils.JsonResponse{}
 	if err != nil || task.Id == 0 {
 		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d", id)
@@ -86,7 +87,7 @@ func Detail(ctx *macaron.Context) string {
 	return jsonResp.Success(utils.SuccessContent, task)
 }
 
-// 保存任务  todo 拆分为多个方法
+// Store 保存任务  todo 拆分为多个方法
 func Store(ctx *macaron.Context, form TaskForm) string {
 	json := utils.JsonResponse{}
 	taskModel := models.Task{}
@@ -99,7 +100,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		return json.CommonFailure("任务名称已存在")
 	}
 
-	if form.Protocol == models.TaskRPC && form.HostId == "" {
+	if form.Protocol == models.TaskRPC && form.ProjectId == 0 && form.HostId == "" {
 		return json.CommonFailure("请选择主机名")
 	}
 
@@ -121,6 +122,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	taskModel.NotifyKeyword = form.NotifyKeyword
 	taskModel.Spec = form.Spec
 	taskModel.Level = form.Level
+	taskModel.ProjectId = form.ProjectId
 	taskModel.DependencyStatus = form.DependencyStatus
 	taskModel.DependencyTaskId = strings.TrimSpace(form.DependencyTaskId)
 	if taskModel.NotifyStatus > 0 && taskModel.NotifyType != 3 && taskModel.NotifyReceiverId == "" {
@@ -184,9 +186,13 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	taskHostModel := new(models.TaskHost)
 	if form.Protocol == models.TaskRPC {
 		hostIdStrList := strings.Split(form.HostId, ",")
-		hostIds := make([]int, len(hostIdStrList))
-		for i, hostIdStr := range hostIdStrList {
-			hostIds[i], _ = strconv.Atoi(hostIdStr)
+		hostIds := make([]int, 0)
+		for _, hostIdStr := range hostIdStrList {
+			hostId, _ := strconv.Atoi(hostIdStr)
+			if hostId == 0 {
+				continue
+			}
+			hostIds = append(hostIds, hostId)
 		}
 		taskHostModel.Add(id, hostIds)
 	} else {

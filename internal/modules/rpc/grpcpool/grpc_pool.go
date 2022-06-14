@@ -2,6 +2,8 @@ package grpcpool
 
 import (
 	"context"
+	"google.golang.org/grpc/backoff"
+	"google.golang.org/grpc/credentials/insecure"
 	"strings"
 	"sync"
 	"time"
@@ -14,8 +16,9 @@ import (
 )
 
 const (
-	backOffMaxDelay = 3 * time.Second
-	dialTimeout     = 2 * time.Second
+	backOffBaseDelay = 3 * time.Second
+	backOffMaxDelay  = 60 * time.Second
+	dialTimeout      = 2 * time.Second
 )
 
 var (
@@ -31,8 +34,9 @@ var (
 )
 
 type Client struct {
-	conn      *grpc.ClientConn
-	rpcClient rpc.TaskClient
+	conn          *grpc.ClientConn
+	rpcClient     rpc.TaskClient
+	processClient rpc.ProcessClient
 }
 
 type GRPCPool struct {
@@ -57,7 +61,22 @@ func (p *GRPCPool) Get(addr string) (rpc.TaskClient, error) {
 	return client.rpcClient, nil
 }
 
-// 释放连接
+func (p *GRPCPool) GetClient(addr string) (rpc.ProcessClient, error) {
+	p.mu.RLock()
+	client, ok := p.conns[addr]
+	p.mu.RUnlock()
+	if ok {
+		return client.processClient, nil
+	}
+
+	client, err := p.factory(addr)
+	if err != nil {
+		return nil, err
+	}
+	return client.processClient, nil
+}
+
+// Release 释放连接
 func (p *GRPCPool) Release(addr string) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -80,11 +99,15 @@ func (p *GRPCPool) factory(addr string) (*Client, error) {
 	}
 	opts := []grpc.DialOption{
 		grpc.WithKeepaliveParams(keepAliveParams),
-		grpc.WithBackoffMaxDelay(backOffMaxDelay),
+		//grpc.WithBackoffMaxDelay(backOffMaxDelay),
+		grpc.WithConnectParams(grpc.ConnectParams{Backoff: backoff.Config{
+			BaseDelay: backOffBaseDelay,
+			MaxDelay:  backOffMaxDelay,
+		}}),
 	}
 
 	if !app.Setting.EnableTLS {
-		opts = append(opts, grpc.WithInsecure())
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	} else {
 		server := strings.Split(addr, ":")
 		certificate := auth.Certificate{
@@ -110,8 +133,9 @@ func (p *GRPCPool) factory(addr string) (*Client, error) {
 	}
 
 	client = &Client{
-		conn:      conn,
-		rpcClient: rpc.NewTaskClient(conn),
+		conn:          conn,
+		rpcClient:     rpc.NewTaskClient(conn),
+		processClient: rpc.NewProcessClient(conn),
 	}
 
 	p.conns[addr] = client

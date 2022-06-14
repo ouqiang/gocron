@@ -1,70 +1,55 @@
 <template>
-  <el-container>
-    <el-header>
-      <app-header></app-header>
-      <app-nav-menu></app-nav-menu>
-    </el-header>
-    <el-main >
-      <div id="main-container" v-cloak>
-        <router-view/>
-      </div>
-    </el-main>
-    <el-footer>
-      <app-footer></app-footer>
-    </el-footer>
+  <el-container class="top-container">
+    <el-aside width="200px">
+      <Aside/>
+    </el-aside>
+    <el-container>
+      <MainContainer/>
+    </el-container>
   </el-container>
 </template>
 
 <script>
-import installService from './api/install'
-import appHeader from './components/common/header.vue'
-import appNavMenu from './components/common/navMenu.vue'
-import appFooter from './components/common/footer.vue'
+
+import Aside from './components/Aside'
+import MainContainer from './components/main'
 
 export default {
   name: 'App',
-  data () {
-    return {}
-  },
-  created () {
-    installService.status((data) => {
-      if (!data) {
-        this.$router.push('/install')
-      }
-    })
-  },
   components: {
-    appHeader,
-    appNavMenu,
-    appFooter
+    Aside,
+    MainContainer
   }
 }
 </script>
+
 <style>
-  [v-cloak] {
-    display: none !important;
-  }
-  body {
-    margin:0;
-  }
-  .el-header {
-    padding:0;
-    margin:0;
-  }
-  .el-container {
-    padding:0;
-    margin:0;
-    width: 100%;
-  }
-  .el-main {
-    padding:0;
-    margin:0;
-  }
-  #main-container .el-main {
-    height: calc(100vh - 116px);
-    margin:20px 20px 0 20px;
-  }
-  .el-aside .el-menu {
-    height: 100%;
-  }
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.top-container {
+  min-height: calc(100vh);
+}
+
+.el-table {
+  margin: 15px 0;
+  /*--el-table-header-bg-color: #f5f7fa;*/
+  /*--el-table-header-text-color: #909399;*/
+
+  /*--el-table-expanded-cell-bg-color:red;*/
+}
+
+.el-pagination__sizes {
+  margin: 0 16px;
+}
+
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #2c3e50;
+  background-color: #f5f7f9;
+}
 </style>

@@ -33,9 +33,7 @@ func Index(ctx *macaron.Context) string {
 		logger.Error(err)
 	}
 
-	jsonResp := utils.JsonResponse{}
-
-	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+	return utils.JsonResp.Success(utils.SuccessContent, map[string]interface{}{
 		"total": total,
 		"data":  hosts,
 	})
@@ -50,9 +48,7 @@ func All(ctx *macaron.Context) string {
 		logger.Error(err)
 	}
 
-	jsonResp := utils.JsonResponse{}
-
-	return jsonResp.Success(utils.SuccessContent, hosts)
+	return utils.JsonResp.Success(utils.SuccessContent, hosts)
 }
 
 // Detail 主机详情
@@ -60,17 +56,17 @@ func Detail(ctx *macaron.Context) string {
 	hostModel := new(models.Host)
 	id := ctx.ParamsInt(":id")
 	err := hostModel.Find(id)
-	jsonResp := utils.JsonResponse{}
+
 	if err != nil || hostModel.Id == 0 {
 		logger.Errorf("获取主机详情失败#主机id-%d", id)
-		return jsonResp.Success(utils.SuccessContent, nil)
+		return utils.JsonResp.Success(utils.SuccessContent, nil)
 	}
 
-	return jsonResp.Success(utils.SuccessContent, hostModel)
+	return utils.JsonResp.Success(utils.SuccessContent, hostModel)
 }
 
 type HostForm struct {
-	Id     int16
+	Id     int
 	Name   string `binding:"Required;MaxSize(64)"`
 	Alias  string `binding:"Required;MaxSize(32)"`
 	Port   int    `binding:"Required;Range(1-65535)"`
@@ -82,14 +78,13 @@ func (f HostForm) Error(ctx *macaron.Context, errs binding.Errors) {
 	if len(errs) == 0 {
 		return
 	}
-	json := utils.JsonResponse{}
-	content := json.CommonFailure("表单验证失败, 请检测输入")
+	content := utils.JsonResp.CommonFailure("表单验证失败, 请检测输入")
 	ctx.Write([]byte(content))
 }
 
 // Store 保存、修改主机信息
 func Store(ctx *macaron.Context, form HostForm) string {
-	json := utils.JsonResponse{}
+	json := utils.JsonResp
 	hostModel := new(models.Host)
 	id := form.Id
 	nameExist, err := hostModel.NameExists(form.Name, form.Id)
