@@ -1,12 +1,11 @@
 # gocron - 定时任务管理系统
-[![Downloads](https://img.shields.io/github/downloads/ouqiang/gocron/total.svg)](https://github.com/ouqiang/gocron/releases)
-[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/ouqiang/gocron/blob/master/LICENSE)
-[![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/ouqiang/gocron/releases)
+[![Downloads](https://img.shields.io/github/downloads/peng49/gocron/total.svg)](https://github.com/peng49/gocron/releases)
+[![license](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/peng49/gocron/blob/master/LICENSE)
+[![Release](https://img.shields.io/github/release/peng49/gocron.svg?label=Release)](https://github.com/peng49/gocron/releases)
 
 # 项目简介
-使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
+本项目基于gocron二次开发,在原有定时任务管理的基础上，新增了进程管理模块用于消息队列消费程序的管理，并使用element plus + vue3 重构了前端页面
 
-原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)  
 
 ## 功能特性
 * Web界面管理定时任务
@@ -24,9 +23,9 @@
 * 任务执行结果通知, 支持邮件、Slack、Webhook
 
 ### 截图
-![流程图](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/scheduler.png)
-![任务](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/task.png)
-![Slack](https://raw.githubusercontent.com/ouqiang/gocron/master/assets/screenshot/notification.png)
+![流程图](https://raw.githubusercontent.com/peng49/gocron/master/assets/screenshot/scheduler.png)
+![任务](https://raw.githubusercontent.com/peng49/gocron/master/assets/screenshot/task.png)
+![Slack](https://raw.githubusercontent.com/peng49/gocron/master/assets/screenshot/notification.png)
     
 ### 支持平台
 > Windows、Linux、Mac OS
@@ -36,9 +35,9 @@
 
 
 ## 下载
-[releases](https://github.com/ouqiang/gocron/releases)  
+[releases](https://github.com/peng49/gocron/releases)  
 
-[版本升级](https://github.com/ouqiang/gocron/wiki/版本升级)
+[版本升级](https://github.com/peng49/gocron/wiki/版本升级)
 
 ## 安装
 
@@ -57,7 +56,7 @@
 ### 源码安装
 
 - 安装Go 1.11+
-- `go get -d github.com/ouqiang/gocron`
+- `go get -d github.com/peng49/gocron`
 - `export GO111MODULE=on` 
 - 编译 `make`
 - 启动
@@ -68,7 +67,7 @@
 ### docker
 
 ```shell
-docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
+docker run --name gocron --link mysql:db -p 5920:5920 -d peng49/gocron
 ```
 
 配置: /app/conf/app.ini
@@ -80,7 +79,7 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 
 ### 开发
 
-1. 安装Go1.9+, Node.js, Yarn
+1. 安装Go1.9+, Node.js, npm
 2. 安装前端依赖 `make install-vue`
 3. 启动gocron, gocron-node `make run`
 4. 启动node server `make run-vue`, 访问地址 http://localhost:8080
@@ -133,7 +132,7 @@ docker run --name gocron --link mysql:db -p 5920:5920 -d ouqg/gocron
 * RPC框架 [gRPC](https://github.com/grpc/grpc)
 
 ## 反馈
-提交[issue](https://github.com/ouqiang/gocron/issues/new)
+提交[issue](https://github.com/peng49/gocron/issues/new)
 
 ## ChangeLog
 
