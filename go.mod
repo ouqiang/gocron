@@ -2,6 +2,11 @@ module github.com/ouqiang/gocron
 
 go 1.12
 
+replace (
+	github.com/go-xorm/core v0.6.2 => xorm.io/core v0.6.2
+	github.com/go-xorm/xorm v0.7.1 => xorm.io/xorm v0.7.1
+)
+
 require (
 	github.com/Tang-RoseChild/mahonia v0.0.0-20131226213531-0eef680515cc
 	github.com/Unknwon/com v0.0.0-20190321035513-0fed4efef755 // indirect
@@ -27,7 +32,7 @@ require (
 	github.com/urfave/cli v1.20.0
 	golang.org/x/crypto v0.0.0-20190530122614-20be4c3c3ed5 // indirect
 	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
-	golang.org/x/sync v0.0.0-20181108010431-42b317875d0f // indirect
+	golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24 // indirect
 	golang.org/x/text v0.3.2 // indirect
 	google.golang.org/genproto v0.0.0-20190530194941-fb225487d101 // indirect
 	google.golang.org/grpc v1.21.0
