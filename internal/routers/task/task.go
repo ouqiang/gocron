@@ -72,6 +72,19 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+func Total(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	queryParams := parseQueryParams(ctx)
+	total, err := taskModel.Total(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	jsonResp := utils.JsonResponse{}
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+	})
+}
+
 // Detail 任务详情
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")

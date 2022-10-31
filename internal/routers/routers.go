@@ -132,6 +132,7 @@ func Register(m *macaron.Macaron) {
 		m.Post("/task/disable/:id", task.Disable)
 		m.Post("/task/store", binding.Bind(task.TaskForm{}), task.Store)
 		m.Post("/task/remove/:id", task.Remove)
+		m.Get("/task/total", task.Total)
 	}, apiAuth)
 
 	// 404错误
