@@ -6,6 +6,8 @@ import (
 	"bytes"
 	"crypto/tls"
 	"fmt"
+	app2 "github.com/ouqiang/gocron/internal/modules/app"
+	"github.com/ouqiang/gocron/internal/service"
 	"log"
 	"net"
 	"net/http"
@@ -14,8 +16,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/facebookgo/grace/gracenet"
 	"github.com/facebookgo/httpdown"
+	"github.com/ouqiang/gocron/internal/modules/grace/gracenet"
 )
 
 var (
@@ -89,6 +91,8 @@ func (a *app) wait() {
 }
 
 func (a *app) term(wg *sync.WaitGroup) {
+	// 老进程
+	service.ServiceTask.WaitAndExit()
 	for _, s := range a.sds {
 		go func(s httpdown.Server) {
 			defer wg.Done()
@@ -130,7 +134,10 @@ func (a *app) run() error {
 	if err := a.listen(); err != nil {
 		return err
 	}
-
+	if app2.Installed {
+		// 初始化定时任务
+		service.ServiceTask.Initialize()
+	}
 	// Some useful logging.
 	if logger != nil {
 		if didInherit {

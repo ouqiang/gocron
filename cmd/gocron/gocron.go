@@ -4,11 +4,11 @@
 package main
 
 import (
-	"os"
-	"os/signal"
-	"syscall"
-
+	"fmt"
+	"github.com/ouqiang/gocron/internal/modules/grace/gracehttp"
 	macaron "gopkg.in/macaron.v1"
+	"net/http"
+	"os"
 
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
@@ -76,16 +76,19 @@ func runWeb(ctx *cli.Context) {
 	app.InitEnv(AppVersion)
 	// 初始化模块 DB、定时任务等
 	initModule()
-	// 捕捉信号,配置热更新等
-	go catchSignal()
+	// 捕捉信号,交由grace接管
+	// go catchSignal()
 	m := macaron.Classic()
 	// 注册路由
 	routers.Register(m)
 	// 注册中间件.
 	routers.RegisterMiddleware(m)
-	host := parseHost(ctx)
-	port := parsePort(ctx)
-	m.Run(host, port)
+
+	addr := fmt.Sprintf(":%d", parsePort(ctx))
+	err := gracehttp.Serve(&http.Server{Addr: addr, Handler: m})
+	if err != nil {
+		logger.Fatal(err)
+	}
 }
 
 func initModule() {
@@ -105,8 +108,8 @@ func initModule() {
 	// 版本升级
 	upgradeIfNeed()
 
-	// 初始化定时任务
-	service.ServiceTask.Initialize()
+	// 初始化定时任务；交由grace 内部处理
+	// service.ServiceTask.Initialize()
 }
 
 // 解析端口
@@ -120,14 +123,6 @@ func parsePort(ctx *cli.Context) int {
 	}
 
 	return port
-}
-
-func parseHost(ctx *cli.Context) string {
-	if ctx.IsSet("host") {
-		return ctx.String("host")
-	}
-
-	return "0.0.0.0"
 }
 
 func setEnvironment(ctx *cli.Context) {
@@ -146,22 +141,6 @@ func setEnvironment(ctx *cli.Context) {
 	}
 }
 
-// 捕捉信号
-func catchSignal() {
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM)
-	for {
-		s := <-c
-		logger.Info("收到信号 -- ", s)
-		switch s {
-		case syscall.SIGHUP:
-			logger.Info("收到终端断开信号, 忽略")
-		case syscall.SIGINT, syscall.SIGTERM:
-			shutdown()
-		}
-	}
-}
-
 // 应用退出
 func shutdown() {
 	defer func() {
@@ -172,9 +151,6 @@ func shutdown() {
 	if !app.Installed {
 		return
 	}
-	logger.Info("应用准备退出")
-	// 停止所有任务调度
-	logger.Info("停止定时任务调度")
 	service.ServiceTask.WaitAndExit()
 }
 

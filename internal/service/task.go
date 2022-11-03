@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	"github.com/gofrs/flock"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,15 +29,19 @@ var (
 	// 定时任务调度管理器
 	serviceCron *cron.Cron
 
-	// 同一任务是否有实例处于运行中
-	runInstance Instance
-
 	// 任务计数-正在运行的任务
 	taskCount TaskCount
 
 	// 并发队列, 限制同时运行的任务数量
 	concurrencyQueue ConcurrencyQueue
+	// 当前进程的任务是否在调度
+	isRunning bool
 )
+
+// 放conf目录防止忘记添加
+func getFlock(key int) *flock.Flock {
+	return flock.New(fmt.Sprintf("%s/task_id_%d.lock", app.ConfDir, key))
+}
 
 // 并发队列
 type ConcurrencyQueue struct {
@@ -108,6 +113,7 @@ type TaskResult struct {
 func (task Task) Initialize() {
 	serviceCron = cron.New()
 	serviceCron.Start()
+	isRunning = true
 	concurrencyQueue = ConcurrencyQueue{queue: make(chan struct{}, app.Setting.ConcurrencyQueue)}
 	taskCount = TaskCount{sync.WaitGroup{}, make(chan struct{})}
 	go taskCount.Wait()
@@ -196,8 +202,11 @@ func (task Task) Remove(id int) {
 
 // 等待所有任务结束后退出
 func (task Task) WaitAndExit() {
+	isRunning = false
+	// 停止所有任务调度
 	serviceCron.Stop()
 	taskCount.Exit()
+	logger.Info("停止定时任务调度,应用准备退出")
 }
 
 // 直接运行任务
@@ -325,14 +334,27 @@ func createJob(taskModel models.Task) cron.FuncJob {
 		taskCount.Add()
 		defer taskCount.Done()
 
-		taskLogId := beforeExecJob(taskModel)
-		if taskLogId <= 0 {
+		// 该应用通常为单机部署，由flock接管单实例运行标记
+		if taskModel.Multi == 0 {
+			fileLock := getFlock(taskModel.Id)
+			lockStatus, err := fileLock.TryLock()
+			defer fileLock.Unlock()
+			if err != nil {
+				logger.Fatalf("taskId:%d lock_err:%s", taskModel.Id, err)
+				return
+			}
+			if !lockStatus {
+				_, _ = createTaskLog(taskModel, models.Cancel)
+				return
+			}
+		}
+		taskLogId, err := createTaskLog(taskModel, models.Running)
+		if err != nil {
+			logger.Error("任务开始执行#写入任务日志失败-", err)
 			return
 		}
-
-		if taskModel.Multi == 0 {
-			runInstance.add(taskModel.Id)
-			defer runInstance.done(taskModel.Id)
+		if taskLogId <= 0 {
+			return
 		}
 
 		concurrencyQueue.Add()
@@ -359,22 +381,6 @@ func createHandler(taskModel models.Task) Handler {
 	return handler
 }
 
-// 任务前置操作
-func beforeExecJob(taskModel models.Task) (taskLogId int64) {
-	if taskModel.Multi == 0 && runInstance.has(taskModel.Id) {
-		createTaskLog(taskModel, models.Cancel)
-		return
-	}
-	taskLogId, err := createTaskLog(taskModel, models.Running)
-	if err != nil {
-		logger.Error("任务开始执行#写入任务日志失败-", err)
-		return
-	}
-	logger.Debugf("任务命令-%s", taskModel.Command)
-
-	return taskLogId
-}
-
 // 任务执行后置操作
 func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64) {
 	_, err := updateTaskLog(taskLogId, taskResult)
@@ -386,6 +392,11 @@ func afterExecJob(taskModel models.Task, taskResult TaskResult, taskLogId int64)
 	go SendNotification(taskModel, taskResult)
 	// 执行依赖任务
 	go execDependencyTask(taskModel, taskResult)
+	// 如果当前进程即将关闭,等待依赖子任务被拉起，避免老进程直接挂掉
+	if !isRunning {
+		logger.Warn("isRunning:", isRunning, "sleep 1s,task", taskModel.Id)
+		time.Sleep(1 * time.Second)
+	}
 }
 
 // 执行依赖任务, 多个任务并发执行
@@ -456,7 +467,7 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"output":           taskResult.Result,
 		"status":           statusName,
 		"task_id":          taskModel.Id,
-		"remark":  			taskModel.Remark,
+		"remark":           taskModel.Remark,
 	}
 	notify.Push(msg)
 }
