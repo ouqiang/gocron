@@ -30,6 +30,20 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+// 返回结果
+func Result(ctx *macaron.Context) string {
+	taskId := ctx.QueryInt64("id")
+	logModel := new(models.TaskLog)
+	log, err := logModel.Detail(taskId)
+	if err != nil {
+		logger.Error(err)
+	}
+	jsonResp := utils.JsonResponse{}
+	return jsonResp.Success(utils.SuccessContent, map[string]any{
+		"result": log.Result,
+	})
+}
+
 // 清空日志
 func Clear(ctx *macaron.Context) string {
 	taskLogModel := new(models.TaskLog)

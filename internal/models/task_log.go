@@ -46,7 +46,7 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 	list := make([]TaskLog, 0)
 	session := Db.Desc("id")
 	taskLog.parseWhere(session, params)
-	err := session.Limit(taskLog.PageSize, taskLog.pageLimitOffset()).Find(&list)
+	err := session.Limit(taskLog.PageSize, taskLog.pageLimitOffset()).Omit("result").Find(&list)
 	if len(list) > 0 {
 		for i, item := range list {
 			endTime := item.EndTime
@@ -59,6 +59,12 @@ func (taskLog *TaskLog) List(params CommonMap) ([]TaskLog, error) {
 	}
 
 	return list, err
+}
+
+func (taskLog *TaskLog) Detail(id int64) (TaskLog, error) {
+	t := TaskLog{}
+	_, err := Db.Where("id=?", id).Get(&t)
+	return t, err
 }
 
 // 清空表
