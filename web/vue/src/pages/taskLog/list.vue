@@ -249,6 +249,9 @@ export default {
       })
     },
     showTaskResult (item) {
+      this.dialogVisible = true
+      this.currentTaskResult.command = item.command
+      this.currentTaskResult.result = '数据加载中...'
       taskLogService.result(item.id, (data) => {
         this.dialogVisible = true
         this.currentTaskResult.command = item.command
