@@ -2,7 +2,6 @@ package routers
 
 import (
 	"io"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -11,6 +10,7 @@ import (
 	"github.com/go-macaron/binding"
 	"github.com/go-macaron/gzip"
 	"github.com/go-macaron/toolbox"
+	"github.com/ouqiang/gocron"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/logger"
 	"github.com/ouqiang/gocron/internal/modules/utils"
@@ -21,10 +21,7 @@ import (
 	"github.com/ouqiang/gocron/internal/routers/task"
 	"github.com/ouqiang/gocron/internal/routers/tasklog"
 	"github.com/ouqiang/gocron/internal/routers/user"
-	"github.com/rakyll/statik/fs"
 	"gopkg.in/macaron.v1"
-
-	_ "github.com/ouqiang/gocron/internal/statik"
 )
 
 const (
@@ -32,23 +29,21 @@ const (
 	staticDir = "public"
 )
 
-var statikFS http.FileSystem
+var webFs http.FileSystem
 
 func init() {
-	var err error
-	statikFS, err = fs.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	var embedFrontend, _ = gocron.GetFrontendAssets()
+	webFs = http.FS(embedFrontend)
 }
 
 // Register 路由注册
 func Register(m *macaron.Macaron) {
+
 	m.SetURLPrefix(urlPrefix)
 	// 所有GET方法，自动注册HEAD方法
 	m.SetAutoHead(true)
 	m.Get("/", func(ctx *macaron.Context) {
-		file, err := statikFS.Open("/index.html")
+		file, err := webFs.Open("/index.html")
 		if err != nil {
 			logger.Error("读取首页文件失败: %s", err)
 			ctx.WriteHeader(http.StatusInternalServerError)
@@ -88,6 +83,7 @@ func Register(m *macaron.Macaron) {
 		m.Get("/log", tasklog.Index)
 		m.Post("/log/clear", tasklog.Clear)
 		m.Post("/log/stop", tasklog.Stop)
+		m.Post("/log/result", tasklog.Result)
 		m.Post("/remove/:id", task.Remove)
 		m.Post("/enable/:id", task.Enable)
 		m.Post("/disable/:id", task.Disable)
@@ -158,7 +154,7 @@ func RegisterMiddleware(m *macaron.Macaron) {
 			"",
 			macaron.StaticOptions{
 				Prefix:     staticDir,
-				FileSystem: statikFS,
+				FileSystem: webFs,
 			},
 		),
 	)

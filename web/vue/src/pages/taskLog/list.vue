@@ -249,9 +249,11 @@ export default {
       })
     },
     showTaskResult (item) {
-      this.dialogVisible = true
-      this.currentTaskResult.command = item.command
-      this.currentTaskResult.result = item.result
+      taskLogService.result(item.id, (data) => {
+        this.dialogVisible = true
+        this.currentTaskResult.command = item.command
+        this.currentTaskResult.result = data.result
+      })
     },
     refresh () {
       this.search(() => {

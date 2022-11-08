@@ -38,3 +38,5 @@ profile/*
 /gocron-node-package
 
 node_modules
+.vscode
+cmd/gocron/gocron
