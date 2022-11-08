@@ -40,3 +40,4 @@ profile/*
 node_modules
 .vscode
 cmd/gocron/gocron
+go.sum
