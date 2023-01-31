@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 
+	_ "github.com/mattn/go-sqlite3"
 	macaron "gopkg.in/macaron.v1"
 
 	"github.com/go-macaron/binding"
@@ -20,7 +21,7 @@ import (
 // 系统安装
 
 type InstallForm struct {
-	DbType               string `binding:"In(mysql,postgres)"`
+	DbType               string `binding:"In(mysql,postgres,sqlite3)"`
 	DbHost               string `binding:"Required;MaxSize(50)"`
 	DbPort               int    `binding:"Required;Range(1,65535)"`
 	DbUsername           string `binding:"Required;MaxSize(50)"`

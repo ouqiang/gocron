@@ -12,6 +12,7 @@
               :value="item.value">
             </el-option>
           </el-select>
+          <label title="使用sqlite3时需要在数据库名称中配置文件路径，主机名/端口/用户名/密码随意">❓</label>
         </el-form-item>
         <el-row>
           <el-col :span="12">
@@ -143,11 +144,16 @@ export default {
         {
           value: 'postgres',
           label: 'PostgreSql'
+        },
+        {
+          value: 'sqlite3',
+          label: 'sqlite3'
         }
       ],
       default_ports: {
         'mysql': 3306,
-        'postgres': 5432
+        'postgres': 5432,
+        'sqlite3': 1
       }
     }
   },
