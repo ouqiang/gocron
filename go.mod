@@ -21,6 +21,7 @@ require (
 	github.com/klauspost/compress v1.5.0 // indirect
 	github.com/klauspost/cpuid v1.2.1 // indirect
 	github.com/lib/pq v1.1.1
+	github.com/mattn/go-sqlite3 v1.14.16
 	github.com/ouqiang/goutil v1.1.1
 	github.com/rakyll/statik v0.1.6
 	github.com/sirupsen/logrus v1.4.2
