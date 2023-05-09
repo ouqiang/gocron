@@ -40,6 +40,9 @@ func (s Server) Run(ctx context.Context, req *pb.TaskRequest) (*pb.TaskResponse,
 	output, err := utils.ExecShell(ctx, req.Command)
 	resp := new(pb.TaskResponse)
 	resp.Output = output
+	if outputLen := len(output); outputLen > 5000 {
+		resp.Output = output[outputLen-5000:]
+	}
 	if err != nil {
 		resp.Error = err.Error()
 	} else {
