@@ -330,7 +330,8 @@ func createJob(taskModel models.Task) cron.FuncJob {
 
 		// 判断是否到任务开始时间
 		nowUnix := time.Now().Local().Unix()
-		if taskModel.TaskStartTime > 0 && (nowUnix-int64(taskModel.TaskStartTime) >= 0) { //未到开始时间
+		if taskModel.TaskStartTime > 0 && (int64(taskModel.TaskStartTime)-nowUnix >= 0) { //未到开始时间
+			//logger.Infof("任务ID:%s 未开始,开始时间: %s", taskModel.Id, time.Unix(int64(taskModel.TaskStartTime), 0).Format("2006-01-02 15:04:05"))
 			return
 		}
 
