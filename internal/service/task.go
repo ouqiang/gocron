@@ -328,6 +328,12 @@ func createJob(taskModel models.Task) cron.FuncJob {
 		taskCount.Add()
 		defer taskCount.Done()
 
+		// 判断是否到任务开始时间
+		nowUnix := time.Now().Local().Unix()
+		if taskModel.TaskStartTime > 0 && (nowUnix-int64(taskModel.TaskStartTime) >= 0) { //未到开始时间
+			return
+		}
+
 		taskLogId := beforeExecJob(taskModel)
 		if taskLogId <= 0 {
 			return

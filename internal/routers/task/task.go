@@ -37,6 +37,7 @@ type TaskForm struct {
 	NotifyType       int8 `binding:"In(1,2,3,4)"`
 	NotifyReceiverId string
 	NotifyKeyword    string
+	TaskStartTime    int
 }
 
 func (f TaskForm) Error(ctx *macaron.Context, errs binding.Errors) {
@@ -128,6 +129,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	if taskModel.Multi != 1 {
 		taskModel.Multi = 0
 	}
+	taskModel.TaskStartTime = form.TaskStartTime
 	taskModel.NotifyStatus = form.NotifyStatus - 1
 	taskModel.NotifyType = form.NotifyType - 1
 	taskModel.NotifyReceiverId = form.NotifyReceiverId
