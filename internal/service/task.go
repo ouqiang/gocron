@@ -219,6 +219,9 @@ func (h *HTTPHandler) Run(taskModel models.Task, taskUniqueId int64) (result str
 	if taskModel.Timeout <= 0 || taskModel.Timeout > HttpExecTimeout {
 		taskModel.Timeout = HttpExecTimeout
 	}
+	if strings.Contains(taskModel.Command, "{{.TaskId}}") {
+		taskModel.Command = strings.ReplaceAll(taskModel.Command, "{{.TaskId}}", strconv.Itoa(taskModel.Id))
+	}
 	var resp httpclient.ResponseWrapper
 	if taskModel.HttpMethod == models.TaskHTTPMethodGet {
 		resp = httpclient.Get(taskModel.Command, taskModel.Timeout)
@@ -324,6 +327,13 @@ func createJob(taskModel models.Task) cron.FuncJob {
 	taskFunc := func() {
 		taskCount.Add()
 		defer taskCount.Done()
+
+		// 判断是否到任务开始时间
+		nowUnix := time.Now().Local().Unix()
+		if taskModel.TaskStartTime > 0 && (int64(taskModel.TaskStartTime)-nowUnix >= 0) { //未到开始时间
+			//logger.Infof("任务ID:%s 未开始,开始时间: %s", taskModel.Id, time.Unix(int64(taskModel.TaskStartTime), 0).Format("2006-01-02 15:04:05"))
+			return
+		}
 
 		taskLogId := beforeExecJob(taskModel)
 		if taskLogId <= 0 {
@@ -456,7 +466,7 @@ func SendNotification(taskModel models.Task, taskResult TaskResult) {
 		"output":           taskResult.Result,
 		"status":           statusName,
 		"task_id":          taskModel.Id,
-		"remark":  			taskModel.Remark,
+		"remark":           taskModel.Remark,
 	}
 	notify.Push(msg)
 }

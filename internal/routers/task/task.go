@@ -37,6 +37,7 @@ type TaskForm struct {
 	NotifyType       int8 `binding:"In(1,2,3,4)"`
 	NotifyReceiverId string
 	NotifyKeyword    string
+	TaskStartTime    int
 }
 
 func (f TaskForm) Error(ctx *macaron.Context, errs binding.Errors) {
@@ -72,6 +73,19 @@ func Index(ctx *macaron.Context) string {
 	})
 }
 
+func Total(ctx *macaron.Context) string {
+	taskModel := new(models.Task)
+	queryParams := parseQueryParams(ctx)
+	total, err := taskModel.Total(queryParams)
+	if err != nil {
+		logger.Error(err)
+	}
+	jsonResp := utils.JsonResponse{}
+	return jsonResp.Success(utils.SuccessContent, map[string]interface{}{
+		"total": total,
+	})
+}
+
 // Detail 任务详情
 func Detail(ctx *macaron.Context) string {
 	id := ctx.ParamsInt(":id")
@@ -82,7 +96,7 @@ func Detail(ctx *macaron.Context) string {
 		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d", id)
 		return jsonResp.Success(utils.SuccessContent, nil)
 	}
-
+	task.NextRunTime = service.ServiceTask.NextRunTime(task)
 	return jsonResp.Success(utils.SuccessContent, task)
 }
 
@@ -115,6 +129,7 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 	if taskModel.Multi != 1 {
 		taskModel.Multi = 0
 	}
+	taskModel.TaskStartTime = form.TaskStartTime
 	taskModel.NotifyStatus = form.NotifyStatus - 1
 	taskModel.NotifyType = form.NotifyType - 1
 	taskModel.NotifyReceiverId = form.NotifyReceiverId
@@ -198,7 +213,9 @@ func Store(ctx *macaron.Context, form TaskForm) string {
 		addTaskToTimer(id)
 	}
 
-	return json.Success("保存成功", nil)
+	return json.Success("保存成功", map[string]interface{}{
+		"taskId": id,
+	})
 }
 
 // 删除任务
