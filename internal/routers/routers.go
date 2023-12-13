@@ -134,6 +134,7 @@ func Register(m *macaron.Macaron) {
 		m.Post("/task/remove/:id", task.Remove)
 		m.Get("/task/total", task.Total)
 		m.Get("/task/run/:id", task.Run)
+		m.Get("/task/:id", task.Detail)
 	}, apiAuth)
 
 	// 404错误

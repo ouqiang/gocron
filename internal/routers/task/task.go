@@ -96,7 +96,7 @@ func Detail(ctx *macaron.Context) string {
 		logger.Errorf("编辑任务#获取任务详情失败#任务ID-%d", id)
 		return jsonResp.Success(utils.SuccessContent, nil)
 	}
-
+	task.NextRunTime = service.ServiceTask.NextRunTime(task)
 	return jsonResp.Success(utils.SuccessContent, task)
 }
 
