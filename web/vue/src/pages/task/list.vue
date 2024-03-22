@@ -149,7 +149,7 @@
               :inactive-vlaue="0"
               active-color="#13ce66"
               @change="changeStatus(scope.row)"
-              inactive-color="#ff4949">
+              >
             </el-switch>
           </template>
       </el-table-column>
@@ -161,8 +161,7 @@
             :active-value="1"
             :inactive-vlaue="0"
             active-color="#13ce66"
-            :disabled="true"
-            inactive-color="#ff4949">
+            :disabled="true">
           </el-switch>
         </template>
       </el-table-column>

@@ -71,7 +71,7 @@ func Detail(ctx *macaron.Context) string {
 
 type HostForm struct {
 	Id     int16
-	Name   string `binding:"Required;MaxSize(64)"`
+	Name   string `binding:"Required;MaxSize(500)"`
 	Alias  string `binding:"Required;MaxSize(32)"`
 	Port   int    `binding:"Required;Range(1-65535)"`
 	Remark string
