@@ -16,19 +16,22 @@ const slackTemplate = `
 任务名称: {{.TaskName}}
 状态:    {{.Status}}
 执行结果: {{.Result}}
+备注: {{.Remark}}
 `
 const emailTemplate = `
 任务ID:  {{.TaskId}}
 任务名称: {{.TaskName}}
 状态:    {{.Status}}
 执行结果: {{.Result}}
+备注: {{.Remark}}
 `
 const webhookTemplate = `
 {
   "task_id": "{{.TaskId}}",
   "task_name": "{{.TaskName}}",
   "status": "{{.Status}}",
-  "result": "{{.Result}}"
+  "result": "{{.Result}}",
+  "remark": "{{.Remark}}"
 }
 `
 
