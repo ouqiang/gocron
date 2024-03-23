@@ -10,16 +10,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Setup Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v4
         with:
           go-version: 1.18
+      - name: Setup NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
       - name: Checkout Code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Get Dependencies
         run: go get -v
 
-      - name: Build
+      - name: Build go
+        run: make
+
+      - name: install vue
         run: make
 
       - name: package
