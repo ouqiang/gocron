@@ -27,7 +27,7 @@ jobs:
         run: make
 
       - name: install vue
-        run: make
+        run: make build-vue
 
       - name: package
         run: make package
