@@ -1,0 +1,10 @@
+[Unit]
+Description=gocron node
+After=network.target
+
+[Service]
+User=nobody
+# Execute `systemctl daemon-reload` after ExecStart= is changed.
+ExecStart=~/gocron/bin/gocron-node
+[Install]
+WantedBy=multi-user.target
