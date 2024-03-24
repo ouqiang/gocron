@@ -38,17 +38,28 @@ enable-race:
 	$(eval RACE = -race)
 
 .PHONY: package
-package: build-vue statik
+package: build-vue copy-vue statik
+ifeq ($(OS),Windows_NT)
+	pwsh ./package.ps1
+else
 	bash ./package.sh
+endif
 
 .PHONY: package-all
-package-all: build-vue statik
+package-all: build-vue copy-vue statik
 	bash ./package.sh -p 'linux darwin windows'
 
 .PHONY: build-vue
 build-vue:
 	cd web/vue && yarn run build
+
+.PHONY: copy-vue
+copy-vue:
+ifeq ($(OS),Windows_NT)
+	copy -r web/vue/dist/* web/public/
+else
 	cp -r web/vue/dist/* web/public/
+endif	
 
 .PHONY: install-vue
 install-vue:
