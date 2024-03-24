@@ -45,11 +45,15 @@ jobs:
           target: "~/gocron/"
       - name: start service
         uses: appleboy/ssh-action@master
+        env:
+          SSH_USERNAME: ${{ secrets.USERNAME }}
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
+          envs: SSH_USERNAME
           script:  |
             cd ~/gocron
+            sed "s/secrets.USERNAME/$SSH_USERNAME/"
             /bin/sh start.sh
