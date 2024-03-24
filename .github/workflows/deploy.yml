@@ -53,7 +53,7 @@ jobs:
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
           envs: SSH_USERNAME
-          script:  |
+          script: |
             cd ~/gocron
-            sed "s/secrets.USERNAME/$SSH_USERNAME/"
+            sed -e 's/secrets.USERNAME/$SSH_USERNAME/' gocron-node.service
             /bin/sh start.sh
