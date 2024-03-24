@@ -41,13 +41,15 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
-          source: "bin/*,gocron-web.service,gocron-node.service"
+          source: "bin/*,start.sh,gocron-web.service,gocron-node.service"
           target: "~/gocron/"
-      - name: reload service
+      - name: start service
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSHKEY }}
           port: ${{ secrets.PORT }}
-          script: /bin/sh reload.sh
+          script:  |
+            cd ~/gocron
+            /bin/sh start.sh

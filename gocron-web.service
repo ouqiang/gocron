@@ -3,8 +3,10 @@ Description=gocron web
 After=network.target
 
 [Service]
-User=nobody
+Restart=always
+RestartSec=5
 # Execute `systemctl daemon-reload` after ExecStart= is changed.
 ExecStart=~/gocron/bin/gocron web
+WorkingDirectory=~/gocron/bin/
 [Install]
 WantedBy=multi-user.target
