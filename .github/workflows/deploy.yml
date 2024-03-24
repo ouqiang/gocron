@@ -55,5 +55,5 @@ jobs:
           envs: SSH_USERNAME
           script: |
             cd ~/gocron
-            sed -e 's/secrets.USERNAME/$SSH_USERNAME/' gocron-node.service
+            sed -i "s/secrets.USERNAME/$SSH_USERNAME/" gocron-node.service
             /bin/sh start.sh
