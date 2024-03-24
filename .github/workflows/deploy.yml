@@ -25,20 +25,21 @@ jobs:
       - name: Get Dependencies
         run: go get -v
 
-      - name: Build go
-        run: make
-
       - name: install vue
         run: make install-vue
 
       - name: package
         run: make package
 
-      # - name: Deploy
-      #   uses: appleboy/lambda-action@master
-      #   with:
-      #     aws_access_key_id: ${{ secrets.AWS_ACCESS_KEY }}
-      #     aws_secret_access_key: ${{ secrets.AWS_SECRET_KEY }}
-      #     aws_region: ${{ secrets.AWS_REGION }}
-      #     function_name: goLambdaDeploy
-      #     zip_file: function.zip
+      - name: build
+        run: make build
+
+      - name: deploy
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.PORT }}
+          source: "bin/*"
+          target: "~/gocron/"

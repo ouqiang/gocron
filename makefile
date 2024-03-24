@@ -39,11 +39,6 @@ enable-race:
 
 .PHONY: package
 package: build-vue copy-vue statik
-ifeq ($(OS),Windows_NT)
-	pwsh ./package.ps1
-else
-	bash ./package.sh
-endif
 
 .PHONY: package-all
 package-all: build-vue copy-vue statik
