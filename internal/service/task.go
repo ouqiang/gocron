@@ -199,6 +199,7 @@ func (task Task) Stop(ip string, port int, id int64) {
 
 func (task Task) Remove(id int) {
 	serviceCron.Remove(taskJobMap[strconv.Itoa(id)])
+	delete(taskJobMap, strconv.Itoa(id))
 }
 
 // 等待所有任务结束后退出
