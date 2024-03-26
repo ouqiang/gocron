@@ -131,10 +131,6 @@ func (task Task) Initialize() {
 		for _, item := range taskList {
 			entryId := task.Add(item)
 			if entryId != 0{
-				logger.Info("entryId:", entryId)
-				cronName := strconv.Itoa(item.Id)
-				logger.Info("cronName:", cronName)
-				taskJobMap [cronName] = entryId
 				taskNum++
 			}
 			
@@ -174,6 +170,8 @@ func (task Task) Add(taskModel models.Task) cron.EntryID {
 		logger.Error("添加任务到调度器失败#", err)
 		return 0
 	}
+	cronName := strconv.Itoa(taskModel.Id)
+	taskJobMap[cronName] = entryId
 	return entryId
 }
 
@@ -186,6 +184,7 @@ func (task Task) NextRunTime(taskModel models.Task) time.Time {
 	taskName := strconv.Itoa(taskModel.Id)
 	for _, item := range entries {
 		if item.ID == taskJobMap[taskName] {
+			logger.Info("item.Next:", item.Next)
 			return item.Next
 		}
 	}
