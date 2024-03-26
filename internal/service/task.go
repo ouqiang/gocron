@@ -185,7 +185,6 @@ func (task Task) NextRunTime(taskModel models.Task) time.Time {
 	taskName := strconv.Itoa(taskModel.Id)
 	for _, item := range entries {
 		if item.ID == taskJobMap[taskName] {
-			logger.Info("item.Next:", item.Next)
 			return item.Next
 		}
 	}
