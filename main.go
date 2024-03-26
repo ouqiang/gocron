@@ -8,6 +8,8 @@ import (
     "os/exec"
     "os/signal"
     "time"
+    "github.com/robfig/cron/v3"
+	"log"
 )
 
 func run() error {
@@ -46,8 +48,14 @@ func run() error {
 }
 
 func main() {
-    if err := run(); err != nil {
-        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-        os.Exit(1)
-    }
+    p := cron.NewParser(cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
+	s, err := p.Parse("35 16 ? * 1-5")
+	if err != nil {
+		log.Fatal(err)
+	}
+	t := time.Now()
+	for i := 0; i < 5; i++ {
+		t = s.Next(t)
+		fmt.Println(t)
+	}
 }

@@ -164,8 +164,9 @@ func (task Task) Add(taskModel models.Task) cron.EntryID {
 		logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
 		return 0
 	}
-
-	entryId, err := serviceCron.AddFunc(taskModel.Spec, taskFunc)
+	// CRON_TZ=Asia/Tokyo
+	cronWithTz := "CRON_TZ=Asia/Tokyo " + taskModel.Spec
+	entryId, err := serviceCron.AddFunc(cronWithTz, taskFunc)
 	if err != nil {
 		logger.Error("添加任务到调度器失败#", err)
 		return 0
