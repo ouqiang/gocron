@@ -12,7 +12,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-var langItems = []string{"python3", "python", "pwsh"}
+var langItems = []string{"python3", "python", "pwsh", "sh", "bash"}
 type Result struct {
 	output string
 	err    error
