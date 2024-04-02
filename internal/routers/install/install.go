@@ -21,7 +21,7 @@ import (
 
 type InstallForm struct {
 	DbType               string `binding:"In(mysql,postgres)"`
-	DbHost               string `binding:"Required;MaxSize(50)"`
+	DbHost               string `binding:"Required;MaxSize(500)"`
 	DbPort               int    `binding:"Required;Range(1,65535)"`
 	DbUsername           string `binding:"Required;MaxSize(50)"`
 	DbPassword           string `binding:"Required;MaxSize(30)"`

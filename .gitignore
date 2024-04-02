@@ -38,3 +38,4 @@ profile/*
 /gocron-node-package
 
 node_modules
+vendor

@@ -38,21 +38,27 @@ enable-race:
 	$(eval RACE = -race)
 
 .PHONY: package
-package: build-vue statik
-	bash ./package.sh
+package: build-vue copy-vue statik
 
 .PHONY: package-all
-package-all: build-vue statik
+package-all: build-vue copy-vue statik
 	bash ./package.sh -p 'linux darwin windows'
 
 .PHONY: build-vue
 build-vue:
 	cd web/vue && yarn run build
+
+.PHONY: copy-vue
+copy-vue:
+ifeq ($(OS),Windows_NT)
+	copy -r web/vue/dist/* web/public/
+else
 	cp -r web/vue/dist/* web/public/
+endif	
 
 .PHONY: install-vue
 install-vue:
-	cd web/vue && yarn install
+	cd web/vue && yarn install --ignore-engines
 
 .PHONY: run-vue
 run-vue:
@@ -60,7 +66,7 @@ run-vue:
 
 .PHONY: statik
 statik:
-	go get github.com/rakyll/statik
+	go install github.com/rakyll/statik@latest
 	go generate ./...
 
 .PHONY: lint

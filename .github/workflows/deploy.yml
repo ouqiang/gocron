@@ -1,0 +1,59 @@
+name: deploy to ssh
+
+on:
+  push:
+    branches: [master]
+
+jobs:
+  build:
+    name: Build Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: 1.18
+      - name: Setup NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get Dependencies
+        run: go get -v
+
+      - name: install vue
+        run: make install-vue
+
+      - name: package
+        run: make package
+
+      - name: build
+        run: make build
+
+      - name: deploy
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.PORT }}
+          source: "bin/*,start.sh,gocron-web.service,gocron-node.service"
+          target: "~/gocron/"
+      - name: start service
+        uses: appleboy/ssh-action@master
+        env:
+          SSH_USERNAME: ${{ secrets.USERNAME }}
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSHKEY }}
+          port: ${{ secrets.PORT }}
+          envs: SSH_USERNAME
+          script: |
+            cd ~/gocron
+            sed -i "s/secrets.USERNAME/$SSH_USERNAME/" gocron-node.service
+            /bin/sh start.sh

@@ -8,9 +8,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ouqiang/goutil"
-
-	"github.com/jakecoffman/cron"
+	"github.com/robfig/cron/v3"
 	"github.com/ouqiang/gocron/internal/models"
 	"github.com/ouqiang/gocron/internal/modules/app"
 	"github.com/ouqiang/gocron/internal/modules/httpclient"
@@ -36,6 +34,9 @@ var (
 
 	// 并发队列, 限制同时运行的任务数量
 	concurrencyQueue ConcurrencyQueue
+
+	taskJobMap map[string]cron.EntryID
+
 )
 
 // 并发队列
@@ -106,7 +107,8 @@ type TaskResult struct {
 
 // 初始化任务, 从数据库取出所有任务, 添加到定时任务并运行
 func (task Task) Initialize() {
-	serviceCron = cron.New()
+	taskJobMap = make(map[string]cron.EntryID)
+	serviceCron = cron.New(cron.WithSeconds())
 	serviceCron.Start()
 	concurrencyQueue = ConcurrencyQueue{queue: make(chan struct{}, app.Setting.ConcurrencyQueue)}
 	taskCount = TaskCount{sync.WaitGroup{}, make(chan struct{})}
@@ -127,8 +129,11 @@ func (task Task) Initialize() {
 			break
 		}
 		for _, item := range taskList {
-			task.Add(item)
-			taskNum++
+			entryId := task.Add(item)
+			if entryId != 0{
+				taskNum++
+			}
+			
 		}
 		page++
 	}
@@ -149,24 +154,26 @@ func (task Task) RemoveAndAdd(taskModel models.Task) {
 }
 
 // 添加任务
-func (task Task) Add(taskModel models.Task) {
+func (task Task) Add(taskModel models.Task) cron.EntryID {
 	if taskModel.Level == models.TaskLevelChild {
 		logger.Errorf("添加任务失败#不允许添加子任务到调度器#任务Id-%d", taskModel.Id)
-		return
+		return 0
 	}
 	taskFunc := createJob(taskModel)
 	if taskFunc == nil {
 		logger.Error("创建任务处理Job失败,不支持的任务协议#", taskModel.Protocol)
-		return
+		return 0
 	}
-
-	cronName := strconv.Itoa(taskModel.Id)
-	err := goutil.PanicToError(func() {
-		serviceCron.AddFunc(taskModel.Spec, taskFunc, cronName)
-	})
+	// CRON_TZ=Asia/Tokyo
+	cronWithTz := "CRON_TZ=Asia/Tokyo " + taskModel.Spec
+	entryId, err := serviceCron.AddFunc(cronWithTz, taskFunc)
 	if err != nil {
 		logger.Error("添加任务到调度器失败#", err)
+		return 0
 	}
+	cronName := strconv.Itoa(taskModel.Id)
+	taskJobMap[cronName] = entryId
+	return entryId
 }
 
 func (task Task) NextRunTime(taskModel models.Task) time.Time {
@@ -177,7 +184,7 @@ func (task Task) NextRunTime(taskModel models.Task) time.Time {
 	entries := serviceCron.Entries()
 	taskName := strconv.Itoa(taskModel.Id)
 	for _, item := range entries {
-		if item.Name == taskName {
+		if item.ID == taskJobMap[taskName] {
 			return item.Next
 		}
 	}
@@ -191,7 +198,8 @@ func (task Task) Stop(ip string, port int, id int64) {
 }
 
 func (task Task) Remove(id int) {
-	serviceCron.RemoveJob(strconv.Itoa(id))
+	serviceCron.Remove(taskJobMap[strconv.Itoa(id)])
+	delete(taskJobMap, strconv.Itoa(id))
 }
 
 // 等待所有任务结束后退出
