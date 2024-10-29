@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -31,7 +32,13 @@ func PostParams(url string, params string, timeout int) ResponseWrapper {
 	if err != nil {
 		return createRequestError(err)
 	}
-	req.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	if strings.Contains(params, "=") {
+		req.Header.Set("Content-type", "application/x-www-form-urlencoded")
+	} else if strings.Contains(params, "{") && strings.Contains(params, "}") {
+		req.Header.Set("Content-type", "application/json")
+	} else {
+		req.Header.Set("Content-type", "text/plain")
+	}
 
 	return request(req, timeout)
 }
