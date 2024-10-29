@@ -1,6 +1,7 @@
 name: deploy to ssh
 
 on:
+  workflow_dispatch:
   push:
     branches: [master]
 
