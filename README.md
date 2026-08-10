@@ -4,6 +4,7 @@
 [![Release](https://img.shields.io/github/release/ouqiang/gocron.svg?label=Release)](https://github.com/ouqiang/gocron/releases)
 
 # 项目简介
+本项目来自ouqiang/gocron
 使用Go语言开发的轻量级定时任务集中调度和管理系统, 用于替代Linux-crontab [查看文档](https://github.com/ouqiang/gocron/wiki)
 
 原有的延时任务拆分为独立项目[延迟队列](https://github.com/ouqiang/delay-queue)  
