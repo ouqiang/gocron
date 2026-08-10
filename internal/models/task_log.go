@@ -12,10 +12,10 @@ type TaskType int8
 type TaskLog struct {
 	Id         int64        `json:"id" xorm:"bigint pk autoincr"`
 	TaskId     int          `json:"task_id" xorm:"int notnull index default 0"`       // 任务id
-	Name       string       `json:"name" xorm:"varchar(32) notnull"`                  // 任务名称
+	Name       string       `json:"name" xorm:"varchar(1024) notnull"`                // 任务名称
 	Spec       string       `json:"spec" xorm:"varchar(64) notnull"`                  // crontab
 	Protocol   TaskProtocol `json:"protocol" xorm:"tinyint notnull index"`            // 协议 1:http 2:RPC
-	Command    string       `json:"command" xorm:"varchar(256) notnull"`              // URL地址或shell命令
+	Command    string       `json:"command" xorm:"varchar(2048) notnull"`             // URL地址或shell命令
 	Timeout    int          `json:"timeout" xorm:"mediumint notnull default 0"`       // 任务执行超时时间(单位秒),0不限制
 	RetryTimes int8         `json:"retry_times" xorm:"tinyint notnull default 0"`     // 任务重试次数
 	Hostname   string       `json:"hostname" xorm:"varchar(128) notnull default '' "` // RPC主机名，逗号分隔

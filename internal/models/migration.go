@@ -43,13 +43,14 @@ func (migration *Migration) Upgrade(oldVersionId int) {
 		return
 	}
 
-	versionIds := []int{110, 122, 130, 140, 150}
+	versionIds := []int{110, 122, 130, 140, 150, 151}
 	upgradeFuncs := []func(*xorm.Session) error{
 		migration.upgradeFor110,
 		migration.upgradeFor122,
 		migration.upgradeFor130,
 		migration.upgradeFor140,
 		migration.upgradeFor150,
+		migration.upgradeFor151,
 	}
 
 	startIndex := -1
@@ -232,6 +233,29 @@ func (m *Migration) upgradeFor150(session *xorm.Session) error {
 	}
 
 	logger.Info("已升级到v1.5\n")
+
+	return nil
+}
+
+// 升级到v1.5.1版本
+func (m *Migration) upgradeFor151(session *xorm.Session) error {
+	logger.Info("开始升级到v1.5.1")
+
+	taskTable := TablePrefix + "task"
+	taskLogTable := TablePrefix + "task_log"
+	_, err := session.Exec(fmt.Sprintf(
+		"ALTER TABLE %s MODIFY COLUMN name VARCHAR(1024) NOT NULL, MODIFY COLUMN command VARCHAR(2048) NOT NULL", taskTable))
+	if err != nil {
+		return err
+	}
+
+	_, err = session.Exec(fmt.Sprintf(
+		"ALTER TABLE %s MODIFY COLUMN name VARCHAR(1024) NOT NULL, MODIFY COLUMN command VARCHAR(2048) NOT NULL", taskLogTable))
+	if err != nil {
+		return err
+	}
+
+	logger.Info("已升级到v1.5.1\n")
 
 	return nil
 }

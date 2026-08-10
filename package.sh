@@ -14,6 +14,8 @@ eval $(go env)
 
 # 二进制文件名
 BINARY_NAME=''
+# 发布压缩包名称
+PACKAGE_NAME=''
 # main函数所在文件
 MAIN_FILE=""
  
@@ -142,9 +144,9 @@ package_binary() {
         for ARCH in "${INPUT_ARCH[@]}";do
         package_file ${BINARY_NAME}-${OS}-${ARCH}
         if [[ "${OS}" = "windows" ]];then
-            zip -rq ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
+            zip -rq ../${PACKAGE_DIR}/${PACKAGE_NAME}-${VERSION}-${OS}-${ARCH}.zip ${BINARY_NAME}-${OS}-${ARCH}
         else
-            tar czf ../${PACKAGE_DIR}/${BINARY_NAME}-${VERSION}-${OS}-${ARCH}.tar.gz ${BINARY_NAME}-${OS}-${ARCH}
+            tar czf ../${PACKAGE_DIR}/${PACKAGE_NAME}-${VERSION}-${OS}-${ARCH}.tar.gz ${BINARY_NAME}-${OS}-${ARCH}
         fi
         done
     done
@@ -179,6 +181,7 @@ run() {
 
 package_gocron() {
     BINARY_NAME='gocron'
+    PACKAGE_NAME='gocron-web'
     MAIN_FILE="./cmd/gocron/gocron.go"
     INCLUDE_FILE=()
 
@@ -188,6 +191,7 @@ package_gocron() {
 
 package_gocron_node() {
     BINARY_NAME='gocron-node'
+    PACKAGE_NAME='gocron-node'
     MAIN_FILE="./cmd/node/node.go"
     INCLUDE_FILE=()
 
@@ -213,4 +217,3 @@ done
  
 package_gocron
 package_gocron_node
-
